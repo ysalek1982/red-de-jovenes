@@ -14,11 +14,13 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppPerfilRouteImport } from './routes/app.perfil'
 import { Route as AppOrarRouteImport } from './routes/app.orar'
+import { Route as AppMensajesRouteImport } from './routes/app.mensajes'
 import { Route as AppJuegosRouteImport } from './routes/app.juegos'
 import { Route as AppForosRouteImport } from './routes/app.foros'
 import { Route as AppEventosRouteImport } from './routes/app.eventos'
 import { Route as AppConstruirRouteImport } from './routes/app.construir'
 import { Route as AppComunidadRouteImport } from './routes/app.comunidad'
+import { Route as AppBibliaRouteImport } from './routes/app.biblia'
 
 const AppRoute = AppRouteImport.update({
   id: '/app',
@@ -43,6 +45,11 @@ const AppPerfilRoute = AppPerfilRouteImport.update({
 const AppOrarRoute = AppOrarRouteImport.update({
   id: '/orar',
   path: '/orar',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMensajesRoute = AppMensajesRouteImport.update({
+  id: '/mensajes',
+  path: '/mensajes',
   getParentRoute: () => AppRoute,
 } as any)
 const AppJuegosRoute = AppJuegosRouteImport.update({
@@ -70,26 +77,35 @@ const AppComunidadRoute = AppComunidadRouteImport.update({
   path: '/comunidad',
   getParentRoute: () => AppRoute,
 } as any)
+const AppBibliaRoute = AppBibliaRouteImport.update({
+  id: '/biblia',
+  path: '/biblia',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/app/biblia': typeof AppBibliaRoute
   '/app/comunidad': typeof AppComunidadRoute
   '/app/construir': typeof AppConstruirRoute
   '/app/eventos': typeof AppEventosRoute
   '/app/foros': typeof AppForosRoute
   '/app/juegos': typeof AppJuegosRoute
+  '/app/mensajes': typeof AppMensajesRoute
   '/app/orar': typeof AppOrarRoute
   '/app/perfil': typeof AppPerfilRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/biblia': typeof AppBibliaRoute
   '/app/comunidad': typeof AppComunidadRoute
   '/app/construir': typeof AppConstruirRoute
   '/app/eventos': typeof AppEventosRoute
   '/app/foros': typeof AppForosRoute
   '/app/juegos': typeof AppJuegosRoute
+  '/app/mensajes': typeof AppMensajesRoute
   '/app/orar': typeof AppOrarRoute
   '/app/perfil': typeof AppPerfilRoute
   '/app': typeof AppIndexRoute
@@ -98,11 +114,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/app': typeof AppRouteWithChildren
+  '/app/biblia': typeof AppBibliaRoute
   '/app/comunidad': typeof AppComunidadRoute
   '/app/construir': typeof AppConstruirRoute
   '/app/eventos': typeof AppEventosRoute
   '/app/foros': typeof AppForosRoute
   '/app/juegos': typeof AppJuegosRoute
+  '/app/mensajes': typeof AppMensajesRoute
   '/app/orar': typeof AppOrarRoute
   '/app/perfil': typeof AppPerfilRoute
   '/app/': typeof AppIndexRoute
@@ -112,22 +130,26 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/app'
+    | '/app/biblia'
     | '/app/comunidad'
     | '/app/construir'
     | '/app/eventos'
     | '/app/foros'
     | '/app/juegos'
+    | '/app/mensajes'
     | '/app/orar'
     | '/app/perfil'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/app/biblia'
     | '/app/comunidad'
     | '/app/construir'
     | '/app/eventos'
     | '/app/foros'
     | '/app/juegos'
+    | '/app/mensajes'
     | '/app/orar'
     | '/app/perfil'
     | '/app'
@@ -135,11 +157,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/app'
+    | '/app/biblia'
     | '/app/comunidad'
     | '/app/construir'
     | '/app/eventos'
     | '/app/foros'
     | '/app/juegos'
+    | '/app/mensajes'
     | '/app/orar'
     | '/app/perfil'
     | '/app/'
@@ -187,6 +211,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppOrarRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/mensajes': {
+      id: '/app/mensajes'
+      path: '/mensajes'
+      fullPath: '/app/mensajes'
+      preLoaderRoute: typeof AppMensajesRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/juegos': {
       id: '/app/juegos'
       path: '/juegos'
@@ -222,26 +253,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppComunidadRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/biblia': {
+      id: '/app/biblia'
+      path: '/biblia'
+      fullPath: '/app/biblia'
+      preLoaderRoute: typeof AppBibliaRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppBibliaRoute: typeof AppBibliaRoute
   AppComunidadRoute: typeof AppComunidadRoute
   AppConstruirRoute: typeof AppConstruirRoute
   AppEventosRoute: typeof AppEventosRoute
   AppForosRoute: typeof AppForosRoute
   AppJuegosRoute: typeof AppJuegosRoute
+  AppMensajesRoute: typeof AppMensajesRoute
   AppOrarRoute: typeof AppOrarRoute
   AppPerfilRoute: typeof AppPerfilRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppBibliaRoute: AppBibliaRoute,
   AppComunidadRoute: AppComunidadRoute,
   AppConstruirRoute: AppConstruirRoute,
   AppEventosRoute: AppEventosRoute,
   AppForosRoute: AppForosRoute,
   AppJuegosRoute: AppJuegosRoute,
+  AppMensajesRoute: AppMensajesRoute,
   AppOrarRoute: AppOrarRoute,
   AppPerfilRoute: AppPerfilRoute,
   AppIndexRoute: AppIndexRoute,

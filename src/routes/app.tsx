@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Home, Calendar, MessageSquare, Gamepad2, Globe2, HandHeart, User, Sparkles, Lightbulb, Search, Bell } from "lucide-react";
+import { Home, Calendar, MessageSquare, Gamepad2, Globe2, HandHeart, User, Sparkles, Lightbulb, Search, Bell, BookOpen, Send } from "lucide-react";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -14,11 +14,13 @@ export const Route = createFileRoute("/app")({
 type NavItem = { to: string; label: string; icon: typeof Home; exact?: boolean };
 const nav: NavItem[] = [
   { to: "/app", label: "Inicio", icon: Home, exact: true },
-  { to: "/app/eventos", label: "Eventos", icon: Calendar },
+  { to: "/app/biblia", label: "Biblia", icon: BookOpen },
+  { to: "/app/orar", label: "Orar", icon: HandHeart },
   { to: "/app/foros", label: "Foros", icon: MessageSquare },
+  { to: "/app/eventos", label: "Eventos", icon: Calendar },
   { to: "/app/juegos", label: "Juegos", icon: Gamepad2 },
   { to: "/app/comunidad", label: "Comunidad", icon: Globe2 },
-  { to: "/app/orar", label: "Orar", icon: HandHeart },
+  { to: "/app/mensajes", label: "Mensajes", icon: Send },
   { to: "/app/perfil", label: "Perfil", icon: User },
   { to: "/app/construir", label: "Construir", icon: Lightbulb },
 ];
