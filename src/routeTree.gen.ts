@@ -9,38 +9,156 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AppRouteImport } from './routes/app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AppIndexRouteImport } from './routes/app.index'
+import { Route as AppPerfilRouteImport } from './routes/app.perfil'
+import { Route as AppOrarRouteImport } from './routes/app.orar'
+import { Route as AppJuegosRouteImport } from './routes/app.juegos'
+import { Route as AppForosRouteImport } from './routes/app.foros'
+import { Route as AppEventosRouteImport } from './routes/app.eventos'
+import { Route as AppConstruirRouteImport } from './routes/app.construir'
+import { Route as AppComunidadRouteImport } from './routes/app.comunidad'
 
+const AppRoute = AppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPerfilRoute = AppPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppOrarRoute = AppOrarRouteImport.update({
+  id: '/orar',
+  path: '/orar',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppJuegosRoute = AppJuegosRouteImport.update({
+  id: '/juegos',
+  path: '/juegos',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppForosRoute = AppForosRouteImport.update({
+  id: '/foros',
+  path: '/foros',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppEventosRoute = AppEventosRouteImport.update({
+  id: '/eventos',
+  path: '/eventos',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppConstruirRoute = AppConstruirRouteImport.update({
+  id: '/construir',
+  path: '/construir',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppComunidadRoute = AppComunidadRouteImport.update({
+  id: '/comunidad',
+  path: '/comunidad',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/app/comunidad': typeof AppComunidadRoute
+  '/app/construir': typeof AppConstruirRoute
+  '/app/eventos': typeof AppEventosRoute
+  '/app/foros': typeof AppForosRoute
+  '/app/juegos': typeof AppJuegosRoute
+  '/app/orar': typeof AppOrarRoute
+  '/app/perfil': typeof AppPerfilRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/app/comunidad': typeof AppComunidadRoute
+  '/app/construir': typeof AppConstruirRoute
+  '/app/eventos': typeof AppEventosRoute
+  '/app/foros': typeof AppForosRoute
+  '/app/juegos': typeof AppJuegosRoute
+  '/app/orar': typeof AppOrarRoute
+  '/app/perfil': typeof AppPerfilRoute
+  '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/app': typeof AppRouteWithChildren
+  '/app/comunidad': typeof AppComunidadRoute
+  '/app/construir': typeof AppConstruirRoute
+  '/app/eventos': typeof AppEventosRoute
+  '/app/foros': typeof AppForosRoute
+  '/app/juegos': typeof AppJuegosRoute
+  '/app/orar': typeof AppOrarRoute
+  '/app/perfil': typeof AppPerfilRoute
+  '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/app'
+    | '/app/comunidad'
+    | '/app/construir'
+    | '/app/eventos'
+    | '/app/foros'
+    | '/app/juegos'
+    | '/app/orar'
+    | '/app/perfil'
+    | '/app/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/app/comunidad'
+    | '/app/construir'
+    | '/app/eventos'
+    | '/app/foros'
+    | '/app/juegos'
+    | '/app/orar'
+    | '/app/perfil'
+    | '/app'
+  id:
+    | '__root__'
+    | '/'
+    | '/app'
+    | '/app/comunidad'
+    | '/app/construir'
+    | '/app/eventos'
+    | '/app/foros'
+    | '/app/juegos'
+    | '/app/orar'
+    | '/app/perfil'
+    | '/app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/app': {
+      id: '/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +166,93 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/app/': {
+      id: '/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/perfil': {
+      id: '/app/perfil'
+      path: '/perfil'
+      fullPath: '/app/perfil'
+      preLoaderRoute: typeof AppPerfilRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/orar': {
+      id: '/app/orar'
+      path: '/orar'
+      fullPath: '/app/orar'
+      preLoaderRoute: typeof AppOrarRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/juegos': {
+      id: '/app/juegos'
+      path: '/juegos'
+      fullPath: '/app/juegos'
+      preLoaderRoute: typeof AppJuegosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/foros': {
+      id: '/app/foros'
+      path: '/foros'
+      fullPath: '/app/foros'
+      preLoaderRoute: typeof AppForosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/eventos': {
+      id: '/app/eventos'
+      path: '/eventos'
+      fullPath: '/app/eventos'
+      preLoaderRoute: typeof AppEventosRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/construir': {
+      id: '/app/construir'
+      path: '/construir'
+      fullPath: '/app/construir'
+      preLoaderRoute: typeof AppConstruirRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/comunidad': {
+      id: '/app/comunidad'
+      path: '/comunidad'
+      fullPath: '/app/comunidad'
+      preLoaderRoute: typeof AppComunidadRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppComunidadRoute: typeof AppComunidadRoute
+  AppConstruirRoute: typeof AppConstruirRoute
+  AppEventosRoute: typeof AppEventosRoute
+  AppForosRoute: typeof AppForosRoute
+  AppJuegosRoute: typeof AppJuegosRoute
+  AppOrarRoute: typeof AppOrarRoute
+  AppPerfilRoute: typeof AppPerfilRoute
+  AppIndexRoute: typeof AppIndexRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppComunidadRoute: AppComunidadRoute,
+  AppConstruirRoute: AppConstruirRoute,
+  AppEventosRoute: AppEventosRoute,
+  AppForosRoute: AppForosRoute,
+  AppJuegosRoute: AppJuegosRoute,
+  AppOrarRoute: AppOrarRoute,
+  AppPerfilRoute: AppPerfilRoute,
+  AppIndexRoute: AppIndexRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
