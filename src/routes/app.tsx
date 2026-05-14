@@ -43,7 +43,7 @@ function AppLayout() {
             return (
               <Link
                 key={n.to}
-                to={n.to}
+                to={n.to as any}
                 className={`flex items-center gap-3 rounded-2xl px-3 py-2.5 text-sm font-medium transition ${
                   active ? "gradient-faith text-primary-foreground shadow-soft" : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
                 }`}
@@ -93,7 +93,7 @@ function AppLayout() {
         {nav.slice(0, 6).map((n) => {
           const active = n.exact ? pathname === n.to : pathname.startsWith(n.to);
           return (
-            <Link key={n.to} to={n.to} className={`flex-1 grid place-items-center rounded-full py-2 transition ${active ? "gradient-faith text-primary-foreground" : "text-muted-foreground"}`}>
+            <Link key={n.to} to={n.to as any} className={`flex-1 grid place-items-center rounded-full py-2 transition ${active ? "gradient-faith text-primary-foreground" : "text-muted-foreground"}`}>
               <n.icon className="size-5" />
             </Link>
           );
