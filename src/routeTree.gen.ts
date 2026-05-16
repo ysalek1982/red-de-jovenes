@@ -20,6 +20,7 @@ import { Route as AppMensajesRouteImport } from './routes/app.mensajes'
 import { Route as AppJuegosRouteImport } from './routes/app.juegos'
 import { Route as AppForosRouteImport } from './routes/app.foros'
 import { Route as AppEventosRouteImport } from './routes/app.eventos'
+import { Route as AppDiscipuladoRouteImport } from './routes/app.discipulado'
 import { Route as AppConstruirRouteImport } from './routes/app.construir'
 import { Route as AppComunidadRouteImport } from './routes/app.comunidad'
 import { Route as AppBibliaRouteImport } from './routes/app.biblia'
@@ -79,6 +80,11 @@ const AppEventosRoute = AppEventosRouteImport.update({
   path: '/eventos',
   getParentRoute: () => AppRoute,
 } as any)
+const AppDiscipuladoRoute = AppDiscipuladoRouteImport.update({
+  id: '/discipulado',
+  path: '/discipulado',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppConstruirRoute = AppConstruirRouteImport.update({
   id: '/construir',
   path: '/construir',
@@ -102,6 +108,7 @@ export interface FileRoutesByFullPath {
   '/app/biblia': typeof AppBibliaRoute
   '/app/comunidad': typeof AppComunidadRoute
   '/app/construir': typeof AppConstruirRoute
+  '/app/discipulado': typeof AppDiscipuladoRoute
   '/app/eventos': typeof AppEventosRoute
   '/app/foros': typeof AppForosRoute
   '/app/juegos': typeof AppJuegosRoute
@@ -117,6 +124,7 @@ export interface FileRoutesByTo {
   '/app/biblia': typeof AppBibliaRoute
   '/app/comunidad': typeof AppComunidadRoute
   '/app/construir': typeof AppConstruirRoute
+  '/app/discipulado': typeof AppDiscipuladoRoute
   '/app/eventos': typeof AppEventosRoute
   '/app/foros': typeof AppForosRoute
   '/app/juegos': typeof AppJuegosRoute
@@ -134,6 +142,7 @@ export interface FileRoutesById {
   '/app/biblia': typeof AppBibliaRoute
   '/app/comunidad': typeof AppComunidadRoute
   '/app/construir': typeof AppConstruirRoute
+  '/app/discipulado': typeof AppDiscipuladoRoute
   '/app/eventos': typeof AppEventosRoute
   '/app/foros': typeof AppForosRoute
   '/app/juegos': typeof AppJuegosRoute
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/app/biblia'
     | '/app/comunidad'
     | '/app/construir'
+    | '/app/discipulado'
     | '/app/eventos'
     | '/app/foros'
     | '/app/juegos'
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/app/biblia'
     | '/app/comunidad'
     | '/app/construir'
+    | '/app/discipulado'
     | '/app/eventos'
     | '/app/foros'
     | '/app/juegos'
@@ -183,6 +194,7 @@ export interface FileRouteTypes {
     | '/app/biblia'
     | '/app/comunidad'
     | '/app/construir'
+    | '/app/discipulado'
     | '/app/eventos'
     | '/app/foros'
     | '/app/juegos'
@@ -278,6 +290,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEventosRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/discipulado': {
+      id: '/app/discipulado'
+      path: '/discipulado'
+      fullPath: '/app/discipulado'
+      preLoaderRoute: typeof AppDiscipuladoRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/construir': {
       id: '/app/construir'
       path: '/construir'
@@ -306,6 +325,7 @@ interface AppRouteChildren {
   AppBibliaRoute: typeof AppBibliaRoute
   AppComunidadRoute: typeof AppComunidadRoute
   AppConstruirRoute: typeof AppConstruirRoute
+  AppDiscipuladoRoute: typeof AppDiscipuladoRoute
   AppEventosRoute: typeof AppEventosRoute
   AppForosRoute: typeof AppForosRoute
   AppJuegosRoute: typeof AppJuegosRoute
@@ -320,6 +340,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppBibliaRoute: AppBibliaRoute,
   AppComunidadRoute: AppComunidadRoute,
   AppConstruirRoute: AppConstruirRoute,
+  AppDiscipuladoRoute: AppDiscipuladoRoute,
   AppEventosRoute: AppEventosRoute,
   AppForosRoute: AppForosRoute,
   AppJuegosRoute: AppJuegosRoute,
