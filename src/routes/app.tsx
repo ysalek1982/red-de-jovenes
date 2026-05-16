@@ -16,6 +16,7 @@ type NavItem = { to: string; label: string; icon: typeof Home; exact?: boolean }
 const nav: NavItem[] = [
   { to: "/app", label: "Inicio", icon: Home, exact: true },
   { to: "/app/biblia", label: "Biblia", icon: BookOpen },
+  { to: "/app/devocional", label: "Devocional", icon: Flame },
   { to: "/app/orar", label: "Orar", icon: HandHeart },
   { to: "/app/discipulado", label: "Discipulado", icon: Users },
   { to: "/app/foros", label: "Foros", icon: MessageSquare },
