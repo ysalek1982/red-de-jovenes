@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
 import { Heart, MessageCircle, Share2, Bookmark, Sparkles, Flame, Plus } from "lucide-react";
 import bibleStudy from "@/assets/bible-study.jpg";
 
@@ -35,6 +36,12 @@ const posts = [
 ];
 
 function Inicio() {
+  const [liked, setLiked] = useState<Record<number, boolean>>({});
+  const [saved, setSaved] = useState<Record<number, boolean>>({});
+  const [draft, setDraft] = useState("");
+  const toggleLike = (i: number) => setLiked((p) => ({ ...p, [i]: !p[i] }));
+  const toggleSave = (i: number) => setSaved((p) => ({ ...p, [i]: !p[i] }));
+
   return (
     <div className="grid lg:grid-cols-[1fr_320px] gap-8">
       <div className="space-y-6 min-w-0">
@@ -78,14 +85,25 @@ function Inicio() {
         <div className="glass rounded-3xl p-4 flex gap-3">
           <div className="size-10 rounded-full gradient-faith grid place-items-center text-primary-foreground font-bold">JD</div>
           <input
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
             placeholder="¿Qué te enseñó Dios hoy?"
             className="flex-1 bg-transparent outline-none text-sm placeholder:text-muted-foreground"
           />
-          <button className="rounded-full gradient-faith px-4 py-2 text-sm font-semibold text-primary-foreground">Publicar</button>
+          <button
+            onClick={() => setDraft("")}
+            disabled={!draft.trim()}
+            className="rounded-full gradient-faith px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-40"
+          >
+            Publicar
+          </button>
         </div>
 
         {/* Feed */}
-        {posts.map((p, i) => (
+        {posts.map((p, i) => {
+          const isLiked = liked[i];
+          const isSaved = saved[i];
+          return (
           <article key={i} className="glass rounded-3xl p-5 hover:border-teal/30 transition">
             <header className="flex items-center gap-3">
               <div className="size-11 rounded-full bg-gradient-to-br from-teal to-accent grid place-items-center font-bold text-primary-foreground">
@@ -106,8 +124,11 @@ function Inicio() {
               <img src={p.image} alt="" className="mt-3 w-full aspect-[4/3] object-cover rounded-2xl" loading="lazy" width={1024} height={768} />
             )}
             <footer className="mt-4 flex items-center gap-5 text-sm text-muted-foreground">
-              <button className="inline-flex items-center gap-1.5 hover:text-accent transition">
-                <Heart className="size-4" /> {p.likes}
+              <button
+                onClick={() => toggleLike(i)}
+                className={`inline-flex items-center gap-1.5 transition ${isLiked ? "text-accent" : "hover:text-accent"}`}
+              >
+                <Heart className={`size-4 ${isLiked ? "fill-current" : ""}`} /> {p.likes + (isLiked ? 1 : 0)}
               </button>
               <button className="inline-flex items-center gap-1.5 hover:text-teal transition">
                 <MessageCircle className="size-4" /> {p.comments}
@@ -115,12 +136,16 @@ function Inicio() {
               <button className="inline-flex items-center gap-1.5 hover:text-foreground transition">
                 <Share2 className="size-4" />
               </button>
-              <button className="ml-auto inline-flex items-center gap-1.5 hover:text-foreground transition">
-                <Bookmark className="size-4" />
+              <button
+                onClick={() => toggleSave(i)}
+                className={`ml-auto inline-flex items-center gap-1.5 transition ${isSaved ? "text-amber-400" : "hover:text-foreground"}`}
+              >
+                <Bookmark className={`size-4 ${isSaved ? "fill-current" : ""}`} />
               </button>
             </footer>
           </article>
-        ))}
+          );
+        })}
       </div>
 
       {/* Right rail */}

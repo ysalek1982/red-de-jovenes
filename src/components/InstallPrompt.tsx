@@ -15,6 +15,12 @@ export function InstallPrompt() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // Registrar service worker (solo en producción, fuera del iframe del editor)
+    if ("serviceWorker" in navigator && window.location.hostname !== "localhost" && window.self === window.top) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    }
+
     if (localStorage.getItem(DISMISS_KEY)) return;
 
     const standalone =
