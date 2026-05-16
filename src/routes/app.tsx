@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Home, Calendar, MessageSquare, Gamepad2, Globe2, HandHeart, User, Sparkles, Lightbulb, Search, Bell, BookOpen, Send, Menu, X, LogOut, Settings, Moon, Sun } from "lucide-react";
+import { Home, Calendar, MessageSquare, Gamepad2, Globe2, HandHeart, User, Sparkles, Lightbulb, Search, Bell, BookOpen, Send, Menu, X, LogOut, Settings, Moon, Sun, Users } from "lucide-react";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
@@ -17,6 +17,7 @@ const nav: NavItem[] = [
   { to: "/app", label: "Inicio", icon: Home, exact: true },
   { to: "/app/biblia", label: "Biblia", icon: BookOpen },
   { to: "/app/orar", label: "Orar", icon: HandHeart },
+  { to: "/app/discipulado", label: "Discipulado", icon: Users },
   { to: "/app/foros", label: "Foros", icon: MessageSquare },
   { to: "/app/eventos", label: "Eventos", icon: Calendar },
   { to: "/app/juegos", label: "Juegos", icon: Gamepad2 },
