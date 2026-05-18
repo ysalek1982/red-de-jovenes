@@ -164,6 +164,11 @@ export function PrayerRoomPage() {
     if (statusFilter === 'answered') return prayer.is_answered
     return true
   })
+  const activePrayers = prayers.filter((prayer) => !prayer.is_answered).length
+  const totalSupports = prayers.reduce(
+    (total, prayer) => total + prayer.supportsCount,
+    0,
+  )
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
@@ -188,11 +193,15 @@ export function PrayerRoomPage() {
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <div className="rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4">
-                <p className="text-3xl font-black">1,247</p>
-                <p className="mt-1 text-sm text-white/60">jóvenes orando en vivo</p>
+                <p className="text-3xl font-black">{totalSupports}</p>
+                <p className="mt-1 text-sm text-white/60">
+                  apoyos de oración registrados
+                </p>
               </div>
               <div className="rounded-3xl border border-amber-300/20 bg-amber-300/10 p-4">
-                <p className="text-sm font-bold text-amber-200">Oración respirada</p>
+                <p className="text-sm font-bold text-amber-200">
+                  {activePrayers} peticiones activas
+                </p>
                 <p className="mt-2 text-sm leading-6 text-white/65">
                   Inhala Su paz · sostén Su nombre · exhala tu carga.
                 </p>
@@ -246,7 +255,7 @@ export function PrayerRoomPage() {
                 <h2 className="mt-2 text-3xl font-black">En oración</h2>
               </div>
               <span className="rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm text-white/60">
-                En vivo · 47 países
+                {prayers.length} peticiones públicas
               </span>
             </div>
 
@@ -281,7 +290,7 @@ export function PrayerRoomPage() {
                 Jesús, amén.
               </p>
               <p className="mt-3 text-sm font-semibold text-emerald-300">
-                8,124 jóvenes oraron hoy
+                Oración sugerida para acompañar la sala.
               </p>
             </article>
 
