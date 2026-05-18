@@ -1,27 +1,58 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import type { ReactNode } from 'react'
-import { AppShell } from '../components/layout/AppShell'
+import { lazy, Suspense, type ReactNode } from 'react'
 import { Layout } from '../components/layout/Layout'
 import { useAuth } from '../features/auth/useAuth'
-import { AppHome } from '../pages/AppHome'
-import { AppProfile } from '../pages/AppProfile'
-import { CommunityFeedPage } from '../pages/CommunityFeedPage'
 import { CreateAccountPage } from '../pages/CreateAccountPage'
-import { DevotionalPage } from '../pages/DevotionalPage'
 import { Home } from '../pages/Home'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
-import { PrayerRoomPage } from '../pages/PrayerRoomPage'
 import { SignInPage } from '../pages/SignInPage'
+
+const AppShell = lazy(() =>
+  import('../components/layout/AppShell').then((module) => ({
+    default: module.AppShell,
+  })),
+)
+const AppHome = lazy(() =>
+  import('../pages/AppHome').then((module) => ({ default: module.AppHome })),
+)
+const AppProfile = lazy(() =>
+  import('../pages/AppProfile').then((module) => ({
+    default: module.AppProfile,
+  })),
+)
+const PrayerRoomPage = lazy(() =>
+  import('../pages/PrayerRoomPage').then((module) => ({
+    default: module.PrayerRoomPage,
+  })),
+)
+const CommunityFeedPage = lazy(() =>
+  import('../pages/CommunityFeedPage').then((module) => ({
+    default: module.CommunityFeedPage,
+  })),
+)
+const DevotionalPage = lazy(() =>
+  import('../pages/DevotionalPage').then((module) => ({
+    default: module.DevotionalPage,
+  })),
+)
+
+function RouteLoading() {
+  return (
+    <section className="min-h-screen bg-slate-950 px-4 pt-36 text-center text-white">
+      Preparando tu red...
+    </section>
+  )
+}
+
+function withSuspense(children: ReactNode) {
+  return <Suspense fallback={<RouteLoading />}>{children}</Suspense>
+}
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, isLoading } = useAuth()
 
   if (isLoading) {
-    return (
-      <section className="min-h-screen bg-slate-950 px-4 pt-36 text-center text-white">
-        Preparando tu red...
-      </section>
-    )
+    return <RouteLoading />
   }
 
   if (!user) {
@@ -42,15 +73,18 @@ export function AppRoutes() {
           path="app"
           element={
             <ProtectedRoute>
-              <AppShell />
+              {withSuspense(<AppShell />)}
             </ProtectedRoute>
           }
         >
-          <Route index element={<AppHome />} />
-          <Route path="perfil" element={<AppProfile />} />
-          <Route path="oracion" element={<PrayerRoomPage />} />
-          <Route path="comunidad" element={<CommunityFeedPage />} />
-          <Route path="devocional" element={<DevotionalPage />} />
+          <Route index element={withSuspense(<AppHome />)} />
+          <Route path="perfil" element={withSuspense(<AppProfile />)} />
+          <Route path="oracion" element={withSuspense(<PrayerRoomPage />)} />
+          <Route
+            path="comunidad"
+            element={withSuspense(<CommunityFeedPage />)}
+          />
+          <Route path="devocional" element={withSuspense(<DevotionalPage />)} />
         </Route>
         <Route
           path="demo"
