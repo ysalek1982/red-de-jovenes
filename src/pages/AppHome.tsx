@@ -55,6 +55,12 @@ const quickActions = [
     icon: Globe2,
   },
   {
+    title: 'Espacio seguro',
+    text: 'Conoce las normas y reporta contenido que necesite cuidado.',
+    to: '/app/seguridad',
+    icon: ShieldCheck,
+  },
+  {
     title: 'Perfil',
     text: 'Actualiza tu identidad dentro de la Red.',
     to: '/app/perfil',
