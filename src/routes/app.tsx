@@ -112,6 +112,15 @@ function AppLayout() {
         </main>
       </div>
 
+      {/* Floating FAB to open command palette (mobile) */}
+      <button
+        onClick={() => setPaletteOpen(true)}
+        className="md:hidden fixed bottom-20 right-4 z-[60] size-14 rounded-full gradient-faith text-primary-foreground grid place-items-center shadow-soft animate-pulse-glow"
+        aria-label="Acceso rápido"
+      >
+        <Plus className="size-6" />
+      </button>
+
       {/* Mobile bottom nav */}
       <nav className="md:hidden fixed bottom-3 inset-x-3 z-50 glass rounded-full px-2 py-2 flex justify-between">
         {mobilePrimary.map((n) => {
@@ -130,6 +139,8 @@ function AppLayout() {
           <Menu className="size-5" />
         </button>
       </nav>
+
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
 
       {/* Mobile "Más" sheet */}
       {moreOpen && (
