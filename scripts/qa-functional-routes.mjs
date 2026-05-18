@@ -197,19 +197,26 @@ async function runModuleSmoke(userA, userB) {
     .limit(1)
     .maybeSingle()
 
-  const devotionalRead = devotional.data?.id
-    ? await userA.supabase
+  let devotionalRead = { data: null, error: new Error('No hay devocional QA.') }
+  if (devotional.data?.id) {
+    devotionalRead = await userA.supabase
+      .from('devotional_reads')
+      .insert({
+        devotional_id: devotional.data.id,
+        user_id: userA.user.id,
+      })
+      .select('id')
+      .single()
+
+    if (devotionalRead.error?.code === '23505') {
+      devotionalRead = await userA.supabase
         .from('devotional_reads')
-        .upsert(
-          {
-            devotional_id: devotional.data.id,
-            user_id: userA.user.id,
-          },
-          { onConflict: 'devotional_id,user_id' },
-        )
         .select('id')
-        .single()
-    : { data: null, error: new Error('No hay devocional QA.') }
+        .eq('devotional_id', devotional.data.id)
+        .eq('user_id', userA.user.id)
+        .maybeSingle()
+    }
+  }
 
   const devotionalFavorite = devotional.data?.id
     ? await userA.supabase
