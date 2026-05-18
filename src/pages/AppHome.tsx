@@ -50,7 +50,7 @@ const quickActions = [
   },
   {
     title: 'Mapa mundial',
-    text: 'Explora iglesias y grupos juveniles en 47 países.',
+    text: 'Explora iglesias y grupos juveniles conectados.',
     to: '/app/mapa',
     icon: Globe2,
   },
