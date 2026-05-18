@@ -23,3 +23,5 @@ export type GroupSuggestion =
   Database['public']['Tables']['group_suggestions']['Row']
 export type ContentReport =
   Database['public']['Tables']['content_reports']['Row']
+export type NotificationPreference =
+  Database['public']['Tables']['notification_preferences']['Row']

@@ -432,6 +432,44 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          community_updates: boolean
+          created_at: string
+          daily_devotional: boolean
+          id: string
+          prayer_updates: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          community_updates?: boolean
+          created_at?: string
+          daily_devotional?: boolean
+          id?: string
+          prayer_updates?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          community_updates?: boolean
+          created_at?: string
+          daily_devotional?: boolean
+          id?: string
+          prayer_updates?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Post: {
         Row: {
           authorId: string

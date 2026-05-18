@@ -231,3 +231,20 @@ No aplica. Los puntajes no se persisten todavía.
 
 - `npm run lint`: OK.
 - `npm run build`: OK, con warnings no bloqueantes de plugin timing y chunk grande.
+
+## 2026-05-18 · Fase 11
+
+### Cambios
+
+- Se creó `notification_preferences`.
+- `/app/perfil` ahora permite guardar preferencias de recordatorios.
+- Preferencias: devocional diario, oración y comunidad.
+- Push real queda explícitamente preparado para fase futura.
+
+### Validaciones
+
+- `npx supabase db push --dry-run`: OK.
+- `npx supabase db push`: OK.
+- Tipos Supabase regenerados.
+- `npm run lint`: OK.
+- `npm run build`: OK, con warnings no bloqueantes de plugin timing y chunk grande.
