@@ -23,6 +23,16 @@ import {
 } from '../features/prayer/prayerService'
 import { createContentReport } from '../features/safety/safetyService'
 
+const prayerCategories = [
+  ['familia', 'Familia'],
+  ['salud', 'Salud'],
+  ['estudios', 'Estudios'],
+  ['trabajo', 'Trabajo'],
+  ['fe', 'Fe'],
+  ['agradecimiento', 'Agradecimiento'],
+  ['otro', 'Otro'],
+]
+
 function formatDate(value: string | null) {
   if (!value) return 'Fecha pendiente'
   return new Intl.DateTimeFormat('es', {
@@ -33,6 +43,7 @@ function formatDate(value: string | null) {
 }
 
 function getAuthor(prayer: PrayerRequestWithAuthor) {
+  if (prayer.is_anonymous) return 'Joven de la Red'
   return prayer.profiles?.full_name || 'Joven de la Red'
 }
 
@@ -42,12 +53,15 @@ export function PrayerRoomPage() {
   const [prayers, setPrayers] = useState<PrayerRequestWithAuthor[]>([])
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
+  const [category, setCategory] = useState('otro')
+  const [isAnonymous, setIsAnonymous] = useState(false)
+  const [answeredTestimony, setAnsweredTestimony] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [busyPrayerId, setBusyPrayerId] = useState<string | null>(null)
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'answered'>(
-    'all',
-  )
+  const [statusFilter, setStatusFilter] = useState<
+    'all' | 'active' | 'answered' | 'mine' | 'supporting'
+  >('all')
   const [error, setError] = useState('')
 
   const loadPrayers = useCallback(async (showLoading = true) => {
@@ -82,9 +96,13 @@ export function PrayerRoomPage() {
         userId: user.id,
         title: title.trim(),
         body: body.trim(),
+        category,
+        isAnonymous,
       })
       setTitle('')
       setBody('')
+      setCategory('otro')
+      setIsAnonymous(false)
       await loadPrayers(false)
     } catch {
       setError('No pudimos publicar tu petición de oración.')
@@ -98,7 +116,11 @@ export function PrayerRoomPage() {
     setBusyPrayerId(prayerId)
     setError('')
     try {
-      await markPrayerRequestAnswered({ prayerId, userId: user.id })
+      await markPrayerRequestAnswered({
+        prayerId,
+        userId: user.id,
+        answeredTestimony: answeredTestimony[prayerId]?.trim(),
+      })
       await loadPrayers(false)
     } catch {
       setError('Solo puedes marcar como respondidas tus propias peticiones.')
@@ -162,6 +184,8 @@ export function PrayerRoomPage() {
   const visiblePrayers = prayers.filter((prayer) => {
     if (statusFilter === 'active') return !prayer.is_answered
     if (statusFilter === 'answered') return prayer.is_answered
+    if (statusFilter === 'mine') return prayer.user_id === userId
+    if (statusFilter === 'supporting') return prayer.supportedByMe
     return true
   })
   const activePrayers = prayers.filter((prayer) => !prayer.is_answered).length
@@ -233,6 +257,34 @@ export function PrayerRoomPage() {
                   className="mt-2"
                 />
               </div>
+              <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                <div>
+                  <label className="text-sm font-semibold" htmlFor="prayerCategory">
+                    Categoria
+                  </label>
+                  <select
+                    id="prayerCategory"
+                    value={category}
+                    onChange={(event) => setCategory(event.target.value)}
+                    className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+                  >
+                    {prayerCategories.map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <label className="mt-7 flex h-11 items-center gap-3 rounded-lg border border-white/10 bg-white/[0.06] px-4 text-sm font-semibold text-white/75">
+                  <input
+                    type="checkbox"
+                    checked={isAnonymous}
+                    onChange={(event) => setIsAnonymous(event.target.checked)}
+                    className="h-4 w-4 accent-amber-300"
+                  />
+                  Mostrar anonima
+                </label>
+              </div>
               <Button
                 type="submit"
                 variant="accent"
@@ -264,12 +316,21 @@ export function PrayerRoomPage() {
                 ['all', 'Todas'],
                 ['active', 'En oración'],
                 ['answered', 'Respondidas'],
+                ['mine', 'Mias'],
+                ['supporting', 'Estoy orando'],
               ].map(([value, label]) => (
                 <button
                   key={value}
                   type="button"
                   onClick={() =>
-                    setStatusFilter(value as 'all' | 'active' | 'answered')
+                    setStatusFilter(
+                      value as
+                        | 'all'
+                        | 'active'
+                        | 'answered'
+                        | 'mine'
+                        | 'supporting',
+                    )
                   }
                   className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                     statusFilter === value
@@ -328,9 +389,18 @@ export function PrayerRoomPage() {
                           <span className="w-fit rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-semibold text-emerald-100">
                             {prayer.supportsCount} orando
                           </span>
+                          <span className="w-fit rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-semibold text-white/70">
+                            {prayerCategories.find(([value]) => value === prayer.category)?.[1] ??
+                              'Otro'}
+                          </span>
                         </div>
                       </div>
                       <p className="mt-4 leading-7 text-white/65">{prayer.body}</p>
+                      {prayer.answered_testimony ? (
+                        <div className="mt-4 rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm leading-6 text-emerald-50">
+                          Testimonio: {prayer.answered_testimony}
+                        </div>
+                      ) : null}
 
                       <div className="mt-5 flex flex-col gap-2 sm:flex-row">
                         <Button
@@ -346,6 +416,17 @@ export function PrayerRoomPage() {
                         {isOwner ? (
                           <>
                           {!prayer.is_answered ? (
+                            <div className="flex min-w-52 flex-col gap-2">
+                              <Input
+                                value={answeredTestimony[prayer.id] ?? ''}
+                                onChange={(event) =>
+                                  setAnsweredTestimony((current) => ({
+                                    ...current,
+                                    [prayer.id]: event.target.value,
+                                  }))
+                                }
+                                placeholder="Testimonio breve, opcional"
+                              />
                             <Button
                               type="button"
                               variant="secondary"
@@ -356,6 +437,7 @@ export function PrayerRoomPage() {
                               <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                               Marcar respondida
                             </Button>
+                            </div>
                           ) : null}
                           <Button
                             type="button"

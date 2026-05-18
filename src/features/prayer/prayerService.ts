@@ -5,6 +5,8 @@ export interface CreatePrayerRequestInput {
   userId: string
   title: string
   body: string
+  category: string
+  isAnonymous: boolean
 }
 
 export interface PrayerAuthor {
@@ -63,6 +65,8 @@ export async function createPrayerRequest(input: CreatePrayerRequestInput) {
       title: input.title,
       body: input.body,
       visibility: 'public',
+      category: input.category,
+      is_anonymous: input.isAnonymous,
     })
     .select()
     .single()
@@ -75,10 +79,15 @@ export async function markPrayerRequestAnswered(input: {
   prayerId: string
   userId: string
   isAnswered?: boolean
+  answeredTestimony?: string
 }) {
   const { data, error } = await supabase
     .from('prayer_requests')
-    .update({ is_answered: input.isAnswered ?? true })
+    .update({
+      is_answered: input.isAnswered ?? true,
+      answered_testimony: input.answeredTestimony || null,
+      answered_at: input.isAnswered === false ? null : new Date().toISOString(),
+    })
     .eq('id', input.prayerId)
     .eq('user_id', input.userId)
     .select()
