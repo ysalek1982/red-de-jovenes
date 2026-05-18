@@ -59,3 +59,17 @@ Estado: completada.
 - `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
 
 Commit esperado: `Implementa feed de comunidad`.
+
+## Macrofase 4 - Devocional diario
+
+Estado: completada.
+
+- Se agrego la ruta protegida `/app/devocional`.
+- Se extendio `devotionalService` con busqueda del dia, fallback al ultimo disponible e historial reciente.
+- Se agrego UI de devocional con card principal, versiculo, referencia, reflexion e historial.
+- No se creo migracion incremental; el seed inicial cubre el fallback.
+- QA documentado en `docs/devotional-qa.md`.
+- `npm run lint`: OK.
+- `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
+
+Commit esperado: `Implementa devocional diario`.

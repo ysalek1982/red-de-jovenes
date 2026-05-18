@@ -6,6 +6,7 @@ import { AppHome } from '../pages/AppHome'
 import { AppProfile } from '../pages/AppProfile'
 import { CommunityFeedPage } from '../pages/CommunityFeedPage'
 import { CreateAccountPage } from '../pages/CreateAccountPage'
+import { DevotionalPage } from '../pages/DevotionalPage'
 import { Home } from '../pages/Home'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { PrayerRoomPage } from '../pages/PrayerRoomPage'
@@ -65,6 +66,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute>
               <CommunityFeedPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="app/devocional"
+          element={
+            <ProtectedRoute>
+              <DevotionalPage />
             </ProtectedRoute>
           }
         />
