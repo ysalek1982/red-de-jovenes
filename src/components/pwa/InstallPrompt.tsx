@@ -17,10 +17,15 @@ function isStandaloneMode() {
   )
 }
 
+function wasInstallDismissed() {
+  return window.localStorage.getItem('red-jovenes-install-dismissed') === 'true'
+}
+
 export function InstallPrompt() {
   const [installEvent, setInstallEvent] =
     useState<BeforeInstallPromptEvent | null>(null)
   const [isInstalled, setIsInstalled] = useState(() => isStandaloneMode())
+  const [isDismissed, setIsDismissed] = useState(() => wasInstallDismissed())
 
   useEffect(() => {
     function handleBeforeInstallPrompt(event: Event) {
@@ -46,11 +51,15 @@ export function InstallPrompt() {
     if (!installEvent) return
 
     await installEvent.prompt()
-    await installEvent.userChoice.catch(() => undefined)
+    const choice = await installEvent.userChoice.catch(() => undefined)
+    if (choice?.outcome === 'dismissed') {
+      window.localStorage.setItem('red-jovenes-install-dismissed', 'true')
+      setIsDismissed(true)
+    }
     setInstallEvent(null)
   }
 
-  if (isInstalled || !installEvent) return null
+  if (isInstalled || isDismissed || !installEvent) return null
 
   return (
     <button
