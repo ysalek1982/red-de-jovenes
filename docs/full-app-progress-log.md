@@ -216,3 +216,18 @@ No aplica. Los puntajes no se persisten todavía.
 - Tipos Supabase regenerados.
 - `npm run lint`: OK.
 - `npm run build`: OK, con warning no bloqueante de chunk grande.
+
+## 2026-05-18 · Fase 10
+
+### Cambios
+
+- Se corrigió metadata PWA con español legible.
+- Se actualizó el service worker para cachear solo recursos estáticos propios.
+- Se mantiene `start_url: /` para abrir login o app según sesión.
+- Se agregó `InstallPrompt` con botón “Instalar app”.
+- Se corrigió `offline.html` con copy y estética coherentes.
+
+### Validaciones
+
+- `npm run lint`: OK.
+- `npm run build`: OK, con warnings no bloqueantes de plugin timing y chunk grande.

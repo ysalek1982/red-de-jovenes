@@ -17,6 +17,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../features/auth/useAuth'
 import { hasRole } from '../../features/auth/roleService'
 import { cn } from '../../lib/utils'
+import { InstallPrompt } from '../pwa/InstallPrompt'
 
 const privateNavigation = [
   { label: 'Inicio', to: '/app', icon: Home, end: true },
@@ -88,6 +89,7 @@ export function AppShell() {
             <Sparkles className="h-4 w-4" aria-hidden="true" />
             <span className="hidden sm:inline">Mi red</span>
           </div>
+          <InstallPrompt />
         </div>
       </header>
       <Outlet />

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'red-de-jovenes-v1'
+const CACHE_NAME = 'red-de-jovenes-v2'
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -22,7 +22,11 @@ self.addEventListener('activate', (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))),
+        Promise.all(
+          keys
+            .filter((key) => key !== CACHE_NAME)
+            .map((key) => caches.delete(key)),
+        ),
       ),
   )
   self.clients.claim()
@@ -39,12 +43,8 @@ self.addEventListener('fetch', (event) => {
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
-        .then((response) => {
-          const copy = response.clone()
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy))
-          return response
-        })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('/offline.html'))),
+        .then((response) => response)
+        .catch(() => caches.match('/offline.html')),
     )
     return
   }
@@ -52,11 +52,17 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached
+
       return fetch(request).then((response) => {
-        if (response.ok) {
+        const isCacheable =
+          response.ok &&
+          ['style', 'script', 'image', 'font'].includes(request.destination)
+
+        if (isCacheable) {
           const copy = response.clone()
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy))
         }
+
         return response
       })
     }),
