@@ -39,6 +39,7 @@ export function DevotionalPage() {
   const [isSavingProgress, setIsSavingProgress] = useState(false)
   const [error, setError] = useState('')
   const [actionMessage, setActionMessage] = useState('')
+  const [selectedMood, setSelectedMood] = useState('')
 
   const loadDevotional = useCallback(async () => {
     setIsLoading(true)
@@ -247,13 +248,23 @@ export function DevotionalPage() {
                         <button
                           key={mood}
                           type="button"
-                          className="rounded-full border border-white/10 bg-slate-950/45 px-4 py-2 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white"
+                          onClick={() => setSelectedMood(mood)}
+                          className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                            selectedMood === mood
+                              ? 'border-emerald-300/30 bg-emerald-300/15 text-emerald-100'
+                              : 'border-white/10 bg-slate-950/45 text-white/65 hover:bg-white/10 hover:text-white'
+                          }`}
                         >
                           {mood}
                         </button>
                       ),
                     )}
                   </div>
+                  {selectedMood ? (
+                    <p className="mt-4 text-sm font-semibold text-emerald-200">
+                      Anotado para tu reflexiÃ³n personal: {selectedMood}.
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 shadow-2xl shadow-black/25 backdrop-blur">
