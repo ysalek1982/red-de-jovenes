@@ -168,17 +168,17 @@ export function WorldMapPage() {
               Mapa mundial
             </p>
             <h1 className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
-              Puntos de luz en 47 países.
+              Comunidades cristianas conectadas.
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/65">
-              Conecta con iglesias y grupos juveniles alrededor del mundo. La
-              Red crece cuando cada ciudad prende su luz.
+              Explora iglesias y grupos juveniles activos en la Red. La lista
+              crece con comunidades revisadas y sugerencias del piloto.
             </p>
             <div className="mt-7 grid max-w-xl grid-cols-3 gap-3">
               {[
-                ['12.4K', 'jóvenes'],
-                [String(groups.length || 320), 'iglesias'],
-                [String(countries.length || 47), 'países'],
+                [String(groups.length), 'comunidades'],
+                [String(countries.length), 'países'],
+                [String(filteredGroups.length), 'visibles'],
               ].map(([value, label]) => (
                 <div
                   key={label}
@@ -207,11 +207,11 @@ export function WorldMapPage() {
             <div className="absolute bottom-6 left-6 right-6 rounded-[1.5rem] border border-white/10 bg-slate-950/75 p-4 backdrop-blur">
               <p className="flex items-center gap-2 font-bold">
                 <Sparkles className="h-4 w-4 text-amber-200" aria-hidden="true" />
-                Comunidad global conectada
+                Mapa visual de referencia
               </p>
               <p className="mt-2 text-sm leading-6 text-white/55">
-                Base conectada a Supabase para mostrar grupos activos y recibir
-                sugerencias de nuevas comunidades.
+                Los puntos orientan la experiencia. La lista inferior usa datos
+                reales conectados a Supabase.
               </p>
             </div>
           </div>
