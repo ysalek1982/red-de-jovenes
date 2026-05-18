@@ -169,6 +169,26 @@ export function CommunityFeedPage() {
     }
   }
 
+  async function handleReportComment(commentId: string) {
+    if (!user) return
+
+    setBusyPostId(commentId)
+    setError('')
+    try {
+      await createContentReport({
+        reporterId: user.id,
+        targetType: 'comment',
+        targetId: commentId,
+        reason: 'Revisión comunitaria solicitada',
+      })
+      setError('Comentario enviado a revisión. Gracias por cuidar la Red.')
+    } catch {
+      setError('No pudimos enviar el reporte del comentario.')
+    } finally {
+      setBusyPostId(null)
+    }
+  }
+
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
       <div className="pointer-events-none fixed right-0 top-24 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
@@ -266,6 +286,9 @@ export function CommunityFeedPage() {
             </div>
 
             <div className="mt-6 grid gap-3">
+              <p className="text-sm font-semibold text-white/55">
+                Ideas sugeridas para abrir conversaciones
+              </p>
               {forumTopics.slice(0, 2).map((topic) => (
                 <article
                   key={topic.title}
@@ -288,8 +311,8 @@ export function CommunityFeedPage() {
                     ))}
                   </div>
                   <p className="mt-3 text-sm text-white/50">
-                    por {topic.author} · {topic.replies} respuestas · {topic.prayers}{' '}
-                    oraciones
+                    Guia de conversacion para el piloto. No representa actividad
+                    real de usuarios.
                   </p>
                 </article>
               ))}
@@ -381,9 +404,19 @@ export function CommunityFeedPage() {
                             key={comment.id}
                             className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
                           >
-                            <p className="text-xs font-semibold uppercase tracking-wide text-white/40">
-                              {comment.profiles?.full_name ?? 'Joven de la Red'}
-                            </p>
+                            <div className="flex items-start justify-between gap-3">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-white/40">
+                                {comment.profiles?.full_name ?? 'Joven de la Red'}
+                              </p>
+                              <button
+                                type="button"
+                                onClick={() => void handleReportComment(comment.id)}
+                                disabled={busyPostId === comment.id}
+                                className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/45 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+                              >
+                                Reportar
+                              </button>
+                            </div>
                             <p className="mt-2 text-sm leading-6 text-white/70">
                               {comment.body}
                             </p>
