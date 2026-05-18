@@ -30,3 +30,17 @@ Estado: completada.
 - Bloqueos remotos: `BLOCKED_EMAIL_CONFIRMATION` y `BLOCKED_AUTH_RATE_LIMIT`.
 
 Commit esperado: `Completa Auth y perfil de usuario`.
+
+## Macrofase 2 - Sala de oracion
+
+Estado: completada.
+
+- Se agrego la ruta protegida `/app/oracion`.
+- Se extendio `prayerService` con lectura, creacion, marcado como respondida y eliminacion propia.
+- Se agrego UI de sala de oracion con formulario, tarjetas, estados de carga, error y lista vacia.
+- No se creo migracion incremental; la tabla y RLS actuales cubren el flujo.
+- QA documentado en `docs/prayer-room-qa.md`.
+- `npm run lint`: OK.
+- `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
+
+Commit esperado: `Implementa sala de oracion`.

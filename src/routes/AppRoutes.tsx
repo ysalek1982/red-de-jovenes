@@ -7,6 +7,7 @@ import { AppProfile } from '../pages/AppProfile'
 import { CreateAccountPage } from '../pages/CreateAccountPage'
 import { Home } from '../pages/Home'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
+import { PrayerRoomPage } from '../pages/PrayerRoomPage'
 import { SignInPage } from '../pages/SignInPage'
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
@@ -47,6 +48,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute>
               <AppProfile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="app/oracion"
+          element={
+            <ProtectedRoute>
+              <PrayerRoomPage />
             </ProtectedRoute>
           }
         />
