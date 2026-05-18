@@ -67,6 +67,24 @@ const quickActions = [
   },
 ]
 
+const onboardingSteps = [
+  {
+    title: 'Completa tu perfil',
+    text: 'Agrega ciudad, país, iglesia y una bio breve para que otros jóvenes sepan cómo conectar contigo.',
+    to: '/app/perfil',
+  },
+  {
+    title: 'Ora con alguien hoy',
+    text: 'Publica una petición o marca "Estoy orando" en una necesidad de la comunidad.',
+    to: '/app/oracion',
+  },
+  {
+    title: 'Participa con la Palabra',
+    text: 'Comparte una reflexión, un versículo o una pregunta honesta en los foros.',
+    to: '/app/foros',
+  },
+]
+
 export function AppHome() {
   const { user } = useAuth()
   const userId = user?.id
@@ -128,6 +146,10 @@ export function AppHome() {
               Tu espacio privado para oración, foros con la Palabra, devocional,
               juegos de fe y comunidad cristiana.
             </p>
+            <p className="mt-3 max-w-2xl text-sm font-semibold text-amber-100/80">
+              Si es tu primera vez, empieza por tu perfil, una oración y un
+              primer aporte en comunidad.
+            </p>
           </div>
           <Link
             to="/app/perfil"
@@ -175,6 +197,37 @@ export function AppHome() {
                 )
               })}
             </div>
+
+            <article className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-amber-100">
+                    Primeros pasos
+                  </p>
+                  <h2 className="mt-2 text-2xl font-black">
+                    Empieza con una acción sencilla.
+                  </h2>
+                </div>
+                <Sparkles className="h-8 w-8 text-amber-200" aria-hidden="true" />
+              </div>
+              <div className="mt-5 grid gap-3 md:grid-cols-3">
+                {onboardingSteps.map((step, index) => (
+                  <Link
+                    key={step.to}
+                    to={step.to}
+                    className="rounded-3xl border border-white/10 bg-slate-950/45 p-4 transition hover:bg-white/10"
+                  >
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-sm font-black text-slate-950">
+                      {index + 1}
+                    </span>
+                    <h3 className="mt-4 font-bold">{step.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-white/62">
+                      {step.text}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </article>
 
             <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
               <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
@@ -227,7 +280,8 @@ export function AppHome() {
                       ))
                     ) : (
                       <p className="text-sm text-white/60">
-                        Todavía no hay peticiones públicas.
+                        Todavía no hay peticiones públicas. Puedes ser el
+                        primero en compartir una necesidad de oración.
                       </p>
                     )}
                   </div>
@@ -254,7 +308,8 @@ export function AppHome() {
                       ))
                     ) : (
                       <p className="text-sm text-white/60">
-                        Todavía no hay debates en los foros.
+                        Todavía no hay debates en los foros. Comparte una
+                        reflexión breve para iniciar la conversación.
                       </p>
                     )}
                   </div>
