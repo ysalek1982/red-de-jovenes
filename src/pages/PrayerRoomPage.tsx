@@ -63,6 +63,7 @@ export function PrayerRoomPage() {
     'all' | 'active' | 'answered' | 'mine' | 'supporting'
   >('all')
   const [error, setError] = useState('')
+  const [actionMessage, setActionMessage] = useState('')
 
   const loadPrayers = useCallback(async (showLoading = true) => {
     if (showLoading) setIsLoading(true)
@@ -91,6 +92,7 @@ export function PrayerRoomPage() {
 
     setIsSubmitting(true)
     setError('')
+    setActionMessage('')
     try {
       await createPrayerRequest({
         userId: user.id,
@@ -104,6 +106,7 @@ export function PrayerRoomPage() {
       setCategory('otro')
       setIsAnonymous(false)
       await loadPrayers(false)
+      setActionMessage('Peticion publicada. La sala ya puede orar contigo.')
     } catch {
       setError('No pudimos publicar tu petición de oración.')
     } finally {
@@ -115,6 +118,7 @@ export function PrayerRoomPage() {
     if (!user) return
     setBusyPrayerId(prayerId)
     setError('')
+    setActionMessage('')
     try {
       await markPrayerRequestAnswered({
         prayerId,
@@ -122,6 +126,7 @@ export function PrayerRoomPage() {
         answeredTestimony: answeredTestimony[prayerId]?.trim(),
       })
       await loadPrayers(false)
+      setActionMessage('Peticion marcada como respondida.')
     } catch {
       setError('Solo puedes marcar como respondidas tus propias peticiones.')
     } finally {
@@ -133,9 +138,11 @@ export function PrayerRoomPage() {
     if (!user) return
     setBusyPrayerId(prayerId)
     setError('')
+    setActionMessage('')
     try {
       await deleteOwnPrayerRequest({ prayerId, userId: user.id })
       await loadPrayers(false)
+      setActionMessage('Peticion eliminada.')
     } catch {
       setError('Solo puedes eliminar tus propias peticiones.')
     } finally {
@@ -147,6 +154,7 @@ export function PrayerRoomPage() {
     if (!user) return
     setBusyPrayerId(prayer.id)
     setError('')
+    setActionMessage('')
     try {
       if (prayer.supportedByMe) {
         await removePrayerSupport({ prayerId: prayer.id, userId: user.id })
@@ -154,6 +162,11 @@ export function PrayerRoomPage() {
         await supportPrayer({ prayerId: prayer.id, userId: user.id })
       }
       await loadPrayers(false)
+      setActionMessage(
+        prayer.supportedByMe
+          ? 'Dejaste de marcar esta peticion como oracion activa.'
+          : 'Tu apoyo de oracion quedo registrado.',
+      )
     } catch {
       setError('No pudimos actualizar tu oración por esta petición.')
     } finally {
@@ -166,6 +179,7 @@ export function PrayerRoomPage() {
 
     setBusyPrayerId(prayerId)
     setError('')
+    setActionMessage('')
     try {
       await createContentReport({
         reporterId: user.id,
@@ -173,7 +187,7 @@ export function PrayerRoomPage() {
         targetId: prayerId,
         reason: 'Revisión pastoral solicitada',
       })
-      setError('Reporte enviado para revisión. Gracias por cuidar la sala.')
+      setActionMessage('Reporte enviado para revision. Gracias por cuidar la sala.')
     } catch {
       setError('No pudimos enviar el reporte.')
     } finally {
@@ -358,6 +372,11 @@ export function PrayerRoomPage() {
             {error ? (
               <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
                 {error}
+              </div>
+            ) : null}
+            {actionMessage ? (
+              <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm text-emerald-100">
+                {actionMessage}
               </div>
             ) : null}
 
