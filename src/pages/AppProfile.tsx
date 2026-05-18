@@ -5,6 +5,7 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
 import { useAuth } from '../features/auth/useAuth'
+import { hasRole } from '../features/auth/roleService'
 import {
   getNotificationPreferences,
   upsertNotificationPreferences,
@@ -102,6 +103,7 @@ export function AppProfile() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [isSavingNotifications, setIsSavingNotifications] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
 
@@ -124,10 +126,12 @@ export function AppProfile() {
           ensureProfile(user),
           getNotificationPreferences(user.id),
         ])
+        const adminRole = await hasRole('admin')
         if (!isMounted) return
         setProfile(profileData)
         setForm(profileToForm(profileData))
         setNotifications(preferencesToForm(preferenceData))
+        setIsAdmin(adminRole)
       } catch {
         if (isMounted) {
           setError('No pudimos cargar tu perfil. Inténtalo nuevamente.')
@@ -253,6 +257,9 @@ export function AppProfile() {
                 Normas de comunidad aceptadas.
               </div>
             ) : null}
+            <div className="mt-3 rounded-3xl border border-white/10 bg-slate-950/45 p-4 text-sm text-white/65">
+              Rol visible: {isAdmin ? 'Administrador' : 'Miembro'}
+            </div>
           </aside>
 
           <div className="space-y-6">
