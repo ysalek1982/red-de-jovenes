@@ -188,8 +188,16 @@ export function WorldMapPage() {
     event.preventDefault()
     if (!userId) return
 
-    if (!suggestion.name.trim() || !suggestion.country.trim()) {
-      setFormMessage('El nombre y el pais son obligatorios.')
+    if (!suggestion.name.trim() || !suggestion.country.trim() || !suggestion.city.trim()) {
+      setFormMessage('El nombre, el pais y la ciudad son obligatorios.')
+      return
+    }
+
+    if (
+      suggestion.contactUrl.trim() &&
+      !/^https?:\/\/\S+\.\S+/.test(suggestion.contactUrl.trim())
+    ) {
+      setFormMessage('El link de contacto debe comenzar con http:// o https://.')
       return
     }
 
