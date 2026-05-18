@@ -19,15 +19,27 @@ import type { ContentReport } from '../types/database'
 const communityRules = [
   {
     title: 'Edificamos antes de debatir',
-    text: 'Cada conversación debe apuntar a cuidar, escuchar y acercarnos a Cristo.',
+    text: 'Puedes compartir preguntas, dudas y opiniones, pero cada conversacion debe cuidar a la persona antes que ganar una discusion.',
   },
   {
-    title: 'La Palabra guía el tono',
-    text: 'Los foros pueden tener desacuerdos, pero nunca ataques personales.',
+    title: 'La Palabra guia el tono',
+    text: 'Los foros pueden tener desacuerdos. No se permiten ataques personales, burlas, manipulacion espiritual ni presion sobre otros jovenes.',
   },
   {
-    title: 'Protegemos a los jóvenes',
-    text: 'Reporta contenido dañino, acoso, manipulación o exposición de datos privados.',
+    title: 'Protegemos a los jovenes',
+    text: 'No publiques datos privados, ubicaciones sensibles, conversaciones personales ni informacion de menores sin permiso claro.',
+  },
+  {
+    title: 'Reportar tambien es cuidar',
+    text: 'Si ves acoso, spam, contenido ofensivo, informacion sensible o algo que pueda danar, reportalo para que el equipo lo revise.',
+  },
+  {
+    title: 'Acompanamiento, no verguenza',
+    text: 'La moderacion busca restaurar, orientar y proteger. No uses reportes para atacar o silenciar a alguien por pensar distinto.',
+  },
+  {
+    title: 'Menores con cuidado extra',
+    text: 'Si eres menor de edad, no compartas datos de contacto directo y habla con un adulto responsable ante cualquier situacion incomoda.',
   },
 ]
 
@@ -101,10 +113,10 @@ export function SafetyPage() {
       setTargetId('')
       setReason('')
       setDetails('')
-      setMessage('Reporte enviado. El equipo lo revisará con cuidado.')
+      setMessage('Reporte enviado. El equipo lo revisara con cuidado.')
       await loadReports()
     } catch {
-      setMessage('No pudimos enviar el reporte. Inténtalo nuevamente.')
+      setMessage('No pudimos enviar el reporte. Intentalo nuevamente.')
     } finally {
       setIsSubmitting(false)
     }
@@ -126,7 +138,7 @@ export function SafetyPage() {
               Una red donde cada joven es cuidado.
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/65">
-              Moderación con sabiduría, comunidad con respeto y reportes
+              Moderacion con sabiduria, comunidad con respeto y reportes
               visibles para proteger el ambiente espiritual de la Red.
             </p>
 
@@ -160,7 +172,8 @@ export function SafetyPage() {
               </div>
               <p className="mt-3 text-sm leading-6 text-white/65">
                 Usa este formulario cuando necesites reportar algo que requiere
-                revisión pastoral o moderación.
+                revision pastoral o moderacion. Incluye el ID solo si vienes
+                desde una publicacion, comentario, peticion o perfil concreto.
               </p>
 
               <div className="mt-5 grid gap-3">
@@ -172,9 +185,9 @@ export function SafetyPage() {
                   className="h-11 rounded-2xl border border-white/10 bg-slate-950/70 px-4 text-sm font-bold text-white outline-none focus:border-amber-200/60"
                   aria-label="Tipo de contenido"
                 >
-                  <option value="post">Publicación</option>
+                  <option value="post">Publicacion</option>
                   <option value="comment">Comentario</option>
-                  <option value="prayer_request">Petición de oración</option>
+                  <option value="prayer_request">Peticion de oracion</option>
                   <option value="profile">Perfil</option>
                 </select>
                 <input
@@ -246,14 +259,14 @@ export function SafetyPage() {
                         </span>
                       </div>
                       <p className="mt-2 text-xs text-white/45">
-                        {report.target_type} · {formatDate(report.created_at)}
+                        {report.target_type} - {formatDate(report.created_at)}
                       </p>
                     </article>
                   ))}
                 </div>
               ) : (
                 <p className="mt-6 text-sm leading-6 text-white/60">
-                  No has enviado reportes. Esta herramienta está aquí para
+                  No has enviado reportes. Esta herramienta esta aqui para
                   cuidar la comunidad cuando sea necesario.
                 </p>
               )}
