@@ -1,5 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { BookOpen, Bookmark, Highlighter, Share2, Search, Sparkles, ChevronRight, CheckCircle2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import {
+  BookOpen, Bookmark, Highlighter, Share2, Search, Sparkles, ChevronRight, ChevronLeft,
+  CheckCircle2, Play, Pause, Type, Minus, Plus, MessageCircle, Volume2,
+} from "lucide-react";
 
 export const Route = createFileRoute("/app/biblia")({ component: Biblia });
 
@@ -16,15 +20,36 @@ const verses = [
   { ref: "Romanos 8:28", text: "Y sabemos que a los que aman a Dios, todas las cosas les ayudan a bien..." },
 ];
 
-const books = ["Génesis","Éxodo","Levítico","Números","Salmos","Proverbios","Mateo","Marcos","Lucas","Juan","Hechos","Romanos","1 Cor","Apocalipsis"];
+const books = ["Génesis","Éxodo","Salmos","Proverbios","Isaías","Mateo","Marcos","Lucas","Juan","Hechos","Romanos","1 Corintios","Filipenses","Santiago","Apocalipsis"];
+
+const salmo23 = [
+  "Jehová es mi pastor; nada me faltará.",
+  "En lugares de delicados pastos me hará descansar; junto a aguas de reposo me pastoreará.",
+  "Confortará mi alma; me guiará por sendas de justicia por amor de su nombre.",
+  "Aunque ande en valle de sombra de muerte, no temeré mal alguno, porque tú estarás conmigo; tu vara y tu cayado me infundirán aliento.",
+  "Aderezas mesa delante de mí en presencia de mis angustiadores; unges mi cabeza con aceite; mi copa está rebosando.",
+  "Ciertamente el bien y la misericordia me seguirán todos los días de mi vida, y en la casa de Jehová moraré por largos días.",
+];
 
 function Biblia() {
+  const [fontSize, setFontSize] = useState(17);
+  const [playing, setPlaying] = useState(false);
+  const [highlights, setHighlights] = useState<Record<number, "yellow" | "teal" | "pink" | undefined>>({ 1: "teal" });
+  const [activeVerse, setActiveVerse] = useState<number | null>(null);
+  const [version, setVersion] = useState<"RVR60" | "NVI" | "NTV">("RVR60");
+
+  const toggleHighlight = (i: number, color: "yellow" | "teal" | "pink") => {
+    setHighlights((h) => ({ ...h, [i]: h[i] === color ? undefined : color }));
+  };
+
+  const progress = useMemo(() => (playing ? 42 : 0), [playing]);
+
   return (
     <div className="space-y-8">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl font-black tracking-tight">Biblia</h1>
-          <p className="text-muted-foreground">Tu Palabra es lámpara a mis pies. — Salmo 119:105</p>
+          <p className="text-muted-foreground font-serif-display text-lg">“Tu Palabra es lámpara a mis pies.” — Salmo 119:105</p>
         </div>
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -32,23 +57,109 @@ function Biblia() {
         </div>
       </header>
 
-      {/* Lectura del día */}
-      <article className="relative overflow-hidden rounded-3xl gradient-hero p-8 md:p-10 shadow-soft">
-        <div className="absolute -top-20 -right-20 size-72 rounded-full bg-accent/30 blur-3xl" />
-        <div className="relative">
-          <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-accent font-semibold">
-            <Sparkles className="size-3.5" /> Lectura de hoy
+      {/* Chapter reader */}
+      <article className="glass rounded-3xl overflow-hidden shadow-soft">
+        {/* Reader toolbar */}
+        <div className="flex items-center justify-between gap-3 px-4 md:px-6 py-3 border-b border-border/60 flex-wrap">
+          <div className="flex items-center gap-2">
+            <button className="rounded-full glass p-2 hover:bg-white/10" aria-label="Anterior"><ChevronLeft className="size-4" /></button>
+            <button className="rounded-full px-4 py-2 text-sm font-semibold gradient-faith text-primary-foreground inline-flex items-center gap-2">
+              <BookOpen className="size-4" /> Salmos 23
+            </button>
+            <button className="rounded-full glass p-2 hover:bg-white/10" aria-label="Siguiente"><ChevronRight className="size-4" /></button>
           </div>
-          <h2 className="mt-4 text-2xl md:text-3xl font-bold">Salmo 23 — El Señor es mi pastor</h2>
-          <p className="mt-4 max-w-2xl text-foreground/90 leading-relaxed">
-            “Jehová es mi pastor; nada me faltará. En lugares de delicados pastos me hará descansar; junto a aguas de reposo me pastoreará. Confortará mi alma; me guiará por sendas de justicia por amor de su nombre...”
-          </p>
-          <div className="mt-6 flex flex-wrap gap-2">
-            <button className="rounded-full gradient-faith px-5 py-2 text-sm font-semibold text-primary-foreground inline-flex items-center gap-2"><CheckCircle2 className="size-4" /> Marcar como leído</button>
-            <button className="rounded-full glass px-4 py-2 text-sm inline-flex items-center gap-2"><Highlighter className="size-4" /> Subrayar</button>
-            <button className="rounded-full glass px-4 py-2 text-sm inline-flex items-center gap-2"><Bookmark className="size-4" /> Guardar</button>
-            <button className="rounded-full glass px-4 py-2 text-sm inline-flex items-center gap-2"><Share2 className="size-4" /> Compartir</button>
+
+          <div className="flex items-center gap-2">
+            <div className="glass rounded-full p-0.5 flex text-xs font-semibold">
+              {(["RVR60", "NVI", "NTV"] as const).map((v) => (
+                <button
+                  key={v}
+                  onClick={() => setVersion(v)}
+                  className={`px-3 py-1.5 rounded-full transition ${version === v ? "gradient-faith text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
+            <div className="glass rounded-full p-0.5 flex items-center">
+              <button onClick={() => setFontSize((s) => Math.max(14, s - 1))} className="size-7 grid place-items-center rounded-full hover:bg-white/10"><Minus className="size-3" /></button>
+              <Type className="size-3.5 text-muted-foreground mx-1" />
+              <button onClick={() => setFontSize((s) => Math.min(24, s + 1))} className="size-7 grid place-items-center rounded-full hover:bg-white/10"><Plus className="size-3" /></button>
+            </div>
           </div>
+        </div>
+
+        {/* Verses */}
+        <div className="relative p-6 md:p-10">
+          <div className="absolute -top-20 -right-20 size-72 rounded-full bg-accent/20 blur-3xl pointer-events-none" />
+          <div className="relative">
+            <div className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-accent font-semibold">
+              <Sparkles className="size-3.5" /> Lectura de hoy
+            </div>
+            <h2 className="mt-3 text-3xl md:text-4xl font-bold">Salmo 23</h2>
+            <p className="text-muted-foreground text-sm mt-1">El Señor es mi pastor — Salmo de David</p>
+
+            <div className="mt-6 space-y-3 leading-relaxed" style={{ fontSize: `${fontSize}px` }}>
+              {salmo23.map((text, i) => {
+                const n = i + 1;
+                const hl = highlights[n];
+                const hlClass = hl === "yellow" ? "bg-yellow-400/20 text-foreground" : hl === "teal" ? "bg-teal/15 text-foreground" : hl === "pink" ? "bg-pink-400/20 text-foreground" : "";
+                return (
+                  <p
+                    key={n}
+                    onClick={() => setActiveVerse(activeVerse === n ? null : n)}
+                    className={`group rounded-xl px-2 py-1 transition cursor-pointer ${hlClass} ${activeVerse === n ? "ring-1 ring-teal/40" : ""}`}
+                  >
+                    <sup className="text-[10px] font-bold text-accent mr-1.5 align-super">{n}</sup>
+                    <span className={hl ? "font-serif-display" : ""}>{text}</span>
+                  </p>
+                );
+              })}
+            </div>
+
+            {activeVerse !== null && (
+              <div className="mt-4 glass rounded-2xl p-3 flex items-center justify-between gap-2 animate-rise">
+                <span className="text-xs text-muted-foreground">Versículo {activeVerse} seleccionado</span>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => toggleHighlight(activeVerse, "yellow")} className="size-7 rounded-full bg-yellow-400/60 ring-1 ring-yellow-300" aria-label="Subrayar amarillo" />
+                  <button onClick={() => toggleHighlight(activeVerse, "teal")} className="size-7 rounded-full bg-teal/70 ring-1 ring-teal" aria-label="Subrayar teal" />
+                  <button onClick={() => toggleHighlight(activeVerse, "pink")} className="size-7 rounded-full bg-pink-400/70 ring-1 ring-pink-300" aria-label="Subrayar rosa" />
+                  <span className="w-px h-5 bg-border mx-1" />
+                  <button className="rounded-full glass p-1.5" aria-label="Guardar"><Bookmark className="size-3.5" /></button>
+                  <button className="rounded-full glass p-1.5" aria-label="Comentar"><MessageCircle className="size-3.5" /></button>
+                  <button className="rounded-full glass p-1.5" aria-label="Compartir"><Share2 className="size-3.5" /></button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Audio bar */}
+        <div className="flex items-center gap-3 px-5 py-3 border-t border-border/60 bg-secondary/30">
+          <button
+            onClick={() => setPlaying((p) => !p)}
+            className="size-10 rounded-full gradient-faith text-primary-foreground grid place-items-center"
+            aria-label={playing ? "Pausar" : "Reproducir"}
+          >
+            {playing ? <Pause className="size-4" /> : <Play className="size-4 translate-x-0.5" />}
+          </button>
+          <div className="flex-1">
+            <div className="text-xs flex justify-between text-muted-foreground mb-1">
+              <span>Audio · narrado</span>
+              <span>{playing ? "1:24" : "0:00"} / 3:12</span>
+            </div>
+            <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
+              <div className="h-full gradient-faith transition-all" style={{ width: `${progress}%` }} />
+            </div>
+          </div>
+          <Volume2 className="size-4 text-muted-foreground" />
+        </div>
+
+        <div className="flex flex-wrap gap-2 p-4 border-t border-border/60">
+          <button className="rounded-full gradient-faith px-5 py-2 text-sm font-semibold text-primary-foreground inline-flex items-center gap-2"><CheckCircle2 className="size-4" /> Marcar como leído</button>
+          <button className="rounded-full glass px-4 py-2 text-sm inline-flex items-center gap-2"><Highlighter className="size-4" /> Subrayar</button>
+          <button className="rounded-full glass px-4 py-2 text-sm inline-flex items-center gap-2"><Bookmark className="size-4" /> Guardar</button>
+          <button className="rounded-full glass px-4 py-2 text-sm inline-flex items-center gap-2 ml-auto"><Share2 className="size-4" /> Compartir capítulo</button>
         </div>
       </article>
 
@@ -72,7 +183,7 @@ function Biblia() {
                       <h3 className="font-semibold truncate">{p.title}</h3>
                       {p.done && <span className="text-[10px] uppercase font-bold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full">Completado</span>}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{p.progress} / {p.days} días</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{p.progress} / {p.days} días · {pct}%</div>
                     <div className="mt-3 h-1.5 rounded-full bg-secondary overflow-hidden">
                       <div className={`h-full bg-gradient-to-r ${p.color}`} style={{ width: `${pct}%` }} />
                     </div>
@@ -93,7 +204,7 @@ function Biblia() {
               <Bookmark className="size-5 text-accent shrink-0 mt-0.5" />
               <div className="flex-1">
                 <div className="text-sm font-bold text-teal">{v.ref}</div>
-                <p className="text-sm text-muted-foreground mt-0.5">{v.text}</p>
+                <p className="text-sm text-muted-foreground mt-0.5 font-serif-display">{v.text}</p>
               </div>
               <button className="text-xs text-muted-foreground hover:text-foreground"><Share2 className="size-4" /></button>
             </div>
