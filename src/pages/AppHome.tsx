@@ -7,13 +7,12 @@ import {
   Heart,
   Loader2,
   MessageCircle,
-  Plus,
   ShieldCheck,
   Sparkles,
   UserRound,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { appStories, safePrinciples } from '../data/appDemoData'
+import { safePrinciples } from '../data/appDemoData'
 import { getRecentPosts, type PostWithAuthor } from '../features/community/communityService'
 import { getTodayDevotional } from '../features/devotionals/devotionalService'
 import {
@@ -33,7 +32,7 @@ const quickActions = [
   {
     title: 'Foros con la Palabra',
     text: 'Publica reflexiones, testimonios y versículos.',
-    to: '/app/comunidad',
+    to: '/app/foros',
     icon: MessageCircle,
   },
   {
@@ -152,31 +151,6 @@ export function AppHome() {
           </div>
         ) : (
           <div className="mt-10 space-y-6">
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              <div className="flex min-w-24 flex-col items-center rounded-3xl border border-dashed border-white/15 bg-white/[0.05] p-3 text-center">
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-xl font-black text-slate-950">
-                  <Plus className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <span className="mt-2 text-xs font-semibold text-white/60">
-                  Tu historia
-                </span>
-              </div>
-              {appStories.map((story) => (
-                <div
-                  key={story.name}
-                  className="flex min-w-24 flex-col items-center rounded-3xl border border-white/10 bg-white/[0.05] p-3 text-center"
-                >
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-300 to-amber-300 font-black text-slate-950">
-                    {story.initial}
-                  </span>
-                  <span className="mt-2 text-xs font-semibold text-white/70">
-                    {story.name}
-                  </span>
-                  <span className="text-[0.68rem] text-white/40">{story.detail}</span>
-                </div>
-              ))}
-            </div>
-
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {quickActions.map((action) => {
                 const Icon = action.icon

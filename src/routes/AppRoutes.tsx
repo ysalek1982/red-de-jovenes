@@ -144,10 +144,7 @@ export function AppRoutes() {
           <Route path="perfil" element={withSuspense(<AppProfile />)} />
           <Route path="oracion" element={withSuspense(<PrayerRoomPage />)} />
           <Route path="orar" element={<Navigate to="/app/oracion" replace />} />
-          <Route
-            path="comunidad"
-            element={withSuspense(<CommunityFeedPage />)}
-          />
+          <Route path="comunidad" element={<Navigate to="/app/foros" replace />} />
           <Route path="foros" element={withSuspense(<CommunityFeedPage />)} />
           <Route path="devocional" element={withSuspense(<DevotionalPage />)} />
           <Route path="juegos" element={withSuspense(<FaithGamesPage />)} />

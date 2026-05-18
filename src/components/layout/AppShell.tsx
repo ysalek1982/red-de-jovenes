@@ -8,21 +8,20 @@ import {
   Home,
   LogOut,
   MessageCircle,
-  Search,
   ShieldCheck,
   Sparkles,
   UserRound,
 } from 'lucide-react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { useAuth } from '../../features/auth/useAuth'
 import { hasRole } from '../../features/auth/roleService'
+import { useAuth } from '../../features/auth/useAuth'
 import { cn } from '../../lib/utils'
 import { InstallPrompt } from '../pwa/InstallPrompt'
 
 const privateNavigation = [
   { label: 'Inicio', to: '/app', icon: Home, end: true },
-  { label: 'Oración', to: '/app/oracion', icon: Heart },
-  { label: 'Foros', to: '/app/comunidad', icon: MessageCircle },
+  { label: 'Oracion', to: '/app/oracion', icon: Heart },
+  { label: 'Foros', to: '/app/foros', icon: MessageCircle },
   { label: 'Devocional', to: '/app/devocional', icon: BookOpen },
   { label: 'Juegos', to: '/app/juegos', icon: Gamepad2 },
   { label: 'Mapa', to: '/app/mapa', icon: Globe2 },
@@ -48,7 +47,7 @@ export function AppShell() {
   const navigation = isAdmin
     ? [
         ...privateNavigation,
-        { label: 'Administración', to: '/app/admin', icon: ShieldCheck },
+        { label: 'Administracion', to: '/app/admin', icon: ShieldCheck },
       ]
     : privateNavigation
 
@@ -72,17 +71,16 @@ export function AppShell() {
             </span>
             <span className="hidden min-w-0 sm:block">
               <span className="block truncate text-sm font-black">
-                Red de Jóvenes en Cristo
+                Red de Jovenes en Cristo
               </span>
               <span className="block truncate text-xs text-white/45">
-                “Todo lo puedo en Cristo...” · Fil 4:13
+                Todo lo puedo en Cristo - Fil 4:13
               </span>
             </span>
           </button>
 
-          <div className="ml-auto hidden min-h-11 w-full max-w-md items-center gap-3 rounded-full border border-white/10 bg-white/[0.06] px-4 text-sm text-white/45 lg:flex">
-            <Search className="h-4 w-4" aria-hidden="true" />
-            Buscar amigos, versículos, secciones...
+          <div className="ml-auto hidden min-h-11 w-full max-w-md items-center rounded-full border border-white/10 bg-white/[0.06] px-4 text-sm font-semibold text-white/45 lg:flex">
+            Conectando jovenes en Cristo
           </div>
 
           <div className="ml-auto flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-amber-200 lg:ml-0">
@@ -95,7 +93,7 @@ export function AppShell() {
       <Outlet />
       <nav
         className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-6xl overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/85 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl"
-        aria-label="Navegación privada"
+        aria-label="Navegacion privada"
       >
         <div className="flex gap-1 overflow-x-auto">
           {navigation.map((item) => {

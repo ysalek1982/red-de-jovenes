@@ -188,9 +188,12 @@ export function DemoPage() {
                 <p className="text-sm font-bold text-emerald-300">Sala de oración global</p>
                 <p className="mt-3 text-3xl font-black">1,247</p>
                 <p className="text-sm text-white/55">jóvenes orando en vivo</p>
-                <button className="mt-5 h-11 w-full rounded-full bg-white text-sm font-black text-slate-950">
-                  Estoy orando
-                </button>
+                <Link
+                  to="/crear-cuenta"
+                  className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-full bg-white text-sm font-black text-slate-950"
+                >
+                  Unirme para orar
+                </Link>
               </div>
 
               <div id="juegos-de-fe" className="rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5">
