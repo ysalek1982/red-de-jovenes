@@ -16,6 +16,8 @@ import {
   deleteOwnPrayerRequest,
   getPublicPrayerRequests,
   markPrayerRequestAnswered,
+  removePrayerSupport,
+  supportPrayer,
   type PrayerRequestWithAuthor,
 } from '../features/prayer/prayerService'
 
@@ -34,26 +36,30 @@ function getAuthor(prayer: PrayerRequestWithAuthor) {
 
 export function PrayerRoomPage() {
   const { user } = useAuth()
+  const userId = user?.id
   const [prayers, setPrayers] = useState<PrayerRequestWithAuthor[]>([])
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [busyPrayerId, setBusyPrayerId] = useState<string | null>(null)
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'answered'>(
+    'all',
+  )
   const [error, setError] = useState('')
 
   const loadPrayers = useCallback(async (showLoading = true) => {
     if (showLoading) setIsLoading(true)
     setError('')
     try {
-      const prayerData = await getPublicPrayerRequests()
+      const prayerData = await getPublicPrayerRequests(userId)
       setPrayers(prayerData)
     } catch {
       setError('No pudimos cargar la sala de oración.')
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [userId])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -112,6 +118,30 @@ export function PrayerRoomPage() {
       setBusyPrayerId(null)
     }
   }
+
+  async function handlePrayerSupport(prayer: PrayerRequestWithAuthor) {
+    if (!user) return
+    setBusyPrayerId(prayer.id)
+    setError('')
+    try {
+      if (prayer.supportedByMe) {
+        await removePrayerSupport({ prayerId: prayer.id, userId: user.id })
+      } else {
+        await supportPrayer({ prayerId: prayer.id, userId: user.id })
+      }
+      await loadPrayers(false)
+    } catch {
+      setError('No pudimos actualizar tu oración por esta petición.')
+    } finally {
+      setBusyPrayerId(null)
+    }
+  }
+
+  const visiblePrayers = prayers.filter((prayer) => {
+    if (statusFilter === 'active') return !prayer.is_answered
+    if (statusFilter === 'answered') return prayer.is_answered
+    return true
+  })
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
@@ -193,9 +223,32 @@ export function PrayerRoomPage() {
                 </p>
                 <h2 className="mt-2 text-3xl font-black">En oración</h2>
               </div>
-            <span className="rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm text-white/60">
+              <span className="rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm text-white/60">
                 En vivo · 47 países
               </span>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              {[
+                ['all', 'Todas'],
+                ['active', 'En oración'],
+                ['answered', 'Respondidas'],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() =>
+                    setStatusFilter(value as 'all' | 'active' | 'answered')
+                  }
+                  className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                    statusFilter === value
+                      ? 'border-amber-300/30 bg-amber-300/15 text-amber-100'
+                      : 'border-white/10 bg-white/[0.05] text-white/55 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
 
             <article className="mt-6 rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5">
@@ -221,9 +274,9 @@ export function PrayerRoomPage() {
                 <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
                 Cargando peticiones...
               </div>
-            ) : prayers.length ? (
+            ) : visiblePrayers.length ? (
               <div className="mt-6 grid gap-4">
-                {prayers.map((prayer) => {
+                {visiblePrayers.map((prayer) => {
                   const isOwner = prayer.user_id === user?.id
                   return (
                     <article
@@ -237,14 +290,30 @@ export function PrayerRoomPage() {
                           </p>
                           <h3 className="mt-2 text-xl font-bold">{prayer.title}</h3>
                         </div>
-                        <span className="w-fit rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-semibold text-white/70">
-                          {prayer.is_answered ? 'Respondida' : 'En oración'}
-                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          <span className="w-fit rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-semibold text-white/70">
+                            {prayer.is_answered ? 'Respondida' : 'En oración'}
+                          </span>
+                          <span className="w-fit rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+                            {prayer.supportsCount} orando
+                          </span>
+                        </div>
                       </div>
                       <p className="mt-4 leading-7 text-white/65">{prayer.body}</p>
 
-                      {isOwner ? (
-                        <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+                      <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+                        <Button
+                          type="button"
+                          variant={prayer.supportedByMe ? 'secondary' : 'accent'}
+                          size="sm"
+                          onClick={() => void handlePrayerSupport(prayer)}
+                          disabled={busyPrayerId === prayer.id}
+                        >
+                          <Heart className="h-4 w-4" aria-hidden="true" />
+                          {prayer.supportedByMe ? 'Ya estoy orando' : 'Estoy orando'}
+                        </Button>
+                        {isOwner ? (
+                          <>
                           {!prayer.is_answered ? (
                             <Button
                               type="button"
@@ -267,8 +336,9 @@ export function PrayerRoomPage() {
                             <Trash2 className="h-4 w-4" aria-hidden="true" />
                             Eliminar
                           </Button>
-                        </div>
-                      ) : null}
+                          </>
+                        ) : null}
+                      </div>
                     </article>
                   )
                 })}

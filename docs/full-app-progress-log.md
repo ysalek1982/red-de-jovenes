@@ -73,3 +73,24 @@ No aplica.
 
 - QA dinámico Auth sigue pendiente si no se configuran usuarios QA A/B en
   `.env.qa.local`.
+
+## 2026-05-18 · Fase 3
+
+### Cambios
+
+- Se agregó `prayer_supports` para la acción “Estoy orando”.
+- La sala muestra conteo de jóvenes orando por petición.
+- Se agregaron filtros de estado: todas, en oración y respondidas.
+- El usuario puede marcar o quitar su apoyo de oración.
+
+### Validaciones
+
+- `npx supabase db push --dry-run`: OK.
+- `npx supabase db push`: OK.
+- Tipos Supabase regenerados.
+- `npm run lint`: OK.
+- `npm run build`: OK.
+
+### Bloqueos
+
+- QA dinámico con dos usuarios sigue pendiente por credenciales QA A/B.
