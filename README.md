@@ -2,7 +2,9 @@
 
 Landing/app cristiana moderna tipo red social/PWA, reconstruida a partir del prototipo publicado en Lovable.
 
-La experiencia principal presenta una red para jóvenes en Cristo con comunidad, oración, foros con la Palabra, juegos de fe, devocional diario, mapa mundial y una app instalable.
+El concepto central es: **“La red social cristiana de la nueva generación”** y **“Conectando jóvenes en Cristo.”**
+
+La experiencia principal se centra en comunidad cristiana juvenil, oración, devocionales, posts con la Palabra, perfiles de jóvenes y una base PWA instalable.
 
 ## Stack usado
 
@@ -12,6 +14,7 @@ La experiencia principal presenta una red para jóvenes en Cristo con comunidad,
 - Tailwind CSS
 - React Router
 - Lucide React
+- Supabase Auth, Postgres y RLS
 
 ## Instalación
 
@@ -21,7 +24,7 @@ npm install
 
 ## Configuración de Supabase
 
-Copia el archivo de ejemplo y completa solo los secretos en tu archivo local ignorado por Git:
+Copia el archivo de ejemplo y completa solo secretos en tu archivo local ignorado por Git:
 
 ```bash
 cp .env.local.example .env.local
@@ -50,7 +53,7 @@ SUPABASE_POOLER_USER=postgres.ntlzlfbztryasbmjnynq
 SUPABASE_POOLER_PASSWORD=REEMPLAZAR_SOLO_EN_ENV_LOCAL
 ```
 
-No escribas contraseñas reales, connection strings privadas ni service role keys en archivos versionados.
+No escribas contraseñas reales, connection strings privadas ni llaves privadas de backend en archivos versionados.
 
 ## Ejecución local
 
@@ -74,24 +77,32 @@ npm run lint
 
 ## Supabase CLI
 
-Cuando el CLI esté instalado y autenticado:
-
 ```bash
-supabase login
-supabase init
-supabase link --project-ref ntlzlfbztryasbmjnynq
-supabase db push
+npx supabase login
+npx supabase link --project-ref ntlzlfbztryasbmjnynq
+npx supabase db push --dry-run
+npx supabase db push
+npx supabase gen types typescript --project-id ntlzlfbztryasbmjnynq --schema public > src/types/supabase.generated.ts
 ```
 
-La migración inicial está en `supabase/migrations` y prepara autenticación, perfiles, peticiones de oración, posts, devocionales, testimonios y grupos con RLS.
+La migración inicial prepara autenticación, perfiles, peticiones de oración, posts, devocionales, testimonios y grupos con RLS.
 
 ## Rutas principales
+
+Públicas:
 
 - `/`
 - `/entrar`
 - `/crear-cuenta`
 - `/demo`
+
+Privadas:
+
 - `/app`
+- `/app/oracion`
+- `/app/comunidad`
+- `/app/devocional`
+- `/app/perfil`
 
 La página principal usa anclas internas:
 
@@ -100,22 +111,50 @@ La página principal usa anclas internas:
 - `#testimonios`
 - `#comunidad`
 
+## Funcionalidad actual
+
+- Landing cristiana/PWA con estética oscura, glassmorphism y contenido alineado al prototipo Lovable.
+- Registro y login con Supabase Auth.
+- Ruta privada protegida por sesión.
+- Perfil editable conectado a `profiles`.
+- Sala de oración conectada a `prayer_requests`.
+- Feed de comunidad conectado a `posts`.
+- Devocional diario conectado a `devotionals` con fallback al último disponible.
+- Navegación privada mobile-first.
+- Manifest, metadata, service worker y fallback offline básico.
+
 ## Estructura principal
 
 ```text
 src/
   components/
-    layout/       Header, footer y layout global.
+    layout/       Header, footer, layout global y AppShell privado.
     ui/           Componentes base reutilizables.
   data/
     landingData.ts Contenido de la landing cristiana/PWA.
-    mockData.ts    Datos heredados no enlazados en la experiencia principal.
+  features/
+    auth/
+    community/
+    devotionals/
+    prayer/
+    profile/
   pages/
     Home.tsx
-    PlaceholderPage.tsx
+    AppHome.tsx
+    PrayerRoomPage.tsx
+    CommunityFeedPage.tsx
+    DevotionalPage.tsx
+    AppProfile.tsx
   routes/
     AppRoutes.tsx
 ```
+
+## PWA
+
+- Manifest: `public/manifest.webmanifest`.
+- Service worker: `public/sw.js`.
+- Fallback offline: `public/offline.html`.
+- Documentación: `docs/pwa-setup.md`.
 
 ## Assets visuales
 
@@ -127,10 +166,29 @@ Los archivos en `public/assets` se usan para mantener paridad visual con el prot
 
 Estos assets fueron tomados de la referencia pública de Lovable para reconstrucción visual. Deben considerarse temporales: antes de producción conviene reemplazarlos por imágenes propias o por recursos con licencia confirmada.
 
+## QA y documentación
+
+- `docs/supabase-qa.md`
+- `docs/auth-profile-qa.md`
+- `docs/prayer-room-qa.md`
+- `docs/community-feed-qa.md`
+- `docs/devotional-qa.md`
+- `docs/pwa-setup.md`
+- `docs/security-rls-qa.md`
+- `docs/visual-polish-qa.md`
+- `docs/nightly-work-plan.md`
+- `docs/nightly-progress-log.md`
+- `docs/nightly-final-report.md`
+
+## Bloqueos conocidos
+
+- Supabase puede bloquear login con `Email not confirmed` si el usuario QA no confirmó su correo.
+- Durante la sesión nocturna Supabase respondió `email rate limit exceeded`, por lo que algunas pruebas dinámicas autenticadas quedaron pendientes.
+
 ## Próximas fases sugeridas
 
-- Crear flujos reales de registro e ingreso.
-- Implementar demo navegable de sala de oración, foros, devocional y mapa.
-- Añadir manifest PWA, service worker y modo instalable real.
-- Aplicar la migración con `supabase db push` en un entorno autenticado.
-- Agregar pruebas visuales y de navegación.
+- Confirmar un usuario QA o ajustar temporalmente confirmación de email para pruebas.
+- Ejecutar QA dinámico completo de RLS con dos usuarios.
+- Agregar tests automatizados de rutas protegidas y servicios.
+- Reemplazar assets temporales por recursos propios o con licencia confirmada.
+- Evaluar code splitting para reducir el warning de chunk grande.

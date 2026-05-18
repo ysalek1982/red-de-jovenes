@@ -132,3 +132,14 @@ Estado: completada.
 - `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
 
 Commit esperado: `Pule experiencia visual integral`.
+
+## Macrofase 9 - Documentacion final y cierre
+
+Estado: completada.
+
+- Se actualizo `README.md` con funcionalidad real, rutas privadas, Supabase y PWA.
+- Se creo `docs/nightly-final-report.md` con tabla de macrofases, commits, Supabase, Auth/RLS, PWA, riesgos y proximos pasos.
+- `npm run lint`: OK.
+- `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
+
+Commit esperado: `Documenta resultado nocturno`.
