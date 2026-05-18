@@ -25,3 +25,4 @@ export type ContentReport =
   Database['public']['Tables']['content_reports']['Row']
 export type NotificationPreference =
   Database['public']['Tables']['notification_preferences']['Row']
+export type GameScore = Database['public']['Tables']['game_scores']['Row']

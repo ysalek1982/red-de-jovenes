@@ -12,6 +12,7 @@ type CountableTable =
   | 'profiles'
   | 'prayer_requests'
   | 'posts'
+  | 'post_comments'
   | 'devotionals'
   | 'content_reports'
   | 'group_suggestions'
@@ -35,7 +36,14 @@ export type AdminReportPreview = ContentReport
 export type AdminSuggestionPreview = GroupSuggestion
 export type AdminDevotionalPreview = Pick<
   Devotional,
-  'id' | 'title' | 'devotional_date' | 'verse_reference'
+  | 'id'
+  | 'title'
+  | 'devotional_date'
+  | 'verse_reference'
+  | 'verse_text'
+  | 'reflection'
+  | 'prayer'
+  | 'is_active'
 >
 
 export type AdminPostPreview = Pick<
@@ -57,6 +65,7 @@ export async function getAdminOverview() {
     profiles,
     prayers,
     posts,
+    comments,
     devotionals,
     reports,
     groupSuggestions,
@@ -65,6 +74,7 @@ export async function getAdminOverview() {
     getCount('profiles'),
     getCount('prayer_requests'),
     getCount('posts'),
+    getCount('post_comments'),
     getCount('devotionals'),
     getCount('content_reports'),
     getCount('group_suggestions'),
@@ -75,6 +85,7 @@ export async function getAdminOverview() {
     profiles,
     prayers,
     posts,
+    comments,
     devotionals,
     reports,
     groupSuggestions,
@@ -93,11 +104,13 @@ export async function getAdminLatestItems() {
       supabase
         .from('content_reports')
         .select('*')
+        .eq('status', 'pending')
         .order('created_at', { ascending: false })
         .limit(5),
       supabase
         .from('group_suggestions')
         .select('*')
+        .eq('status', 'pending')
         .order('created_at', { ascending: false })
         .limit(5),
       supabase
@@ -112,7 +125,9 @@ export async function getAdminLatestItems() {
         .limit(5),
       supabase
         .from('devotionals')
-        .select('id, title, devotional_date, verse_reference')
+        .select(
+          'id, title, devotional_date, verse_reference, verse_text, reflection, prayer, is_active',
+        )
         .order('devotional_date', { ascending: false })
         .limit(5),
     ])
@@ -132,11 +147,14 @@ export async function getAdminLatestItems() {
 }
 
 export async function createDevotional(input: {
+  userId: string
   title: string
   verseReference: string
   verseText: string
   reflection: string
+  prayer?: string
   devotionalDate: string
+  isActive: boolean
 }) {
   const { data, error } = await supabase
     .from('devotionals')
@@ -145,7 +163,10 @@ export async function createDevotional(input: {
       verse_reference: input.verseReference,
       verse_text: input.verseText,
       reflection: input.reflection,
+      prayer: input.prayer || null,
       devotional_date: input.devotionalDate,
+      is_active: input.isActive,
+      created_by: input.userId,
     })
     .select()
     .single()
@@ -160,7 +181,9 @@ export async function updateDevotional(input: {
   verseReference: string
   verseText: string
   reflection: string
+  prayer?: string
   devotionalDate: string
+  isActive: boolean
 }) {
   const { data, error } = await supabase
     .from('devotionals')
@@ -169,7 +192,9 @@ export async function updateDevotional(input: {
       verse_reference: input.verseReference,
       verse_text: input.verseText,
       reflection: input.reflection,
+      prayer: input.prayer || null,
       devotional_date: input.devotionalDate,
+      is_active: input.isActive,
     })
     .eq('id', input.devotionalId)
     .select()
@@ -181,11 +206,12 @@ export async function updateDevotional(input: {
 
 export async function updateReportStatus(
   reportId: string,
-  status: 'pending' | 'reviewed' | 'dismissed',
+  status: 'pending' | 'reviewed' | 'dismissed' | 'action_taken',
+  internalNote?: string,
 ) {
   const { data, error } = await supabase
     .from('content_reports')
-    .update({ status })
+    .update({ status, internal_note: internalNote || null })
     .eq('id', reportId)
     .select()
     .single()
@@ -197,14 +223,47 @@ export async function updateReportStatus(
 export async function updateGroupSuggestionStatus(
   suggestionId: string,
   status: 'pending' | 'approved' | 'rejected',
+  internalNote?: string,
 ) {
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+  if (userError) throw userError
+
+  const { data: suggestion, error: readError } = await supabase
+    .from('group_suggestions')
+    .select('*')
+    .eq('id', suggestionId)
+    .single()
+
+  if (readError) throw readError
+
   const { data, error } = await supabase
     .from('group_suggestions')
-    .update({ status })
+    .update({
+      status,
+      internal_note: internalNote || null,
+      reviewed_by: userData.user?.id ?? null,
+      reviewed_at: new Date().toISOString(),
+    })
     .eq('id', suggestionId)
     .select()
     .single()
 
   if (error) throw error
+
+  if (status === 'approved') {
+    const { error: groupError } = await supabase.from('groups').insert({
+      name: suggestion.name,
+      country: suggestion.country,
+      city: suggestion.city,
+      church_name: suggestion.church_name,
+      contact_url: suggestion.contact_url,
+      meeting_info: suggestion.meeting_info || 'Comunidad sugerida y aprobada.',
+      description: 'Comunidad aprobada desde sugerencias del piloto.',
+      is_active: true,
+    })
+
+    if (groupError) throw groupError
+  }
+
   return data
 }

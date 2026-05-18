@@ -94,31 +94,37 @@ export type Database = {
           created_at: string
           details: string | null
           id: string
+          internal_note: string | null
           reason: string
           reporter_id: string | null
           status: string
           target_id: string
           target_type: string
+          updated_at: string
         }
         Insert: {
           created_at?: string
           details?: string | null
           id?: string
+          internal_note?: string | null
           reason: string
           reporter_id?: string | null
           status?: string
           target_id: string
           target_type: string
+          updated_at?: string
         }
         Update: {
           created_at?: string
           details?: string | null
           id?: string
+          internal_note?: string | null
           reason?: string
           reporter_id?: string | null
           status?: string
           target_id?: string
           target_type?: string
+          updated_at?: string
         }
         Relationships: [
           {
@@ -247,32 +253,52 @@ export type Database = {
       devotionals: {
         Row: {
           created_at: string | null
+          created_by: string | null
           devotional_date: string
           id: string
+          is_active: boolean
+          prayer: string | null
           reflection: string
           title: string
+          updated_at: string
           verse_reference: string
           verse_text: string
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
           devotional_date: string
           id?: string
+          is_active?: boolean
+          prayer?: string | null
           reflection: string
           title: string
+          updated_at?: string
           verse_reference: string
           verse_text: string
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
           devotional_date?: string
           id?: string
+          is_active?: boolean
+          prayer?: string | null
           reflection?: string
           title?: string
+          updated_at?: string
           verse_reference?: string
           verse_text?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "devotionals_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       Event: {
         Row: {
@@ -310,6 +336,41 @@ export type Database = {
         }
         Relationships: []
       }
+      game_scores: {
+        Row: {
+          created_at: string
+          game_key: string
+          id: string
+          score: number
+          total: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          game_key: string
+          id?: string
+          score: number
+          total: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          game_key?: string
+          id?: string
+          score?: number
+          total?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "game_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_suggestions: {
         Row: {
           church_name: string | null
@@ -318,7 +379,11 @@ export type Database = {
           country: string
           created_at: string
           id: string
+          internal_note: string | null
+          meeting_info: string | null
           name: string
+          reviewed_at: string | null
+          reviewed_by: string | null
           status: string
           user_id: string | null
         }
@@ -329,7 +394,11 @@ export type Database = {
           country: string
           created_at?: string
           id?: string
+          internal_note?: string | null
+          meeting_info?: string | null
           name: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string
           user_id?: string | null
         }
@@ -340,11 +409,22 @@ export type Database = {
           country?: string
           created_at?: string
           id?: string
+          internal_note?: string | null
+          meeting_info?: string | null
           name?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "group_suggestions_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "group_suggestions_user_id_fkey"
             columns: ["user_id"]
@@ -517,6 +597,7 @@ export type Database = {
           created_at: string | null
           id: string
           post_id: string
+          updated_at: string
           user_id: string
         }
         Insert: {
@@ -524,6 +605,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           post_id: string
+          updated_at?: string
           user_id: string
         }
         Update: {
@@ -531,6 +613,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           post_id?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
@@ -629,9 +712,13 @@ export type Database = {
       }
       prayer_requests: {
         Row: {
+          answered_at: string | null
+          answered_testimony: string | null
           body: string
+          category: string
           created_at: string | null
           id: string
+          is_anonymous: boolean
           is_answered: boolean | null
           title: string
           updated_at: string | null
@@ -639,9 +726,13 @@ export type Database = {
           visibility: string | null
         }
         Insert: {
+          answered_at?: string | null
+          answered_testimony?: string | null
           body: string
+          category?: string
           created_at?: string | null
           id?: string
+          is_anonymous?: boolean
           is_answered?: boolean | null
           title: string
           updated_at?: string | null
@@ -649,9 +740,13 @@ export type Database = {
           visibility?: string | null
         }
         Update: {
+          answered_at?: string | null
+          answered_testimony?: string | null
           body?: string
+          category?: string
           created_at?: string | null
           id?: string
+          is_anonymous?: boolean
           is_answered?: boolean | null
           title?: string
           updated_at?: string | null

@@ -1,34 +1,32 @@
-# Plan maestro de maduración funcional
+# Plan maestro de maduracion funcional
 
 ## Objetivo
 
-Completar funcionalidades reales en módulos existentes de Red de Jóvenes antes del despliegue staging, manteniendo la experiencia cristiana/PWA, Supabase Auth, RLS y la estética actual.
+Completar funcionalidades reales en modulos existentes de Red de Jovenes antes del despliegue staging, manteniendo la experiencia cristiana/PWA, Supabase Auth, RLS y la estetica actual.
 
 ## Matriz maestra
 
-| Módulo | Estado actual | Objetivo funcional | Brechas detectadas | Cambios necesarios | Migraciones requeridas | QA requerido | Estado final |
+| Modulo | Estado actual | Objetivo funcional | Brechas detectadas | Cambios necesarios | Migraciones requeridas | QA requerido | Estado final |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Admin/moderación | Parcial | Operar piloto con KPIs, reportes, devocionales y grupos | Reportes sin nota interna ni `action_taken`; aprobación de grupos no crea grupo; edición devocional incompleta | Mejorar adminService y AdminHome | Sí | `qa:admin` | En progreso |
-| Devocionales | Parcial | Contenido diario administrable y progreso personal | Sin `is_active`, oración final ni favoritos visibles | Campos nuevos, favoritos, progreso, admin | Sí | `qa:admin`, `qa:functional` | En progreso |
-| Foros con la Palabra | Parcial | Feed social con edición, comentarios, reacciones y reportes | No edita post/comentario propio; filtros limitados | Servicios de update/delete, UI de filtros/edición | Sí para update comments | `qa:forums` | En progreso |
-| Sala de oración | Parcial | Oración comunitaria con categoría, anónimo y testimonio | Sin categoría, anónimo visual ni testimonio de respuesta | Campos nuevos, filtros y UI | Sí | `qa:prayer` | En progreso |
-| Seguridad/reportes | Parcial | Reportes operables por usuarios y admin | Motivos libres, estados limitados, sin nota interna | Motivos predefinidos y admin notes | Sí | `qa:admin`, `qa:rls` | En progreso |
-| Juegos de fe | Parcial | Juegos con progreso real | Puntajes no persistidos | Tabla `game_scores`, servicio y UI de historial | Sí | `qa:games` | En progreso |
-| Mapa mundial | Parcial | Descubrir comunidades reales y sugerir grupos | Aprobación no crea grupo activo | Servicio admin para aprobar/rechazar | Sí para campos de revisión | `qa:map`, `qa:admin` | En progreso |
-| Perfil/preferencias | Casi completo | Perfil personal y preferencias claras | Avatar preview básico, rol no visible | Mostrar rol, preview y mensajes | No | `qa:functional` | En progreso |
-| Inicio privado | Casi completo | Centro real con resúmenes sin métricas falsas | Resúmenes básicos | Añadir KPIs reales y enlaces | No | `qa:functional` | En progreso |
-| PWA | Casi completo | App instalable clara y honesta | Prompt puede repetirse por sesión | Persistir descarte local y doc límites | No | `smoke:build` | En progreso |
+| Admin/moderacion | Parcial | Operar piloto con KPIs, reportes, devocionales y grupos | Reportes sin nota interna ni `action_taken`; aprobacion de grupos no creaba grupo activo; edicion devocional incompleta | Mejorar `adminService`, `AdminHome`, politicas admin y QA | Si: `20260518190000` | `qa:admin` | Completado |
+| Devocionales | Parcial | Contenido diario administrable y progreso personal | Sin `is_active`, oracion final ni favoritos visibles | Campos nuevos, favoritos, progreso y gestion admin | Si: `20260518190000` | `qa:admin`, `qa:functional` | Completado |
+| Foros con la Palabra | Parcial | Feed social con edicion, comentarios, reacciones y reportes | No editaba post/comentario propio; filtros limitados | Servicios de update/delete, UI de filtros/edicion y QA ampliado | Si: `20260518190000` | `qa:forums` | Completado |
+| Sala de oracion | Parcial | Oracion comunitaria con categoria, anonimato visual y testimonio | Sin categoria, anonimato visual ni testimonio de respuesta | Campos nuevos, filtros, UI y QA ampliado | Si: `20260518190000` | `qa:prayer` | Completado |
+| Seguridad/reportes | Parcial | Reportes operables por usuarios y admin | Motivos libres, estados limitados, sin nota interna | Motivos predefinidos, notas internas y estados de moderacion | Si: `20260518190000` | `qa:admin`, `qa:rls` | Completado |
+| Juegos de fe | Parcial | Juegos con progreso real | Puntajes no persistidos | Tabla `game_scores`, servicio y UI de historial | Si: `20260518190000`, `20260518191000` | `qa:games` | Completado |
+| Mapa mundial | Parcial | Descubrir comunidades reales y sugerir grupos | Aprobacion no creaba grupo activo; faltaba informacion de reunion | Campos de revision, aprobacion admin y sugerencias mejoradas | Si: `20260518190000` | `qa:map`, `qa:admin` | Completado |
+| Perfil/preferencias | Casi completo | Perfil personal y preferencias claras | Rol no visible en perfil | Mostrar rol, vista previa y mensajes claros | No | `qa:functional` | Completado |
+| Inicio privado | Casi completo | Centro real con resumenes sin metricas falsas | Algunos textos asumian alcance fijo | Ajustar accesos y texto a datos reales | No | `qa:functional` | Completado |
+| PWA | Casi completo | App instalable clara y honesta | Prompt podia repetirse por sesion | Persistir descarte local y documentar limites | No | `smoke:build` | Completado |
 
-## Política de seguridad
+## Politica de seguridad
 
 - No usar `service_role` en `src/`.
 - No versionar `.env.local`, `.env.admin.local`, `.env.qa.local` ni passwords.
-- Mantener RLS como control real, no solo validación visual.
+- Mantener RLS como control real, no solo validacion visual.
 - Toda escritura administrativa desde cliente debe estar protegida por `public.has_role('admin')`.
 
-## Validación esperada
-
-Al cierre:
+## Validacion final esperada
 
 - `npm run lint`
 - `npm run build`

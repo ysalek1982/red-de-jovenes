@@ -12,6 +12,7 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { hasRole } from '../features/auth/roleService'
+import { useAuth } from '../features/auth/useAuth'
 import {
   createDevotional,
   getAdminLatestItems,
@@ -31,6 +32,7 @@ interface AdminOverview {
   profiles: number
   prayers: number
   posts: number
+  comments: number
   devotionals: number
   reports: number
   groupSuggestions: number
@@ -50,6 +52,7 @@ const initialOverview: AdminOverview = {
   profiles: 0,
   prayers: 0,
   posts: 0,
+  comments: 0,
   devotionals: 0,
   reports: 0,
   groupSuggestions: 0,
@@ -75,6 +78,7 @@ function formatDate(value: string | null) {
 }
 
 export function AdminHome() {
+  const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
   const [overview, setOverview] = useState<AdminOverview>(initialOverview)
@@ -89,8 +93,12 @@ export function AdminHome() {
     verseReference: '',
     verseText: '',
     reflection: '',
+    prayer: '',
     devotionalDate: new Date().toISOString().slice(0, 10),
+    isActive: true,
   })
+  const [reportNotes, setReportNotes] = useState<Record<string, string>>({})
+  const [suggestionNotes, setSuggestionNotes] = useState<Record<string, string>>({})
 
   const loadAdminData = useCallback(async () => {
     const [overviewData, latestData] = await Promise.all([
@@ -134,6 +142,11 @@ export function AdminHome() {
     setIsSavingDevotional(true)
     setMessage('')
     try {
+      if (!user?.id) {
+        setMessage('No pudimos confirmar tu sesion de administrador.')
+        return
+      }
+
       if (editingDevotionalId) {
         await updateDevotional({
           devotionalId: editingDevotionalId,
@@ -141,7 +154,10 @@ export function AdminHome() {
         })
         setMessage('Devocional actualizado.')
       } else {
-        await createDevotional(devotionalForm)
+        await createDevotional({
+          userId: user.id,
+          ...devotionalForm,
+        })
         setMessage('Devocional creado.')
       }
       setEditingDevotionalId(null)
@@ -150,7 +166,9 @@ export function AdminHome() {
         verseReference: '',
         verseText: '',
         reflection: '',
+        prayer: '',
         devotionalDate: new Date().toISOString().slice(0, 10),
+        isActive: true,
       })
       await loadAdminData()
     } catch {
@@ -165,20 +183,22 @@ export function AdminHome() {
     setDevotionalForm({
       title: devotional.title,
       verseReference: devotional.verse_reference,
-      verseText: '',
-      reflection: '',
+      verseText: devotional.verse_text,
+      reflection: devotional.reflection,
+      prayer: devotional.prayer ?? '',
       devotionalDate: devotional.devotional_date,
+      isActive: devotional.is_active,
     })
     setMessage('Carga el texto bíblico y la reflexión para actualizar.')
   }
 
   async function handleReportStatus(
     reportId: string,
-    status: 'pending' | 'reviewed' | 'dismissed',
+    status: 'pending' | 'reviewed' | 'dismissed' | 'action_taken',
   ) {
     setMessage('')
     try {
-      await updateReportStatus(reportId, status)
+      await updateReportStatus(reportId, status, reportNotes[reportId])
       await loadAdminData()
       setMessage('Reporte actualizado.')
     } catch {
@@ -192,7 +212,11 @@ export function AdminHome() {
   ) {
     setMessage('')
     try {
-      await updateGroupSuggestionStatus(suggestionId, status)
+      await updateGroupSuggestionStatus(
+        suggestionId,
+        status,
+        suggestionNotes[suggestionId],
+      )
       await loadAdminData()
       setMessage('Sugerencia actualizada.')
     } catch {
@@ -237,6 +261,7 @@ export function AdminHome() {
     { title: 'Usuarios', value: overview.profiles, icon: Users },
     { title: 'Oraciones', value: overview.prayers, icon: Heart },
     { title: 'Publicaciones', value: overview.posts, icon: MessageCircle },
+    { title: 'Comentarios', value: overview.comments, icon: FileText },
     { title: 'Devocionales', value: overview.devotionals, icon: BookOpen },
     { title: 'Reportes', value: overview.reports, icon: ShieldCheck },
     { title: 'Sugerencias', value: overview.groupSuggestions, icon: FileText },
@@ -328,7 +353,7 @@ export function AdminHome() {
           </div>
         </div>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-7">
           {kpis.map((card) => {
             const Icon = card.icon
             return (
@@ -414,6 +439,31 @@ export function AdminHome() {
                 placeholder="Reflexión"
                 className="min-h-32 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
               />
+              <textarea
+                value={devotionalForm.prayer}
+                onChange={(event) =>
+                  setDevotionalForm((current) => ({
+                    ...current,
+                    prayer: event.target.value,
+                  }))
+                }
+                placeholder="Oracion final, opcional"
+                className="min-h-24 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+              />
+              <label className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-3 text-sm font-bold text-white/75">
+                Devocional activo
+                <input
+                  type="checkbox"
+                  checked={devotionalForm.isActive}
+                  onChange={(event) =>
+                    setDevotionalForm((current) => ({
+                      ...current,
+                      isActive: event.target.checked,
+                    }))
+                  }
+                  className="h-5 w-5 accent-amber-300"
+                />
+              </label>
             </div>
             <button
               type="submit"
@@ -445,13 +495,44 @@ export function AdminHome() {
                   title={report.reason}
                   detail={`${report.target_type} · ${formatDate(report.created_at)}`}
                   action={
-                    <button
-                      type="button"
-                      onClick={() => void handleReportStatus(report.id, 'reviewed')}
-                      className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-950"
-                    >
-                      Revisado
-                    </button>
+                    <div className="flex min-w-48 flex-col gap-2">
+                      <input
+                        value={reportNotes[report.id] ?? ''}
+                        onChange={(event) =>
+                          setReportNotes((current) => ({
+                            ...current,
+                            [report.id]: event.target.value,
+                          }))
+                        }
+                        placeholder="Nota interna"
+                        className="h-8 rounded-full border border-white/10 bg-slate-950/60 px-3 text-xs text-white outline-none placeholder:text-white/35"
+                      />
+                      <div className="flex flex-wrap gap-1">
+                        <button
+                          type="button"
+                          onClick={() => void handleReportStatus(report.id, 'reviewed')}
+                          className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-950"
+                        >
+                          Revisado
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleReportStatus(report.id, 'dismissed')}
+                          className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/70"
+                        >
+                          Descartar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void handleReportStatus(report.id, 'action_taken')
+                          }
+                          className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-100"
+                        >
+                          Accion
+                        </button>
+                      </div>
+                    </div>
                   }
                 />
               ))}
@@ -464,15 +545,39 @@ export function AdminHome() {
                   title={suggestion.name}
                   detail={`${suggestion.city ?? 'sin ciudad'} · ${suggestion.country}`}
                   action={
-                    <button
-                      type="button"
-                      onClick={() =>
-                        void handleSuggestionStatus(suggestion.id, 'approved')
-                      }
-                      className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-950"
-                    >
-                      Aprobar
-                    </button>
+                    <div className="flex min-w-44 flex-col gap-2">
+                      <input
+                        value={suggestionNotes[suggestion.id] ?? ''}
+                        onChange={(event) =>
+                          setSuggestionNotes((current) => ({
+                            ...current,
+                            [suggestion.id]: event.target.value,
+                          }))
+                        }
+                        placeholder="Nota interna"
+                        className="h-8 rounded-full border border-white/10 bg-slate-950/60 px-3 text-xs text-white outline-none placeholder:text-white/35"
+                      />
+                      <div className="flex flex-wrap gap-1">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void handleSuggestionStatus(suggestion.id, 'approved')
+                          }
+                          className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-950"
+                        >
+                          Aprobar
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void handleSuggestionStatus(suggestion.id, 'rejected')
+                          }
+                          className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/70"
+                        >
+                          Rechazar
+                        </button>
+                      </div>
+                    </div>
                   }
                 />
               ))}
