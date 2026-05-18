@@ -170,7 +170,7 @@ async function main() {
 
   console.log(
     safeResult({
-      status: blocked?.status ?? (failed ? 'FAILED' : 'OK'),
+      status: blocked?.status ?? (failed ? 'FAILED' : 'QA_AUTH_OK'),
       users: results,
     }),
   )
