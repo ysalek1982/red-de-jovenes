@@ -36,6 +36,7 @@ function AppLayout() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [moreOpen, setMoreOpen] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const { open: paletteOpen, setOpen: setPaletteOpen } = useCommandPalette();
 
   const toggleTheme = () => {
     const next = theme === "dark" ? "light" : "dark";
@@ -88,12 +89,8 @@ function AppLayout() {
               <div className="size-8 rounded-full gradient-faith grid place-items-center font-black text-primary-foreground text-sm">+</div>
               <span className="font-bold">Red</span>
             </div>
-            <div className="flex-1 max-w-xl mx-auto relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-              <input
-                placeholder="Buscar amigos, versículos, eventos..."
-                className="w-full rounded-full bg-secondary/50 border border-border pl-11 pr-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-primary/40"
-              />
+            <div className="flex-1 max-w-xl mx-auto">
+              <PaletteTrigger onOpen={() => setPaletteOpen(true)} />
             </div>
             <button
               onClick={toggleTheme}
