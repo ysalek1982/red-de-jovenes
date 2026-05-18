@@ -15,6 +15,11 @@ const AppShell = lazy(() =>
 const AppHome = lazy(() =>
   import('../pages/AppHome').then((module) => ({ default: module.AppHome })),
 )
+const AdminHome = lazy(() =>
+  import('../pages/AdminHome').then((module) => ({
+    default: module.AdminHome,
+  })),
+)
 const AppProfile = lazy(() =>
   import('../pages/AppProfile').then((module) => ({
     default: module.AppProfile,
@@ -85,6 +90,7 @@ export function AppRoutes() {
             element={withSuspense(<CommunityFeedPage />)}
           />
           <Route path="devocional" element={withSuspense(<DevotionalPage />)} />
+          <Route path="admin" element={withSuspense(<AdminHome />)} />
         </Route>
         <Route
           path="demo"
