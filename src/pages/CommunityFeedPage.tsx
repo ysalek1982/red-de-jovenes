@@ -58,6 +58,7 @@ export function CommunityFeedPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [busyPostId, setBusyPostId] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const [actionMessage, setActionMessage] = useState('')
 
   const loadPosts = useCallback(async (showLoading = true) => {
     if (showLoading) setIsLoading(true)
@@ -86,6 +87,7 @@ export function CommunityFeedPage() {
 
     setIsSubmitting(true)
     setError('')
+    setActionMessage('')
     try {
       await createPost({
         userId: user.id,
@@ -97,6 +99,7 @@ export function CommunityFeedPage() {
       setVerseReference('')
       setVerseText('')
       await loadPosts(false)
+      setActionMessage('Post publicado en los foros.')
     } catch {
       setError('No pudimos publicar tu post.')
     } finally {
@@ -108,9 +111,11 @@ export function CommunityFeedPage() {
     if (!user) return
     setBusyPostId(postId)
     setError('')
+    setActionMessage('')
     try {
       await deleteOwnPost({ postId, userId: user.id })
       await loadPosts(false)
+      setActionMessage('Post eliminado.')
     } catch {
       setError('Solo puedes eliminar tus propios posts.')
     } finally {
@@ -132,6 +137,7 @@ export function CommunityFeedPage() {
 
     setIsSubmitting(true)
     setError('')
+    setActionMessage('')
     try {
       await updateOwnPost({
         postId: editingPostId,
@@ -145,6 +151,7 @@ export function CommunityFeedPage() {
       setVerseReference('')
       setVerseText('')
       await loadPosts(false)
+      setActionMessage('Post actualizado.')
     } catch {
       setError('No pudimos editar tu publicacion.')
     } finally {
@@ -156,6 +163,7 @@ export function CommunityFeedPage() {
     if (!user) return
     setBusyPostId(post.id)
     setError('')
+    setActionMessage('')
     try {
       await toggleAmenReaction({
         postId: post.id,
@@ -163,6 +171,7 @@ export function CommunityFeedPage() {
         hasReacted: post.reactedByMe,
       })
       await loadPosts(false)
+      setActionMessage(post.reactedByMe ? 'Amen retirado.' : 'Amen registrado.')
     } catch {
       setError('No pudimos actualizar tu amén.')
     } finally {
@@ -177,6 +186,7 @@ export function CommunityFeedPage() {
 
     setBusyPostId(postId)
     setError('')
+    setActionMessage('')
     try {
       await createPostComment({
         postId,
@@ -185,6 +195,7 @@ export function CommunityFeedPage() {
       })
       setCommentDrafts((current) => ({ ...current, [postId]: '' }))
       await loadPosts(false)
+      setActionMessage('Comentario publicado.')
     } catch {
       setError('No pudimos publicar tu comentario.')
     } finally {
@@ -199,6 +210,7 @@ export function CommunityFeedPage() {
 
     setBusyPostId(commentId)
     setError('')
+    setActionMessage('')
     try {
       await updateOwnPostComment({
         commentId,
@@ -208,6 +220,7 @@ export function CommunityFeedPage() {
       setEditingCommentId(null)
       setCommentEdits((current) => ({ ...current, [commentId]: '' }))
       await loadPosts(false)
+      setActionMessage('Comentario actualizado.')
     } catch {
       setError('No pudimos editar tu comentario.')
     } finally {
@@ -220,9 +233,11 @@ export function CommunityFeedPage() {
 
     setBusyPostId(commentId)
     setError('')
+    setActionMessage('')
     try {
       await deleteOwnPostComment({ commentId, userId: user.id })
       await loadPosts(false)
+      setActionMessage('Comentario eliminado.')
     } catch {
       setError('Solo puedes eliminar tus propios comentarios.')
     } finally {
@@ -235,6 +250,7 @@ export function CommunityFeedPage() {
 
     setBusyPostId(postId)
     setError('')
+    setActionMessage('')
     try {
       await createContentReport({
         reporterId: user.id,
@@ -242,7 +258,7 @@ export function CommunityFeedPage() {
         targetId: postId,
         reason: 'Revisión comunitaria solicitada',
       })
-      setError('Reporte enviado para revisión. Gracias por cuidar la Red.')
+      setActionMessage('Reporte enviado para revision. Gracias por cuidar la Red.')
     } catch {
       setError('No pudimos enviar el reporte.')
     } finally {
@@ -255,6 +271,7 @@ export function CommunityFeedPage() {
 
     setBusyPostId(commentId)
     setError('')
+    setActionMessage('')
     try {
       await createContentReport({
         reporterId: user.id,
@@ -262,7 +279,7 @@ export function CommunityFeedPage() {
         targetId: commentId,
         reason: 'Revisión comunitaria solicitada',
       })
-      setError('Comentario enviado a revisión. Gracias por cuidar la Red.')
+      setActionMessage('Comentario enviado a revision. Gracias por cuidar la Red.')
     } catch {
       setError('No pudimos enviar el reporte del comentario.')
     } finally {
@@ -455,6 +472,11 @@ export function CommunityFeedPage() {
             {error ? (
               <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
                 {error}
+              </div>
+            ) : null}
+            {actionMessage ? (
+              <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm text-emerald-100">
+                {actionMessage}
               </div>
             ) : null}
 
