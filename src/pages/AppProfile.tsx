@@ -7,6 +7,7 @@ import { Textarea } from '../components/ui/textarea'
 import { useAuth } from '../features/auth/useAuth'
 import {
   ensureProfile,
+  isValidUsername,
   updateProfile,
 } from '../features/profile/profileService'
 import type { Profile } from '../types/database'
@@ -14,18 +15,22 @@ import type { Profile } from '../types/database'
 interface ProfileForm {
   fullName: string
   username: string
+  avatarUrl: string
   city: string
   country: string
   churchName: string
+  ageRange: string
   bio: string
 }
 
 const emptyForm: ProfileForm = {
   fullName: '',
   username: '',
+  avatarUrl: '',
   city: '',
   country: '',
   churchName: '',
+  ageRange: '',
   bio: '',
 }
 
@@ -33,17 +38,19 @@ function profileToForm(profile: Profile): ProfileForm {
   return {
     fullName: profile.full_name,
     username: profile.username ?? '',
+    avatarUrl: profile.avatar_url ?? '',
     city: profile.city ?? '',
     country: profile.country ?? '',
     churchName: profile.church_name ?? '',
+    ageRange: profile.age_range ?? '',
     bio: profile.bio ?? '',
   }
 }
 
 function validateProfile(form: ProfileForm) {
   if (!form.fullName.trim()) return 'Ingresa tu nombre completo.'
-  if (form.username.trim() && /\s/.test(form.username.trim())) {
-    return 'El nombre de usuario no puede contener espacios.'
+  if (!isValidUsername(form.username)) {
+    return 'El usuario debe tener 3 a 30 caracteres y solo usar letras, números, punto, guion o guion bajo.'
   }
   return ''
 }
@@ -116,16 +123,24 @@ export function AppProfile() {
         userId: user.id,
         fullName: form.fullName,
         username: form.username.trim().toLowerCase() || null,
+        avatarUrl: form.avatarUrl,
         city: form.city,
         country: form.country,
         churchName: form.churchName,
+        ageRange: form.ageRange,
         bio: form.bio,
       })
       setProfile(updatedProfile)
       setForm(profileToForm(updatedProfile))
       setSuccess('Perfil actualizado correctamente.')
-    } catch {
-      setError('No pudimos guardar tu perfil. Revisa el usuario o intenta más tarde.')
+    } catch (saveError) {
+      const message =
+        saveError instanceof Error ? saveError.message : 'Error desconocido'
+      setError(
+        message === 'USERNAME_TAKEN'
+          ? 'Ese usuario ya está en uso. Elige otro.'
+          : 'No pudimos guardar tu perfil. Revisa el usuario o intenta más tarde.',
+      )
     } finally {
       setIsSaving(false)
     }
@@ -154,6 +169,11 @@ export function AppProfile() {
             <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/45 p-4 text-sm text-white/65">
               {memberSince}
             </div>
+            {profile?.community_guidelines_accepted_at ? (
+              <div className="mt-3 rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm text-emerald-100">
+                Normas de comunidad aceptadas.
+              </div>
+            ) : null}
           </aside>
 
           <form
@@ -211,6 +231,24 @@ export function AppProfile() {
                 />
               </div>
               <div>
+                <label className="text-sm font-semibold" htmlFor="profileAgeRange">
+                  Rango de edad
+                </label>
+                <select
+                  id="profileAgeRange"
+                  value={form.ageRange}
+                  onChange={(event) => updateField('ageRange', event.target.value)}
+                  className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+                  disabled={isLoading}
+                >
+                  <option value="">Sin especificar</option>
+                  <option value="13-17">13 a 17 años</option>
+                  <option value="18-24">18 a 24 años</option>
+                  <option value="25-30">25 a 30 años</option>
+                  <option value="31+">31 años o más</option>
+                </select>
+              </div>
+              <div>
                 <label className="text-sm font-semibold" htmlFor="profileChurch">
                   Iglesia o comunidad
                 </label>
@@ -219,6 +257,19 @@ export function AppProfile() {
                   value={form.churchName}
                   onChange={(event) => updateField('churchName', event.target.value)}
                   placeholder="Comunidad Centro"
+                  className="mt-2"
+                  disabled={isLoading}
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="text-sm font-semibold" htmlFor="profileAvatarUrl">
+                  Avatar URL, opcional
+                </label>
+                <Input
+                  id="profileAvatarUrl"
+                  value={form.avatarUrl}
+                  onChange={(event) => updateField('avatarUrl', event.target.value)}
+                  placeholder="https://..."
                   className="mt-2"
                   disabled={isLoading}
                 />

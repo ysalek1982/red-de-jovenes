@@ -49,3 +49,27 @@ y mantener `/demo`.
 ### Migraciones
 
 No aplica.
+
+## 2026-05-18 · Fase 2
+
+### Cambios
+
+- Registro ampliado con username, rango de edad y aceptación de normas.
+- Perfil editable ampliado con avatar URL y rango de edad.
+- Nueva ruta `/recuperar` para recuperación de contraseña por Supabase.
+- Servicio de perfil valida disponibilidad de username.
+- Migración incremental aplicada para `profiles.age_range` y
+  `profiles.community_guidelines_accepted_at`.
+- Tipos Supabase regenerados desde remoto.
+
+### Validaciones
+
+- `npx supabase db push --dry-run`: OK.
+- `npx supabase db push`: OK.
+- `npm run lint`: OK.
+- `npm run build`: OK.
+
+### Bloqueos
+
+- QA dinámico Auth sigue pendiente si no se configuran usuarios QA A/B en
+  `.env.qa.local`.

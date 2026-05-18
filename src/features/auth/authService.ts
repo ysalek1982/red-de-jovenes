@@ -3,9 +3,12 @@ import { supabase } from '../../lib/supabase'
 
 export interface SignUpMetadata {
   full_name: string
+  username?: string
   city: string
   country: string
   church_name?: string
+  age_range?: string
+  accepted_community_guidelines?: boolean
 }
 
 export interface SignUpResult {
@@ -53,6 +56,14 @@ export async function signUpWithPassword(
     userId: data.user?.id ?? null,
     hasSession: Boolean(data.session),
   } satisfies SignUpResult
+}
+
+export async function sendPasswordResetEmail(email: string) {
+  const redirectTo = `${window.location.origin}/entrar`
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo,
+  })
+  if (error) throw error
 }
 
 export async function signOut() {

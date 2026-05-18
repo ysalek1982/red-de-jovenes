@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -427,10 +427,12 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age_range: string | null
           avatar_url: string | null
           bio: string | null
           church_name: string | null
           city: string | null
+          community_guidelines_accepted_at: string | null
           country: string | null
           created_at: string | null
           full_name: string
@@ -439,10 +441,12 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          age_range?: string | null
           avatar_url?: string | null
           bio?: string | null
           church_name?: string | null
           city?: string | null
+          community_guidelines_accepted_at?: string | null
           country?: string | null
           created_at?: string | null
           full_name: string
@@ -451,10 +455,12 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          age_range?: string | null
           avatar_url?: string | null
           bio?: string | null
           church_name?: string | null
           city?: string | null
+          community_guidelines_accepted_at?: string | null
           country?: string | null
           created_at?: string | null
           full_name?: string

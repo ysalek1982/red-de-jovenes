@@ -114,6 +114,7 @@ Públicas:
 - `/` entrada de app: redirige a `/entrar` sin sesión o `/app` con sesión.
 - `/landing`
 - `/entrar`
+- `/recuperar`
 - `/crear-cuenta`
 - `/demo`
 

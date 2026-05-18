@@ -8,22 +8,28 @@ import { useAuth } from '../features/auth/useAuth'
 
 interface SignUpForm {
   fullName: string
+  username: string
   email: string
   password: string
   confirmPassword: string
   city: string
   country: string
   churchName: string
+  ageRange: string
+  acceptedGuidelines: boolean
 }
 
 const initialForm: SignUpForm = {
   fullName: '',
+  username: '',
   email: '',
   password: '',
   confirmPassword: '',
   city: '',
   country: '',
   churchName: '',
+  ageRange: '',
+  acceptedGuidelines: false,
 }
 
 export function CreateAccountPage() {
@@ -34,7 +40,7 @@ export function CreateAccountPage() {
   const [success, setSuccess] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  function updateField(field: keyof SignUpForm, value: string) {
+  function updateField(field: keyof SignUpForm, value: string | boolean) {
     setForm((current) => ({ ...current, [field]: value }))
     setError('')
     setSuccess('')
@@ -42,11 +48,18 @@ export function CreateAccountPage() {
 
   function validate() {
     if (!form.fullName.trim()) return 'Ingresa tu nombre completo.'
+    if (!/^[a-z0-9._-]{3,30}$/.test(form.username.trim().toLowerCase())) {
+      return 'El usuario debe tener 3 a 30 caracteres y solo usar letras, números, punto, guion o guion bajo.'
+    }
     if (!/^\S+@\S+\.\S+$/.test(form.email)) return 'Ingresa un correo válido.'
     if (form.password.length < 6) return 'La contraseña debe tener al menos 6 caracteres.'
     if (form.password !== form.confirmPassword) return 'Las contraseñas no coinciden.'
     if (!form.city.trim()) return 'Ingresa tu ciudad.'
     if (!form.country.trim()) return 'Ingresa tu país.'
+    if (!form.ageRange) return 'Selecciona tu rango de edad.'
+    if (!form.acceptedGuidelines) {
+      return 'Debes aceptar las normas de comunidad para crear tu cuenta.'
+    }
     return ''
   }
 
@@ -62,9 +75,12 @@ export function CreateAccountPage() {
     try {
       const result = await signUpWithPassword(form.email.trim(), form.password, {
         full_name: form.fullName.trim(),
+        username: form.username.trim().toLowerCase(),
         city: form.city.trim(),
         country: form.country.trim(),
         church_name: form.churchName.trim() || undefined,
+        age_range: form.ageRange,
+        accepted_community_guidelines: form.acceptedGuidelines,
       })
       setForm(initialForm)
       if (result.hasSession) {
@@ -123,6 +139,22 @@ export function CreateAccountPage() {
                 autoComplete="name"
                 className="mt-2"
               />
+            </div>
+            <div className="md:col-span-2">
+              <label className="text-sm font-semibold text-white" htmlFor="signupUsername">
+                Usuario
+              </label>
+              <Input
+                id="signupUsername"
+                value={form.username}
+                onChange={(event) => updateField('username', event.target.value)}
+                placeholder="lucia.red"
+                autoComplete="username"
+                className="mt-2"
+              />
+              <p className="mt-2 text-xs text-white/45">
+                Sin espacios. Usa letras, números, punto, guion o guion bajo.
+              </p>
             </div>
             <div className="md:col-span-2">
               <label className="text-sm font-semibold text-white" htmlFor="signupEmail">
@@ -193,6 +225,23 @@ export function CreateAccountPage() {
               />
             </div>
             <div className="md:col-span-2">
+              <label className="text-sm font-semibold text-white" htmlFor="ageRange">
+                Rango de edad
+              </label>
+              <select
+                id="ageRange"
+                value={form.ageRange}
+                onChange={(event) => updateField('ageRange', event.target.value)}
+                className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+              >
+                <option value="">Selecciona un rango</option>
+                <option value="13-17">13 a 17 años</option>
+                <option value="18-24">18 a 24 años</option>
+                <option value="25-30">25 a 30 años</option>
+                <option value="31+">31 años o más</option>
+              </select>
+            </div>
+            <div className="md:col-span-2">
               <label className="text-sm font-semibold text-white" htmlFor="churchName">
                 Iglesia o comunidad, opcional
               </label>
@@ -204,6 +253,20 @@ export function CreateAccountPage() {
                 className="mt-2"
               />
             </div>
+            <label className="md:col-span-2 flex gap-3 rounded-3xl border border-white/10 bg-slate-950/45 p-4 text-sm leading-6 text-white/70">
+              <input
+                type="checkbox"
+                checked={form.acceptedGuidelines}
+                onChange={(event) =>
+                  updateField('acceptedGuidelines', event.target.checked)
+                }
+                className="mt-1 h-4 w-4 rounded border-white/20 bg-slate-950 text-amber-300"
+              />
+              <span>
+                Acepto vivir las normas de comunidad: respeto, lenguaje sano,
+                cuidado de otros jóvenes y conversaciones centradas en Cristo.
+              </span>
+            </label>
           </div>
 
           {error ? (

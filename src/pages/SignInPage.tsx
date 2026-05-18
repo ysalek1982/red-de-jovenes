@@ -116,6 +116,15 @@ export function SignInPage() {
                 Crear cuenta
               </Link>
             </p>
+            <p className="text-center text-sm text-white/50">
+              ¿Olvidaste tu contraseña?{' '}
+              <Link
+                className="font-semibold text-emerald-200 hover:text-emerald-100"
+                to="/recuperar"
+              >
+                Recuperarla
+              </Link>
+            </p>
           </div>
         </form>
       </div>
