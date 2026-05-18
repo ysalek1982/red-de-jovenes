@@ -50,6 +50,20 @@ BLOCKED_EMAIL_RATE_LIMIT
 4. Ejecutar `npm run qa:auth`.
 5. Ejecutar `npm run qa:rls`.
 
+## Script disponible
+
+```bash
+npm run qa:auth
+```
+
+El script lee `.env.local`, `.env.qa.local` y variables de entorno del sistema. El resultado no imprime correos ni contrasenas; solo muestra estados anonimizados por `USER_A` y `USER_B`.
+
+Si faltan variables QA, devuelve:
+
+```text
+BLOCKED_MISSING_QA_ENV
+```
+
 ## Seguridad
 
 - No versionar `.env.local` ni `.env.qa.local`.
