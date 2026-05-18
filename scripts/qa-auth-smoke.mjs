@@ -1,7 +1,13 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 
-const LOCAL_ENV_FILES = ['.env.local', '.env.qa.local']
+const LOCAL_ENV_FILES = ['.env.qa.local', '.env.local']
+const QA_KEYS = new Set([
+  'QA_USER_A_EMAIL',
+  'QA_USER_A_PASSWORD',
+  'QA_USER_B_EMAIL',
+  'QA_USER_B_PASSWORD',
+])
 const REQUIRED_KEYS = [
   'VITE_SUPABASE_URL',
   'VITE_SUPABASE_PUBLISHABLE_KEY',
@@ -10,6 +16,17 @@ const REQUIRED_KEYS = [
   'QA_USER_B_EMAIL',
   'QA_USER_B_PASSWORD',
 ]
+
+function parseEnvValue(value) {
+  const trimmed = value.trim()
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1)
+  }
+  return trimmed
+}
 
 function loadLocalEnv() {
   for (const file of LOCAL_ENV_FILES) {
@@ -24,7 +41,9 @@ function loadLocalEnv() {
       if (separatorIndex === -1) continue
 
       const key = trimmed.slice(0, separatorIndex).trim()
-      const value = trimmed.slice(separatorIndex + 1).trim()
+      if (QA_KEYS.has(key) && file !== '.env.qa.local') continue
+
+      const value = parseEnvValue(trimmed.slice(separatorIndex + 1))
       if (!process.env[key]) process.env[key] = value
     }
   }
@@ -105,15 +124,17 @@ async function signIn(label, email, password) {
     .map((result) => result.error?.message)
     .filter(Boolean)
 
+  const missingProfile = !profile.data
+
   return {
     label,
-    status: errors.length ? 'FAILED_READS' : 'OK',
+    status: errors.length || missingProfile ? 'FAILED_READS' : 'OK',
     session: 'OK',
-    profile: profile.data ? 'OK' : 'EMPTY',
+    profile: profile.data ? 'OK' : 'FAILED_EMPTY',
     devotionals: devotionals.data?.length ?? 0,
     posts: posts.data?.length ?? 0,
     prayers: prayers.data?.length ?? 0,
-    errors,
+    errors: missingProfile ? [...errors, 'No se encontro perfil propio.'] : errors,
   }
 }
 
@@ -126,7 +147,7 @@ async function main() {
       safeResult({
         status: 'BLOCKED_MISSING_QA_ENV',
         missing,
-        hint: 'Configura variables QA locales en .env.qa.local o .env.local.',
+        hint: 'Configura variables QA locales en .env.qa.local o variables de entorno.',
       }),
     )
     return

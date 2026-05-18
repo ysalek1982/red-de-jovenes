@@ -1,7 +1,13 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { createClient } from '@supabase/supabase-js'
 
-const LOCAL_ENV_FILES = ['.env.local', '.env.qa.local']
+const LOCAL_ENV_FILES = ['.env.qa.local', '.env.local']
+const QA_KEYS = new Set([
+  'QA_USER_A_EMAIL',
+  'QA_USER_A_PASSWORD',
+  'QA_USER_B_EMAIL',
+  'QA_USER_B_PASSWORD',
+])
 const REQUIRED_KEYS = [
   'VITE_SUPABASE_URL',
   'VITE_SUPABASE_PUBLISHABLE_KEY',
@@ -10,6 +16,17 @@ const REQUIRED_KEYS = [
   'QA_USER_B_EMAIL',
   'QA_USER_B_PASSWORD',
 ]
+
+function parseEnvValue(value) {
+  const trimmed = value.trim()
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1)
+  }
+  return trimmed
+}
 
 function loadLocalEnv() {
   for (const file of LOCAL_ENV_FILES) {
@@ -23,7 +40,9 @@ function loadLocalEnv() {
       if (separatorIndex === -1) continue
 
       const key = trimmed.slice(0, separatorIndex).trim()
-      const value = trimmed.slice(separatorIndex + 1).trim()
+      if (QA_KEYS.has(key) && file !== '.env.qa.local') continue
+
+      const value = parseEnvValue(trimmed.slice(separatorIndex + 1))
       if (!process.env[key]) process.env[key] = value
     }
   }
@@ -125,7 +144,7 @@ async function main() {
         {
           status: 'BLOCKED_MISSING_QA_ENV',
           missing,
-          hint: 'Configura dos usuarios QA confirmados en .env.qa.local o .env.local.',
+          hint: 'Configura dos usuarios QA confirmados en .env.qa.local o variables de entorno.',
         },
         null,
         2,
@@ -141,6 +160,7 @@ async function main() {
   )
   if (userA.status !== 'OK') {
     console.log(JSON.stringify({ status: userA.status, users: [userA] }, null, 2))
+    if (userA.status.startsWith('FAILED_')) process.exitCode = 1
     return
   }
 
@@ -152,6 +172,7 @@ async function main() {
   if (userB.status !== 'OK') {
     await userA.supabase.auth.signOut()
     console.log(JSON.stringify({ status: userB.status, users: [userB] }, null, 2))
+    if (userB.status.startsWith('FAILED_')) process.exitCode = 1
     return
   }
 
@@ -242,9 +263,9 @@ async function main() {
   const result = {
     status: 'OK',
     ownWrites: {
-      profile: ownProfileUpdate.error ? 'FAILED' : 'OK',
-      post: ownPost.error ? 'FAILED' : 'OK',
-      prayer: ownPrayer.error ? 'FAILED' : 'OK',
+      profile: ownProfileUpdate.error || !ownProfileUpdate.data ? 'FAILED' : 'OK',
+      post: ownPost.error || !ownPost.data ? 'FAILED' : 'OK',
+      prayer: ownPrayer.error || !ownPrayer.data ? 'FAILED' : 'OK',
     },
     allowedReads: {
       posts: readAllowed[0].error ? 'FAILED' : 'OK',

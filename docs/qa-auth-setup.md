@@ -12,13 +12,13 @@ Fecha: 2026-05-17
 
 ## Variables QA necesarias
 
-Agrega estas variables en un archivo local ignorado por Git, por ejemplo `.env.qa.local` o `.env.local`:
+Agrega estas variables en `.env.qa.local`, que debe permanecer ignorado por Git:
 
-```bash
-QA_USER_A_EMAIL=correo_qa_a
-QA_USER_A_PASSWORD=contrasena_qa_a
-QA_USER_B_EMAIL=correo_qa_b
-QA_USER_B_PASSWORD=contrasena_qa_b
+```text
+QA_USER_A_EMAIL: correo QA A
+QA_USER_A_PASSWORD: contraseña QA A
+QA_USER_B_EMAIL: correo QA B
+QA_USER_B_PASSWORD: contraseña QA B
 ```
 
 No uses correos personales ni contrasenas reales de usuarios finales. Usa cuentas QA controladas.
@@ -46,7 +46,7 @@ BLOCKED_EMAIL_RATE_LIMIT
 
 1. Crear dos usuarios QA desde `/crear-cuenta` o desde Supabase Auth.
 2. Confirmarlos manualmente en Supabase Auth si la confirmacion de email esta activa.
-3. Guardar sus credenciales solo en `.env.qa.local` o `.env.local`.
+3. Guardar sus credenciales solo en `.env.qa.local` o variables de entorno.
 4. Ejecutar `npm run qa:auth`.
 5. Ejecutar `npm run qa:rls`.
 
@@ -56,7 +56,7 @@ BLOCKED_EMAIL_RATE_LIMIT
 npm run qa:auth
 ```
 
-El script lee `.env.local`, `.env.qa.local` y variables de entorno del sistema. El resultado no imprime correos ni contrasenas; solo muestra estados anonimizados por `USER_A` y `USER_B`.
+El script lee credenciales QA desde `.env.qa.local` o variables de entorno del sistema. El resultado no imprime correos ni contrasenas; solo muestra estados anonimizados por `USER_A` y `USER_B`.
 
 Si faltan variables QA, devuelve:
 

@@ -14,6 +14,7 @@ dist-ssr
 .env
 .env.local
 .env.admin.local
+.env.qa.local
 .env*.local
 .env.*.local
 .auth/

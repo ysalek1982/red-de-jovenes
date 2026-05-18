@@ -77,13 +77,13 @@ npm run lint
 
 ## QA autenticado local
 
-Configura dos usuarios QA confirmados en `.env.qa.local` o `.env.local`:
+Configura dos usuarios QA confirmados en `.env.qa.local`:
 
-```bash
-QA_USER_A_EMAIL=correo_qa_a
-QA_USER_A_PASSWORD=contrasena_qa_a
-QA_USER_B_EMAIL=correo_qa_b
-QA_USER_B_PASSWORD=contrasena_qa_b
+```text
+QA_USER_A_EMAIL: correo QA A
+QA_USER_A_PASSWORD: contraseña QA A
+QA_USER_B_EMAIL: correo QA B
+QA_USER_B_PASSWORD: contraseña QA B
 ```
 
 Luego ejecuta:
