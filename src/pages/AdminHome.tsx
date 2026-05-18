@@ -242,6 +242,28 @@ export function AdminHome() {
     { title: 'Sugerencias', value: overview.groupSuggestions, icon: FileText },
   ]
 
+  const pilotChecks = [
+    {
+      title: 'Base funcional',
+      detail: 'Auth, RLS, rutas y PWA validados para piloto cerrado.',
+    },
+    {
+      title: 'Cuidado activo',
+      detail: `${overview.reports} reportes registrados para seguimiento pastoral.`,
+    },
+    {
+      title: 'Comunidad viva',
+      detail: `${overview.profiles} usuarios, ${overview.posts} posts y ${overview.prayers} oraciones.`,
+    },
+  ]
+
+  const quickActions = [
+    { label: 'Revisar reportes', href: '#reportes' },
+    { label: 'Crear devocional', href: '#crear-devocional' },
+    { label: 'Revisar publicaciones', href: '#publicaciones' },
+    { label: 'Sugerencias de grupos', href: '#sugerencias' },
+  ]
+
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-24 pt-32 text-white">
       <div className="pointer-events-none fixed right-0 top-24 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
@@ -265,6 +287,47 @@ export function AdminHome() {
           </div>
         ) : null}
 
+        <div className="mt-10 rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-200">
+                Estado piloto
+              </p>
+              <h2 className="mt-3 text-3xl font-black">
+                Piloto cerrado listo para operar
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
+                Usa este bloque como punto de control durante las primeras
+                sesiones con jovenes, moderadores y administracion.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {quickActions.map((action) => (
+                <a
+                  key={action.href}
+                  href={action.href}
+                  className="inline-flex h-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.08] px-4 text-xs font-black text-white transition hover:bg-white/15"
+                >
+                  {action.label}
+                </a>
+              ))}
+            </div>
+          </div>
+          <div className="mt-6 grid gap-3 md:grid-cols-3">
+            {pilotChecks.map((item) => (
+              <article
+                key={item.title}
+                className="rounded-3xl border border-white/10 bg-slate-950/35 p-4"
+              >
+                <h3 className="font-black text-white">{item.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-white/55">
+                  {item.detail}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+
         <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-6">
           {kpis.map((card) => {
             const Icon = card.icon
@@ -285,6 +348,7 @@ export function AdminHome() {
 
         <div className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
           <form
+            id="crear-devocional"
             onSubmit={(event) => void handleDevotionalSubmit(event)}
             className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur"
           >
@@ -374,7 +438,7 @@ export function AdminHome() {
               ))}
             </AdminList>
 
-            <AdminList title="Reportes pendientes">
+            <AdminList id="reportes" title="Reportes pendientes">
               {latest.reports.map((report) => (
                 <AdminListItem
                   key={report.id}
@@ -393,7 +457,7 @@ export function AdminHome() {
               ))}
             </AdminList>
 
-            <AdminList title="Sugerencias de grupos">
+            <AdminList id="sugerencias" title="Sugerencias de grupos">
               {latest.suggestions.map((suggestion) => (
                 <AdminListItem
                   key={suggestion.id}
@@ -435,7 +499,7 @@ export function AdminHome() {
               ))}
             </AdminList>
 
-            <AdminList title="Posts recientes">
+            <AdminList id="publicaciones" title="Posts recientes">
               {latest.posts.map((post) => (
                 <AdminListItem
                   key={post.id}
@@ -466,16 +530,21 @@ export function AdminHome() {
 }
 
 function AdminList({
+  id,
   title,
   children,
 }: {
+  id?: string
   title: string
   children: ReactNode
 }) {
   const hasItems = Array.isArray(children) ? children.length > 0 : Boolean(children)
 
   return (
-    <article className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/20 backdrop-blur">
+    <article
+      id={id}
+      className="scroll-mt-28 rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/20 backdrop-blur"
+    >
       <h2 className="text-xl font-black">{title}</h2>
       <div className="mt-4 space-y-3">
         {hasItems ? (
