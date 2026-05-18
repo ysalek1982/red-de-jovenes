@@ -59,7 +59,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         await signInWithPassword(email, password)
       },
       signUpWithPassword: async (email, password, metadata) => {
-        await signUpWithPassword(email, password, metadata)
+        return signUpWithPassword(email, password, metadata)
       },
       signOut,
     }),

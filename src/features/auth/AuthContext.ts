@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
-import type { SignUpMetadata } from './authService'
+import type { SignUpMetadata, SignUpResult } from './authService'
 
 export interface AuthContextValue {
   session: Session | null
@@ -11,7 +11,7 @@ export interface AuthContextValue {
     email: string,
     password: string,
     metadata: SignUpMetadata,
-  ) => Promise<void>
+  ) => Promise<SignUpResult>
   signOut: () => Promise<void>
 }
 

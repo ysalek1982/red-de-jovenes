@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Layout } from '../components/layout/Layout'
 import { useAuth } from '../features/auth/useAuth'
 import { AppHome } from '../pages/AppHome'
+import { AppProfile } from '../pages/AppProfile'
 import { CreateAccountPage } from '../pages/CreateAccountPage'
 import { Home } from '../pages/Home'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
@@ -38,6 +39,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute>
               <AppHome />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="app/perfil"
+          element={
+            <ProtectedRoute>
+              <AppProfile />
             </ProtectedRoute>
           }
         />

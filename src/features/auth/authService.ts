@@ -8,6 +8,11 @@ export interface SignUpMetadata {
   church_name?: string
 }
 
+export interface SignUpResult {
+  userId: string | null
+  hasSession: boolean
+}
+
 export async function getCurrentSession() {
   const { data, error } = await supabase.auth.getSession()
   if (error) throw error
@@ -44,7 +49,10 @@ export async function signUpWithPassword(
     },
   })
   if (error) throw error
-  return data
+  return {
+    userId: data.user?.id ?? null,
+    hasSession: Boolean(data.session),
+  } satisfies SignUpResult
 }
 
 export async function signOut() {

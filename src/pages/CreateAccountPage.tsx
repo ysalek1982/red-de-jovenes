@@ -60,15 +60,21 @@ export function CreateAccountPage() {
 
     setIsSubmitting(true)
     try {
-      await signUpWithPassword(form.email.trim(), form.password, {
+      const result = await signUpWithPassword(form.email.trim(), form.password, {
         full_name: form.fullName.trim(),
         city: form.city.trim(),
         country: form.country.trim(),
         church_name: form.churchName.trim() || undefined,
       })
-      setSuccess('Cuenta creada. Revisa tu correo si Supabase solicita confirmación.')
       setForm(initialForm)
-      setTimeout(() => navigate('/app'), 900)
+      if (result.hasSession) {
+        setSuccess('Cuenta creada. Bienvenido a tu Red.')
+        setTimeout(() => navigate('/app'), 900)
+      } else {
+        setSuccess(
+          'Cuenta creada. Revisa tu correo y confirma tu cuenta antes de entrar.',
+        )
+      }
     } catch (authError) {
       const message =
         authError instanceof Error ? authError.message : 'Error desconocido'

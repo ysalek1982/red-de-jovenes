@@ -7,7 +7,11 @@ import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 
 function getFriendlyAuthError(message: string) {
-  if (message.toLowerCase().includes('invalid')) {
+  const normalized = message.toLowerCase()
+  if (normalized.includes('email not confirmed')) {
+    return 'Tu cuenta fue creada, pero falta confirmar tu correo antes de entrar.'
+  }
+  if (normalized.includes('invalid')) {
     return 'Revisa tu correo y contraseña e inténtalo nuevamente.'
   }
   return 'No pudimos iniciar sesión. Inténtalo otra vez en unos segundos.'
