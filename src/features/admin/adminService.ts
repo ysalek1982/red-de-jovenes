@@ -27,6 +27,20 @@ async function getCount(table: CountableTable) {
   return count ?? 0
 }
 
+async function getFilteredCount(
+  table: CountableTable,
+  column: string,
+  value: string | boolean,
+) {
+  const { count, error } = await supabase
+    .from(table)
+    .select('id', { count: 'exact', head: true })
+    .eq(column, value)
+
+  if (error) throw error
+  return count ?? 0
+}
+
 export type AdminProfilePreview = Pick<
   Profile,
   'id' | 'full_name' | 'username' | 'city' | 'country' | 'created_at'
@@ -76,8 +90,8 @@ export async function getAdminOverview() {
     getCount('posts'),
     getCount('post_comments'),
     getCount('devotionals'),
-    getCount('content_reports'),
-    getCount('group_suggestions'),
+    getFilteredCount('content_reports', 'status', 'pending'),
+    getFilteredCount('group_suggestions', 'status', 'pending'),
     getCount('testimonies'),
   ])
 
@@ -251,16 +265,39 @@ export async function updateGroupSuggestionStatus(
   if (error) throw error
 
   if (status === 'approved') {
-    const { error: groupError } = await supabase.from('groups').insert({
+    const { data: existingGroups, error: existingError } = await supabase
+      .from('groups')
+      .select('id, name, country, city')
+      .eq('name', suggestion.name)
+      .eq('country', suggestion.country)
+      .limit(10)
+
+    if (existingError) throw existingError
+
+    const normalizedCity = (suggestion.city ?? '').trim().toLowerCase()
+    const duplicatedGroup = (existingGroups ?? []).find(
+      (group) => (group.city ?? '').trim().toLowerCase() === normalizedCity,
+    )
+
+    const groupPayload = {
       name: suggestion.name,
       country: suggestion.country,
       city: suggestion.city,
       church_name: suggestion.church_name,
       contact_url: suggestion.contact_url,
       meeting_info: suggestion.meeting_info || 'Comunidad sugerida y aprobada.',
-      description: 'Comunidad aprobada desde sugerencias del piloto.',
+      description:
+        suggestion.description ||
+        'Comunidad aprobada desde sugerencias del piloto.',
       is_active: true,
-    })
+    }
+
+    const { error: groupError } = duplicatedGroup
+      ? await supabase
+          .from('groups')
+          .update(groupPayload)
+          .eq('id', duplicatedGroup.id)
+      : await supabase.from('groups').insert(groupPayload)
 
     if (groupError) throw groupError
   }

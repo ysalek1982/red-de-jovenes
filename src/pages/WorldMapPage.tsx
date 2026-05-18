@@ -9,33 +9,45 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react'
+import { hasRole } from '../features/auth/roleService'
 import { useAuth } from '../features/auth/useAuth'
-import { getActiveGroups, suggestGroup } from '../features/map/worldMapService'
-import type { Group } from '../types/database'
+import {
+  getActiveGroups,
+  getMyGroupSuggestions,
+  getPendingGroupSuggestionsCount,
+  suggestGroup,
+} from '../features/map/worldMapService'
+import type { Group, GroupSuggestion } from '../types/database'
 
-const mapPoints = [
-  { label: 'AR', className: 'left-[34%] top-[62%]' },
-  { label: 'MX', className: 'left-[22%] top-[42%]' },
-  { label: 'USA', className: 'left-[25%] top-[31%]' },
-  { label: 'ES', className: 'left-[48%] top-[34%]' },
-  { label: 'BR', className: 'left-[39%] top-[58%]' },
-  { label: 'UK', className: 'left-[47%] top-[27%]' },
-  { label: 'BO', className: 'left-[35%] top-[55%]' },
-  { label: 'CO', className: 'left-[30%] top-[48%]' },
+const mapNodePositions = [
+  'left-[18%] top-[30%]',
+  'left-[28%] top-[48%]',
+  'left-[39%] top-[58%]',
+  'left-[48%] top-[34%]',
+  'left-[58%] top-[45%]',
+  'left-[70%] top-[35%]',
+  'left-[78%] top-[58%]',
+  'left-[34%] top-[68%]',
 ]
+
+const suggestionStatusLabels: Record<GroupSuggestion['status'], string> = {
+  pending: 'Pendiente',
+  approved: 'Aprobada',
+  rejected: 'Rechazada',
+}
 
 const safePrinciples = [
   {
-    title: 'Moderación con sabiduría',
+    title: 'Moderacion con sabiduria',
     text: 'Conversaciones cuidadas, sin ataques y con foco en edificar.',
   },
   {
-    title: 'Jóvenes protegidos',
-    text: 'Reportes visibles, reglas simples y acompañamiento pastoral.',
+    title: 'Jovenes protegidos',
+    text: 'Reportes visibles, reglas simples y acompanamiento pastoral.',
   },
   {
     title: 'Palabra al centro',
-    text: 'Los debates se orientan con versículos y respeto por la fe.',
+    text: 'Los debates se orientan con versiculos y respeto por la fe.',
   },
 ]
 
@@ -47,7 +59,11 @@ export function WorldMapPage() {
   const { user } = useAuth()
   const userId = user?.id
   const [groups, setGroups] = useState<Group[]>([])
+  const [mySuggestions, setMySuggestions] = useState<GroupSuggestion[]>([])
+  const [pendingSuggestionsCount, setPendingSuggestionsCount] = useState(0)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [countryFilter, setCountryFilter] = useState('todos')
+  const [cityFilter, setCityFilter] = useState('todos')
   const [searchTerm, setSearchTerm] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -60,20 +76,31 @@ export function WorldMapPage() {
     churchName: '',
     contactUrl: '',
     meetingInfo: '',
+    description: '',
   })
 
   const loadGroups = useCallback(async () => {
     setIsLoading(true)
     setError('')
     try {
-      const data = await getActiveGroups()
+      const [data, suggestions, admin] = await Promise.all([
+        getActiveGroups(),
+        userId ? getMyGroupSuggestions(userId) : Promise.resolve([]),
+        hasRole('admin').catch(() => false),
+      ])
+
       setGroups(data)
+      setMySuggestions(suggestions)
+      setIsAdmin(admin)
+      setPendingSuggestionsCount(
+        admin ? await getPendingGroupSuggestionsCount() : 0,
+      )
     } catch {
       setError('No pudimos cargar las comunidades conectadas.')
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [userId])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -91,13 +118,34 @@ export function WorldMapPage() {
     [groups],
   )
 
+  const cities = useMemo(() => {
+    const scopedGroups =
+      countryFilter === 'todos'
+        ? groups
+        : groups.filter((group) => normalize(group.country) === countryFilter)
+
+    return Array.from(
+      new Set(scopedGroups.map((group) => normalize(group.city))),
+    ).sort((a, b) => a.localeCompare(b, 'es'))
+  }, [countryFilter, groups])
+
   const countryCounts = useMemo(
     () =>
       countries.map((country) => ({
         country,
-        count: groups.filter((group) => normalize(group.country) === country).length,
+        count: groups.filter((group) => normalize(group.country) === country)
+          .length,
       })),
     [countries, groups],
+  )
+
+  const mapNodes = useMemo(
+    () =>
+      countryCounts.slice(0, mapNodePositions.length).map((item, index) => ({
+        ...item,
+        className: mapNodePositions[index],
+      })),
+    [countryCounts],
   )
 
   const filteredGroups = useMemo(() => {
@@ -106,27 +154,42 @@ export function WorldMapPage() {
     return groups.filter((group) => {
       const matchesCountry =
         countryFilter === 'todos' || normalize(group.country) === countryFilter
+      const matchesCity =
+        cityFilter === 'todos' || normalize(group.city) === cityFilter
       const searchable = [
         group.name,
         group.city,
         group.country,
         group.church_name,
+        group.meeting_info,
         group.description,
+        group.contact_url,
       ]
         .filter(Boolean)
         .join(' ')
         .toLowerCase()
 
-      return matchesCountry && (!term || searchable.includes(term))
+      return matchesCountry && matchesCity && (!term || searchable.includes(term))
     })
-  }, [countryFilter, groups, searchTerm])
+  }, [cityFilter, countryFilter, groups, searchTerm])
+
+  function clearFilters() {
+    setCountryFilter('todos')
+    setCityFilter('todos')
+    setSearchTerm('')
+  }
+
+  function handleCountryClick(country: string) {
+    setCountryFilter(country)
+    setCityFilter('todos')
+  }
 
   async function handleSuggestionSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!userId) return
 
     if (!suggestion.name.trim() || !suggestion.country.trim()) {
-      setFormMessage('El nombre y el país son obligatorios.')
+      setFormMessage('El nombre y el pais son obligatorios.')
       return
     }
 
@@ -141,6 +204,7 @@ export function WorldMapPage() {
         churchName: suggestion.churchName.trim(),
         contactUrl: suggestion.contactUrl.trim(),
         meetingInfo: suggestion.meetingInfo.trim(),
+        description: suggestion.description.trim(),
       })
       setSuggestion({
         name: '',
@@ -149,14 +213,26 @@ export function WorldMapPage() {
         churchName: '',
         contactUrl: '',
         meetingInfo: '',
+        description: '',
       })
-      setFormMessage('Sugerencia enviada para revisión.')
+      setMySuggestions(await getMyGroupSuggestions(userId))
+      setFormMessage('Sugerencia enviada para revision.')
     } catch {
-      setFormMessage('No pudimos enviar la sugerencia. Inténtalo nuevamente.')
+      setFormMessage('No pudimos enviar la sugerencia. Intentalo nuevamente.')
     } finally {
       setIsSubmitting(false)
     }
   }
+
+  const kpis = [
+    [String(groups.length), 'comunidades activas'],
+    [String(countries.length), 'paises'],
+    [String(cities.length), 'ciudades'],
+    [
+      String(isAdmin ? pendingSuggestionsCount : mySuggestions.length),
+      isAdmin ? 'sugerencias pendientes' : 'mis sugerencias',
+    ],
+  ]
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-24 pt-32 text-white">
@@ -174,15 +250,11 @@ export function WorldMapPage() {
               Comunidades cristianas conectadas.
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/65">
-              Explora iglesias y grupos juveniles activos en la Red. La lista
-              crece con comunidades revisadas y sugerencias del piloto.
+              Explora iglesias y grupos juveniles activos en la Red. Este
+              directorio usa datos reales revisados y sugerencias del piloto.
             </p>
-            <div className="mt-7 grid max-w-xl grid-cols-3 gap-3">
-              {[
-                [String(groups.length), 'comunidades'],
-                [String(countries.length), 'países'],
-                [String(filteredGroups.length), 'visibles'],
-              ].map(([value, label]) => (
+            <div className="mt-7 grid max-w-2xl grid-cols-2 gap-3 md:grid-cols-4">
+              {kpis.map(([value, label]) => (
                 <div
                   key={label}
                   className="rounded-3xl border border-white/10 bg-white/[0.06] p-4 text-center shadow-2xl shadow-black/20 backdrop-blur"
@@ -199,22 +271,38 @@ export function WorldMapPage() {
             <div className="absolute inset-6 rounded-[2rem] border border-white/10 bg-slate-950/40" />
             <div className="absolute left-[10%] top-[22%] h-[2px] w-[80%] rotate-6 bg-gradient-to-r from-transparent via-emerald-300/30 to-transparent" />
             <div className="absolute left-[20%] top-[68%] h-[2px] w-[62%] -rotate-12 bg-gradient-to-r from-transparent via-amber-300/30 to-transparent" />
-            {mapPoints.map((point) => (
-              <span
-                key={point.label}
-                className={`absolute ${point.className} flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-slate-950/80 text-xs font-black text-amber-200 shadow-[0_0_35px_rgba(251,191,36,0.28)]`}
-              >
-                {point.label}
-              </span>
-            ))}
+
+            {mapNodes.length ? (
+              mapNodes.map((point) => (
+                <button
+                  key={point.country}
+                  type="button"
+                  onClick={() => handleCountryClick(point.country)}
+                  className={`absolute ${point.className} flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-slate-950/80 text-center text-[0.65rem] font-black text-amber-200 shadow-[0_0_35px_rgba(251,191,36,0.28)] transition hover:scale-105 hover:border-amber-200/60`}
+                  title={`Filtrar ${point.country}`}
+                >
+                  <span>
+                    {point.country.slice(0, 3).toUpperCase()}
+                    <span className="block text-[0.55rem] text-white/55">
+                      {point.count}
+                    </span>
+                  </span>
+                </button>
+              ))
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center px-8 text-center text-white/55">
+                Aun no hay paises con comunidades activas.
+              </div>
+            )}
+
             <div className="absolute bottom-6 left-6 right-6 rounded-[1.5rem] border border-white/10 bg-slate-950/75 p-4 backdrop-blur">
               <p className="flex items-center gap-2 font-bold">
                 <Sparkles className="h-4 w-4 text-amber-200" aria-hidden="true" />
-                Mapa visual de referencia
+                Mapa visual de comunidades
               </p>
               <p className="mt-2 text-sm leading-6 text-white/55">
-                Los puntos orientan la experiencia. La lista inferior usa datos
-                reales conectados a Supabase.
+                Cada nodo representa un pais con comunidades activas. Toca un
+                pais para filtrar el directorio.
               </p>
             </div>
           </div>
@@ -227,33 +315,57 @@ export function WorldMapPage() {
                 <p className="text-sm font-semibold text-amber-200">
                   Iglesias y grupos conectados
                 </p>
-                <h2 className="mt-2 text-3xl font-black">Comunidad global</h2>
+                <h2 className="mt-2 text-3xl font-black">Directorio real</h2>
               </div>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <label className="relative block">
-                  <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
-                  <input
-                    type="search"
-                    value={searchTerm}
-                    onChange={(event) => setSearchTerm(event.target.value)}
-                    placeholder="Buscar ciudad o iglesia"
-                    className="h-11 w-full rounded-full border border-white/10 bg-slate-950/45 pl-9 pr-4 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-amber-200/60"
-                  />
-                </label>
-                <select
-                  value={countryFilter}
-                  onChange={(event) => setCountryFilter(event.target.value)}
-                  className="h-11 rounded-full border border-white/10 bg-slate-950/80 px-4 text-sm font-bold text-white outline-none transition focus:border-amber-200/60"
-                  aria-label="Filtrar por país"
-                >
-                  <option value="todos">Todos</option>
-                  {countries.map((country) => (
-                    <option key={country} value={country}>
-                      {country}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="w-fit rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-white/60 transition hover:bg-white/10 hover:text-white"
+              >
+                Limpiar filtros
+              </button>
+            </div>
+
+            <div className="mt-5 grid gap-2 lg:grid-cols-[1.1fr_0.75fr_0.75fr]">
+              <label className="relative block">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/35" />
+                <input
+                  type="search"
+                  value={searchTerm}
+                  onChange={(event) => setSearchTerm(event.target.value)}
+                  placeholder="Buscar nombre, iglesia, ciudad o pais"
+                  className="h-11 w-full rounded-full border border-white/10 bg-slate-950/45 pl-9 pr-4 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-amber-200/60"
+                />
+              </label>
+              <select
+                value={countryFilter}
+                onChange={(event) => {
+                  setCountryFilter(event.target.value)
+                  setCityFilter('todos')
+                }}
+                className="h-11 rounded-full border border-white/10 bg-slate-950/80 px-4 text-sm font-bold text-white outline-none transition focus:border-amber-200/60"
+                aria-label="Filtrar por pais"
+              >
+                <option value="todos">Todos los paises</option>
+                {countries.map((country) => (
+                  <option key={country} value={country}>
+                    {country}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={cityFilter}
+                onChange={(event) => setCityFilter(event.target.value)}
+                className="h-11 rounded-full border border-white/10 bg-slate-950/80 px-4 text-sm font-bold text-white outline-none transition focus:border-amber-200/60"
+                aria-label="Filtrar por ciudad"
+              >
+                <option value="todos">Todas las ciudades</option>
+                {cities.map((city) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {error ? (
@@ -272,31 +384,50 @@ export function WorldMapPage() {
                 {filteredGroups.map((group) => (
                   <article
                     key={group.id}
-                    className="flex items-center gap-4 rounded-3xl border border-white/10 bg-slate-950/45 p-4"
+                    className="rounded-3xl border border-white/10 bg-slate-950/45 p-4"
                   >
-                    <span className="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-gradient-to-br from-emerald-300 to-amber-300 font-black text-slate-950">
-                      {group.name.slice(0, 1).toUpperCase()}
-                    </span>
-                    <div className="min-w-0">
-                      <h3 className="truncate font-bold">{group.name}</h3>
-                      <p className="mt-1 flex items-center gap-1 truncate text-sm text-white/50">
-                        <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
-                        {normalize(group.city)}, {normalize(group.country)}
-                      </p>
-                      <p className="mt-1 truncate text-xs text-white/40">
-                        {group.meeting_info || group.description || 'Grupo juvenil conectado.'}
-                      </p>
+                    <div className="flex items-start gap-4">
+                      <span className="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-gradient-to-br from-emerald-300 to-amber-300 font-black text-slate-950">
+                        {group.name.slice(0, 1).toUpperCase()}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate font-bold">{group.name}</h3>
+                        <p className="mt-1 flex items-center gap-1 truncate text-sm text-white/50">
+                          <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                          {normalize(group.city)}, {normalize(group.country)}
+                        </p>
+                        <p className="mt-1 truncate text-xs text-white/45">
+                          {group.church_name || 'Comunidad juvenil cristiana'}
+                        </p>
+                      </div>
+                      <ArrowRight
+                        className="mt-1 h-4 w-4 flex-none text-amber-200"
+                        aria-hidden="true"
+                      />
                     </div>
-                    <ArrowRight
-                      className="ml-auto h-4 w-4 flex-none text-amber-200"
-                      aria-hidden="true"
-                    />
+                    <p className="mt-4 line-clamp-2 text-sm leading-6 text-white/55">
+                      {group.meeting_info ||
+                        group.description ||
+                        'Grupo juvenil conectado a Red de Jovenes.'}
+                    </p>
+                    {group.contact_url ? (
+                      <a
+                        href={group.contact_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-3 inline-flex text-xs font-bold text-emerald-200 hover:text-emerald-100"
+                      >
+                        Ver contacto
+                      </a>
+                    ) : null}
                   </article>
                 ))}
               </div>
             ) : (
               <div className="mt-8 rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-8 text-center text-white/55">
-                No encontramos comunidades con esos filtros.
+                {groups.length
+                  ? 'No encontramos comunidades con esos filtros.'
+                  : 'Aun no hay comunidades registradas. Se el primero en sugerir una.'}
               </div>
             )}
 
@@ -305,10 +436,10 @@ export function WorldMapPage() {
                 <button
                   key={item.country}
                   type="button"
-                  onClick={() => setCountryFilter(item.country)}
+                  onClick={() => handleCountryClick(item.country)}
                   className="rounded-full border border-white/10 bg-slate-950/45 px-4 py-2 text-sm font-bold text-white/60 transition hover:bg-white/10 hover:text-white"
                 >
-                  {item.country} · {item.count}
+                  {item.country} - {item.count}
                 </button>
               ))}
             </div>
@@ -324,8 +455,7 @@ export function WorldMapPage() {
                 <h2 className="text-2xl font-black">Sugerir comunidad</h2>
               </div>
               <p className="mt-3 text-sm leading-6 text-white/65">
-                ¿Tu iglesia o grupo juvenil todavía no aparece? Envíalo para
-                revisión.
+                Si tu iglesia o grupo juvenil no aparece, envialo para revision.
               </p>
               <div className="mt-5 grid gap-3">
                 <input
@@ -348,7 +478,7 @@ export function WorldMapPage() {
                         country: event.target.value,
                       }))
                     }
-                    placeholder="País"
+                    placeholder="Pais"
                     className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
                   />
                   <input
@@ -393,8 +523,19 @@ export function WorldMapPage() {
                       meetingInfo: event.target.value,
                     }))
                   }
-                  placeholder="Informacion de reuniones, opcional"
+                  placeholder="Informacion de reuniones"
                   className="min-h-24 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+                />
+                <textarea
+                  value={suggestion.description}
+                  onChange={(event) =>
+                    setSuggestion((current) => ({
+                      ...current,
+                      description: event.target.value,
+                    }))
+                  }
+                  placeholder="Descripcion breve, opcional"
+                  className="min-h-20 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
                 />
               </div>
               <button
@@ -411,13 +552,46 @@ export function WorldMapPage() {
               ) : null}
             </form>
 
+            <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <h2 className="text-2xl font-black">Mis sugerencias</h2>
+              <p className="mt-2 text-sm leading-6 text-white/55">
+                Puedes seguir el estado de las comunidades que enviaste.
+              </p>
+              <div className="mt-5 space-y-3">
+                {mySuggestions.length ? (
+                  mySuggestions.slice(0, 4).map((item) => (
+                    <article
+                      key={item.id}
+                      className="rounded-3xl border border-white/10 bg-slate-950/45 p-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-bold">{item.name}</h3>
+                          <p className="mt-1 text-sm text-white/50">
+                            {normalize(item.city)}, {normalize(item.country)}
+                          </p>
+                        </div>
+                        <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-amber-100">
+                          {suggestionStatusLabels[item.status]}
+                        </span>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-5 text-sm text-white/55">
+                    Todavia no enviaste sugerencias.
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
               <div className="flex items-center gap-3">
                 <ShieldCheck className="h-6 w-6 text-emerald-200" aria-hidden="true" />
                 <h2 className="text-2xl font-black">Espacio seguro</h2>
               </div>
               <p className="mt-3 leading-7 text-white/65">
-                La comunidad global crece con reglas simples, acompañamiento y
+                La comunidad global crece con reglas simples, acompanamiento y
                 conversaciones que edifican.
               </p>
               <div className="mt-6 space-y-3">

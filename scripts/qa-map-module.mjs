@@ -7,9 +7,22 @@ const REQUIRED_KEYS = [
   'VITE_SUPABASE_PUBLISHABLE_KEY',
   'QA_USER_A_EMAIL',
   'QA_USER_A_PASSWORD',
+  'QA_USER_B_EMAIL',
+  'QA_USER_B_PASSWORD',
   'ADMIN_EMAIL',
   'ADMIN_PASSWORD',
 ]
+
+function parseEnvValue(value) {
+  const trimmed = value.trim()
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1)
+  }
+  return trimmed
+}
 
 function loadLocalEnv() {
   for (const file of LOCAL_ENV_FILES) {
@@ -20,7 +33,7 @@ function loadLocalEnv() {
       const separatorIndex = trimmed.indexOf('=')
       if (separatorIndex === -1) continue
       const key = trimmed.slice(0, separatorIndex).trim()
-      const value = trimmed.slice(separatorIndex + 1).trim()
+      const value = parseEnvValue(trimmed.slice(separatorIndex + 1))
       if (!process.env[key]) process.env[key] = value
     }
   }
@@ -43,6 +56,10 @@ async function signIn(email, password) {
   return { supabase, user: data.user }
 }
 
+function denied(result) {
+  return Boolean(result.error) || !result.data || result.data.length === 0
+}
+
 async function main() {
   loadLocalEnv()
   const missing = REQUIRED_KEYS.filter((key) => !process.env[key])
@@ -51,16 +68,24 @@ async function main() {
     return
   }
 
-  const suffix = new Date().toISOString()
+  const suffix = new Date().toISOString().replace(/[:.]/g, '-')
+  const groupName = `QA comunidad mapa ${suffix}`
+  const country = 'Bolivia'
+  const city = 'Santa Cruz de la Sierra'
+
   const userA = await signIn(
     process.env.QA_USER_A_EMAIL,
     process.env.QA_USER_A_PASSWORD,
+  )
+  const userB = await signIn(
+    process.env.QA_USER_B_EMAIL,
+    process.env.QA_USER_B_PASSWORD,
   )
   const admin = await signIn(process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD)
 
   const groupsRead = await userA.supabase
     .from('groups')
-    .select('id, country, city')
+    .select('id, name, country, city')
     .eq('is_active', true)
     .limit(5)
 
@@ -68,36 +93,140 @@ async function main() {
     .from('group_suggestions')
     .insert({
       user_id: userA.user.id,
-      name: `QA comunidad mapa ${suffix}`,
-      country: 'Bolivia',
-      city: 'Santa Cruz de la Sierra',
+      name: groupName,
+      country,
+      city,
       church_name: 'Red de Jovenes QA',
+      contact_url: 'https://example.com/red-jovenes-qa',
       meeting_info: 'Reunion temporal de QA.',
+      description: 'Sugerencia temporal para validar el mapa mundial.',
     })
-    .select('id')
+    .select('id, name, country, city, status')
     .single()
 
-  const suggestionUpdate = suggestion.data?.id
+  const ownSuggestionRead = suggestion.data?.id
+    ? await userA.supabase
+        .from('group_suggestions')
+        .select('id, status')
+        .eq('id', suggestion.data.id)
+        .maybeSingle()
+    : { data: null, error: suggestion.error ?? new Error('No se creo sugerencia.') }
+
+  const crossUserSuggestionUpdate = suggestion.data?.id
+    ? await userB.supabase
+        .from('group_suggestions')
+        .update({ status: 'approved' })
+        .eq('id', suggestion.data.id)
+        .select('id')
+    : { data: null, error: suggestion.error ?? new Error('No se creo sugerencia.') }
+
+  const normalGroupInsert = await userA.supabase
+    .from('groups')
+    .insert({
+      name: `${groupName} directa`,
+      country,
+      city,
+      is_active: true,
+    })
+    .select('id')
+
+  const suggestionApproval = suggestion.data?.id
     ? await admin.supabase
         .from('group_suggestions')
         .update({
-          status: 'rejected',
-          internal_note: 'Rechazada por QA para evitar crear grupo real.',
+          status: 'approved',
+          internal_note: 'Aprobada por QA automatizado.',
           reviewed_by: admin.user.id,
           reviewed_at: new Date().toISOString(),
         })
         .eq('id', suggestion.data.id)
-        .select('id')
+        .select('id, status')
         .single()
     : { data: null, error: suggestion.error ?? new Error('No se creo sugerencia.') }
 
+  const groupInsert = suggestionApproval.data
+    ? await admin.supabase
+        .from('groups')
+        .insert({
+          name: groupName,
+          country,
+          city,
+          church_name: 'Red de Jovenes QA',
+          contact_url: 'https://example.com/red-jovenes-qa',
+          meeting_info: 'Reunion temporal de QA.',
+          description: 'Grupo activo temporal aprobado por QA.',
+          is_active: true,
+        })
+        .select('id')
+        .single()
+    : { data: null, error: suggestionApproval.error ?? new Error('No se aprobo.') }
+
+  const activeGroupRead = groupInsert.data?.id
+    ? await userA.supabase
+        .from('groups')
+        .select('id, name, country, city')
+        .eq('id', groupInsert.data.id)
+        .eq('is_active', true)
+        .maybeSingle()
+    : { data: null, error: groupInsert.error ?? new Error('No se creo grupo.') }
+
+  const countryFilter = await userA.supabase
+    .from('groups')
+    .select('id')
+    .eq('is_active', true)
+    .eq('country', country)
+    .limit(1)
+
+  const cityFilter = await userA.supabase
+    .from('groups')
+    .select('id')
+    .eq('is_active', true)
+    .eq('city', city)
+    .limit(1)
+
+  const searchFilter = await userA.supabase
+    .from('groups')
+    .select('id')
+    .eq('is_active', true)
+    .ilike('name', `%${groupName}%`)
+    .limit(1)
+
+  const cleanupGroup = groupInsert.data?.id
+    ? await admin.supabase
+        .from('groups')
+        .update({ is_active: false })
+        .eq('id', groupInsert.data.id)
+    : { error: null }
+
   await userA.supabase.auth.signOut()
+  await userB.supabase.auth.signOut()
   await admin.supabase.auth.signOut()
 
-  const status =
-    !groupsRead.error && suggestion.data && suggestionUpdate.data
-      ? 'QA_MAP_OK'
-      : 'QA_MAP_FAILED'
+  const statusChecks = {
+    groupsRead: groupsRead.error ? 'FAILED' : 'OK',
+    suggestionCreate: suggestion.data ? 'OK' : 'FAILED',
+    ownSuggestionRead: ownSuggestionRead.data ? 'OK' : 'FAILED',
+    crossUserSuggestionUpdate: denied(crossUserSuggestionUpdate)
+      ? 'DENIED'
+      : 'FAILED_ALLOWED',
+    normalGroupInsert: denied(normalGroupInsert) ? 'DENIED' : 'FAILED_ALLOWED',
+    suggestionApproval:
+      suggestionApproval.data?.status === 'approved' ? 'OK' : 'FAILED',
+    activeGroupCreated: activeGroupRead.data ? 'OK' : 'FAILED',
+    countryFilter: countryFilter.data?.length ? 'OK' : 'FAILED',
+    cityFilter: cityFilter.data?.length ? 'OK' : 'FAILED',
+    searchFilter: searchFilter.data?.length ? 'OK' : 'FAILED',
+    cleanup: cleanupGroup.error ? 'WARNING' : 'OK',
+  }
+
+  const status = Object.entries(statusChecks).some(
+    ([key, value]) =>
+      key !== 'cleanup' &&
+      value !== 'OK' &&
+      value !== 'DENIED',
+  )
+    ? 'QA_MAP_FAILED'
+    : 'QA_MAP_OK'
 
   if (status !== 'QA_MAP_OK') process.exitCode = 1
 
@@ -105,9 +234,8 @@ async function main() {
     JSON.stringify(
       {
         status,
-        groupsRead: groupsRead.error ? 'FAILED' : 'OK',
-        suggestionCreate: suggestion.data ? 'OK' : 'FAILED',
-        suggestionModeration: suggestionUpdate.data ? 'OK' : 'FAILED',
+        ...statusChecks,
+        cleanupError: cleanupGroup.error?.message,
       },
       null,
       2,

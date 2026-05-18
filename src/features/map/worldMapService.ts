@@ -1,4 +1,5 @@
 import { supabase } from '../../lib/supabase'
+import type { GroupSuggestion } from '../../types/database'
 
 export async function getActiveGroups() {
   const { data, error } = await supabase
@@ -12,6 +13,27 @@ export async function getActiveGroups() {
   return data ?? []
 }
 
+export async function getMyGroupSuggestions(userId: string) {
+  const { data, error } = await supabase
+    .from('group_suggestions')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  return (data ?? []) as GroupSuggestion[]
+}
+
+export async function getPendingGroupSuggestionsCount() {
+  const { count, error } = await supabase
+    .from('group_suggestions')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'pending')
+
+  if (error) throw error
+  return count ?? 0
+}
+
 export async function suggestGroup(input: {
   userId: string
   name: string
@@ -20,6 +42,7 @@ export async function suggestGroup(input: {
   churchName?: string
   contactUrl?: string
   meetingInfo?: string
+  description?: string
 }) {
   const { data, error } = await supabase
     .from('group_suggestions')
@@ -31,6 +54,7 @@ export async function suggestGroup(input: {
       church_name: input.churchName || null,
       contact_url: input.contactUrl || null,
       meeting_info: input.meetingInfo || null,
+      description: input.description || null,
     })
     .select()
     .single()

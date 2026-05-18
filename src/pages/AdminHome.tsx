@@ -263,8 +263,12 @@ export function AdminHome() {
     { title: 'Publicaciones', value: overview.posts, icon: MessageCircle },
     { title: 'Comentarios', value: overview.comments, icon: FileText },
     { title: 'Devocionales', value: overview.devotionals, icon: BookOpen },
-    { title: 'Reportes', value: overview.reports, icon: ShieldCheck },
-    { title: 'Sugerencias', value: overview.groupSuggestions, icon: FileText },
+    { title: 'Reportes pendientes', value: overview.reports, icon: ShieldCheck },
+    {
+      title: 'Sugerencias pendientes',
+      value: overview.groupSuggestions,
+      icon: FileText,
+    },
   ]
 
   const pilotChecks = [
@@ -274,7 +278,7 @@ export function AdminHome() {
     },
     {
       title: 'Cuidado activo',
-      detail: `${overview.reports} reportes registrados para seguimiento pastoral.`,
+      detail: `${overview.reports} reportes pendientes para seguimiento pastoral.`,
     },
     {
       title: 'Comunidad viva',

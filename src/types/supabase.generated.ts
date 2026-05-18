@@ -378,6 +378,7 @@ export type Database = {
           contact_url: string | null
           country: string
           created_at: string
+          description: string | null
           id: string
           internal_note: string | null
           meeting_info: string | null
@@ -393,6 +394,7 @@ export type Database = {
           contact_url?: string | null
           country: string
           created_at?: string
+          description?: string | null
           id?: string
           internal_note?: string | null
           meeting_info?: string | null
@@ -408,6 +410,7 @@ export type Database = {
           contact_url?: string | null
           country?: string
           created_at?: string
+          description?: string | null
           id?: string
           internal_note?: string | null
           meeting_info?: string | null
