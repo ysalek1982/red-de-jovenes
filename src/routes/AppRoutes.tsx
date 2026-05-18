@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactNode } from 'react'
+import { AppShell } from '../components/layout/AppShell'
 import { Layout } from '../components/layout/Layout'
 import { useAuth } from '../features/auth/useAuth'
 import { AppHome } from '../pages/AppHome'
@@ -41,42 +42,16 @@ export function AppRoutes() {
           path="app"
           element={
             <ProtectedRoute>
-              <AppHome />
+              <AppShell />
             </ProtectedRoute>
           }
-        />
-        <Route
-          path="app/perfil"
-          element={
-            <ProtectedRoute>
-              <AppProfile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="app/oracion"
-          element={
-            <ProtectedRoute>
-              <PrayerRoomPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="app/comunidad"
-          element={
-            <ProtectedRoute>
-              <CommunityFeedPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="app/devocional"
-          element={
-            <ProtectedRoute>
-              <DevotionalPage />
-            </ProtectedRoute>
-          }
-        />
+        >
+          <Route index element={<AppHome />} />
+          <Route path="perfil" element={<AppProfile />} />
+          <Route path="oracion" element={<PrayerRoomPage />} />
+          <Route path="comunidad" element={<CommunityFeedPage />} />
+          <Route path="devocional" element={<DevotionalPage />} />
+        </Route>
         <Route
           path="demo"
           element={

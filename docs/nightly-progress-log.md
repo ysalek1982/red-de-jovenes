@@ -73,3 +73,16 @@ Estado: completada.
 - `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
 
 Commit esperado: `Implementa devocional diario`.
+
+## Macrofase 5 - Navegacion privada y AppShell
+
+Estado: completada.
+
+- Se agrego `AppShell` con navegacion privada mobile-first: Inicio, Oracion, Comunidad, Devocional, Perfil y Salir.
+- Se refactorizo `/app` como inicio privado con saludo, devocional, ultimas oraciones, posts recientes y accesos rapidos.
+- Las rutas privadas quedaron anidadas bajo `/app`.
+- El header publico conserva Entrar/Crear cuenta o Mi red/Salir segun sesion.
+- `npm run lint`: OK.
+- `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
+
+Commit esperado: `Mejora experiencia privada de la app`.
