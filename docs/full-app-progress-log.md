@@ -269,3 +269,23 @@ No aplica. Los puntajes no se persisten todavía.
 - `.env.qa.local` existe, pero faltan credenciales A/B:
   `QA_USER_A_EMAIL`, `QA_USER_A_PASSWORD`, `QA_USER_B_EMAIL`,
   `QA_USER_B_PASSWORD`.
+
+## 2026-05-18 · Fase 13
+
+### Cambios
+
+- Se ejecutó una auditoría visual rápida con servidor local.
+- Se verificaron `/landing`, `/`, `/entrar`, `/crear-cuenta` y `/demo`.
+- No se detectaron errores de consola en navegador.
+- Se documentó el estado visual en `docs/mobile-visual-polish.md`.
+
+### Validaciones
+
+- `npm run lint`: OK.
+- `npm run build`: OK, con warning no bloqueante de chunk grande.
+
+### Observaciones
+
+- La emulación de viewport del navegador integrado no entregó captura móvil
+  estable, por lo que queda recomendado QA manual adicional en dispositivos o
+  navegador de escritorio con devtools.
