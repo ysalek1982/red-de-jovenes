@@ -55,6 +55,11 @@ const WorldMapPage = lazy(() =>
     default: module.WorldMapPage,
   })),
 )
+const SafetyPage = lazy(() =>
+  import('../pages/SafetyPage').then((module) => ({
+    default: module.SafetyPage,
+  })),
+)
 
 function RouteLoading() {
   return (
@@ -121,6 +126,7 @@ export function AppRoutes() {
           <Route path="devocional" element={withSuspense(<DevotionalPage />)} />
           <Route path="juegos" element={withSuspense(<FaithGamesPage />)} />
           <Route path="mapa" element={withSuspense(<WorldMapPage />)} />
+          <Route path="seguridad" element={withSuspense(<SafetyPage />)} />
           <Route path="admin" element={withSuspense(<AdminHome />)} />
         </Route>
         <Route path="demo" element={withSuspense(<DemoPage />)} />

@@ -176,3 +176,24 @@ No aplica. Los puntajes no se persisten todavía.
 ### Bloqueos
 
 - QA dinámico de sugerencias queda pendiente hasta tener usuarios QA A/B.
+
+## 2026-05-18 · Fase 8
+
+### Cambios
+
+- Se creó `content_reports` para reportar posts, comentarios, peticiones y perfiles.
+- Se agregó la ruta `/app/seguridad` con normas de comunidad y formulario.
+- La navegación privada ahora incluye “Seguridad”.
+- Foros y Sala de oración incluyen acción “Reportar”.
+
+### Validaciones
+
+- `npx supabase db push --dry-run`: OK.
+- `npx supabase db push`: OK.
+- Tipos Supabase regenerados.
+- `npm run lint`: OK.
+- `npm run build`: OK, con warnings no bloqueantes de plugin timing y chunk grande.
+
+### Bloqueos
+
+- QA dinámico de reportes queda pendiente hasta tener usuarios QA A/B.

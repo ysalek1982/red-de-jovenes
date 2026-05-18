@@ -21,3 +21,5 @@ export type Testimony = Database['public']['Tables']['testimonies']['Row']
 export type Group = Database['public']['Tables']['groups']['Row']
 export type GroupSuggestion =
   Database['public']['Tables']['group_suggestions']['Row']
+export type ContentReport =
+  Database['public']['Tables']['content_reports']['Row']

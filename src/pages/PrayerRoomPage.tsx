@@ -2,6 +2,7 @@ import type { FormEvent } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import {
   CheckCircle2,
+  Flag,
   Heart,
   Loader2,
   Send,
@@ -20,6 +21,7 @@ import {
   supportPrayer,
   type PrayerRequestWithAuthor,
 } from '../features/prayer/prayerService'
+import { createContentReport } from '../features/safety/safetyService'
 
 function formatDate(value: string | null) {
   if (!value) return 'Fecha pendiente'
@@ -132,6 +134,26 @@ export function PrayerRoomPage() {
       await loadPrayers(false)
     } catch {
       setError('No pudimos actualizar tu oración por esta petición.')
+    } finally {
+      setBusyPrayerId(null)
+    }
+  }
+
+  async function handleReportPrayer(prayerId: string) {
+    if (!user) return
+
+    setBusyPrayerId(prayerId)
+    setError('')
+    try {
+      await createContentReport({
+        reporterId: user.id,
+        targetType: 'prayer_request',
+        targetId: prayerId,
+        reason: 'Revisión pastoral solicitada',
+      })
+      setError('Reporte enviado para revisión. Gracias por cuidar la sala.')
+    } catch {
+      setError('No pudimos enviar el reporte.')
     } finally {
       setBusyPrayerId(null)
     }
@@ -338,6 +360,16 @@ export function PrayerRoomPage() {
                           </Button>
                           </>
                         ) : null}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => void handleReportPrayer(prayer.id)}
+                          disabled={busyPrayerId === prayer.id}
+                        >
+                          <Flag className="h-4 w-4" aria-hidden="true" />
+                          Reportar
+                        </Button>
                       </div>
                     </article>
                   )

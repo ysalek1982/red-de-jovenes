@@ -2,6 +2,7 @@ import type { FormEvent } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import {
   BookOpen,
+  Flag,
   Loader2,
   MessageCircle,
   Send,
@@ -21,6 +22,7 @@ import {
   toggleAmenReaction,
   type PostWithAuthor,
 } from '../features/community/communityService'
+import { createContentReport } from '../features/safety/safetyService'
 
 function formatDate(value: string | null) {
   if (!value) return 'Fecha pendiente'
@@ -142,6 +144,26 @@ export function CommunityFeedPage() {
       await loadPosts(false)
     } catch {
       setError('No pudimos publicar tu comentario.')
+    } finally {
+      setBusyPostId(null)
+    }
+  }
+
+  async function handleReportPost(postId: string) {
+    if (!user) return
+
+    setBusyPostId(postId)
+    setError('')
+    try {
+      await createContentReport({
+        reporterId: user.id,
+        targetType: 'post',
+        targetId: postId,
+        reason: 'Revisión comunitaria solicitada',
+      })
+      setError('Reporte enviado para revisión. Gracias por cuidar la Red.')
+    } catch {
+      setError('No pudimos enviar el reporte.')
     } finally {
       setBusyPostId(null)
     }
@@ -312,6 +334,16 @@ export function CommunityFeedPage() {
                             Eliminar
                           </Button>
                         ) : null}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => void handleReportPost(post.id)}
+                          disabled={busyPostId === post.id}
+                        >
+                          <Flag className="h-4 w-4" aria-hidden="true" />
+                          Reportar
+                        </Button>
                       </div>
 
                       {post.verse_reference || post.verse_text ? (
