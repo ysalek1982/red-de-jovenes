@@ -14,39 +14,42 @@ Fecha: 2026-05-17
 ## Variables locales
 
 - `.env.admin.local.example` fue creado con placeholders.
-- `.env.admin.local` no existe en este entorno al momento de QA.
-- `.env.admin.local` esta ignorado por Git.
+- `.env.admin.local` existe localmente y esta ignorado por Git.
+- No se versionaron valores privados.
 
 ## Script
 
 - Script creado: `scripts/create-admin-user.mjs`.
 - Comando agregado: `npm run admin:create`.
-- Resultado actual esperado sin `.env.admin.local`:
+- Resultado inicial esperado sin `.env.admin.local`: `BLOCKED_MISSING_ADMIN_ENV`.
+- Resultado despues de configurar variables locales: `ADMIN_USER_READY`.
 
-```text
-BLOCKED_MISSING_ADMIN_ENV
-```
+Detalles seguros del resultado:
+
+- `userCreated`: `false`, el usuario ya existia en Supabase Auth.
+- `profileReady`: `true`.
+- `role`: `admin`.
 
 ## Admin
 
-- Email configurado en ejemplo: `ysalek@gmail.com`.
-- Estado real de creacion: pendiente porque faltan variables locales privadas.
-- `ADMIN_USER_READY`: pendiente hasta ejecutar con `.env.admin.local` completo.
+- Email configurado: `ysalek@gmail.com`.
+- Estado real: usuario existente asegurado como administrador.
+- `ADMIN_USER_READY`: confirmado.
 
 ## UI
 
 - Helper frontend creado para leer roles propios y consultar `has_role`.
 - Ruta creada: `/app/admin`.
-- Si el usuario tiene rol `admin`, `AppShell` muestra acceso “Admin”.
-- Si un usuario sin rol admin abre `/app/admin`, ve “No autorizado”.
+- Si el usuario tiene rol `admin`, `AppShell` muestra acceso de administracion.
+- Si un usuario sin rol admin abre `/app/admin`, ve `No autorizado`.
 
 ## Validaciones
 
 - `npm run lint`: OK.
 - `npm run build`: OK.
-- `npm run admin:create`: ejecutado sin secretos locales y bloqueado correctamente con `BLOCKED_MISSING_ADMIN_ENV`.
+- `npm run admin:create`: OK, finalizado con `ADMIN_USER_READY`.
 
 ## Bloqueos
 
-- Falta configurar `.env.admin.local` con `SUPABASE_SERVICE_ROLE_KEY` y `ADMIN_PASSWORD`.
-- No se deben escribir esos valores en archivos versionados.
+- Login visual con `ysalek@gmail.com`: pendiente de prueba manual en navegador.
+- No se deben escribir valores privados en archivos versionados.
