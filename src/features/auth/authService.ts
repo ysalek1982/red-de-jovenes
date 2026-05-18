@@ -59,10 +59,15 @@ export async function signUpWithPassword(
 }
 
 export async function sendPasswordResetEmail(email: string) {
-  const redirectTo = `${window.location.origin}/entrar`
+  const redirectTo = `${window.location.origin}/actualizar-contrasena`
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo,
   })
+  if (error) throw error
+}
+
+export async function updatePassword(password: string) {
+  const { error } = await supabase.auth.updateUser({ password })
   if (error) throw error
 }
 

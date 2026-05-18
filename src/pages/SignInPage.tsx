@@ -11,6 +11,12 @@ function getFriendlyAuthError(message: string) {
   if (normalized.includes('email not confirmed')) {
     return 'Tu cuenta fue creada, pero falta confirmar tu correo antes de entrar.'
   }
+  if (normalized.includes('rate limit')) {
+    return 'Hay demasiados intentos seguidos. Espera unos minutos y vuelve a intentar.'
+  }
+  if (normalized.includes('invalid login credentials')) {
+    return 'El correo o la contraseÃ±a no coinciden. Revisa los datos e intÃ©ntalo de nuevo.'
+  }
   if (normalized.includes('invalid')) {
     return 'Revisa tu correo y contraseña e inténtalo nuevamente.'
   }

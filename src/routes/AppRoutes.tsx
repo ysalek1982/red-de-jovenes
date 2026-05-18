@@ -26,6 +26,11 @@ const RecoverPasswordPage = lazy(() =>
     default: module.RecoverPasswordPage,
   })),
 )
+const UpdatePasswordPage = lazy(() =>
+  import('../pages/UpdatePasswordPage').then((module) => ({
+    default: module.UpdatePasswordPage,
+  })),
+)
 const AppHome = lazy(() =>
   import('../pages/AppHome').then((module) => ({ default: module.AppHome })),
 )
@@ -119,6 +124,10 @@ export function AppRoutes() {
         <Route path="landing" element={withSuspense(<Home />)} />
         <Route path="entrar" element={withSuspense(<SignInPage />)} />
         <Route path="recuperar" element={withSuspense(<RecoverPasswordPage />)} />
+        <Route
+          path="actualizar-contrasena"
+          element={withSuspense(<UpdatePasswordPage />)}
+        />
         <Route
           path="crear-cuenta"
           element={withSuspense(<CreateAccountPage />)}
