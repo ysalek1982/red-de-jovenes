@@ -1,8 +1,8 @@
 # Red de Jóvenes
 
-Proyecto web institucional para la Red de Jóvenes: una plataforma frontend para presentar programas, eventos, oportunidades, historias juveniles y un dashboard inicial preparado para futuras integraciones.
+Landing/app cristiana moderna tipo red social/PWA, reconstruida a partir del prototipo publicado en Lovable.
 
-La primera versión reconstruye la experiencia visual y de navegación inspirada en el prototipo publicado en Lovable, pero con una base real, modular y mantenible en React.
+La experiencia principal presenta una red para jóvenes en Cristo con comunidad, oración, foros con la Palabra, juegos de fe, devocional diario, mapa mundial y una app instalable.
 
 ## Stack usado
 
@@ -12,7 +12,6 @@ La primera versión reconstruye la experiencia visual y de navegación inspirada
 - Tailwind CSS
 - React Router
 - Lucide React
-- Componentes UI reutilizables con estilo tipo shadcn/ui
 
 ## Instalación
 
@@ -40,42 +39,41 @@ npm run build
 npm run lint
 ```
 
-## Estructura del proyecto
+## Rutas principales
+
+- `/`
+- `/entrar`
+- `/crear-cuenta`
+- `/demo`
+
+La página principal usa anclas internas:
+
+- `#mision`
+- `#funciones`
+- `#testimonios`
+- `#comunidad`
+
+## Estructura principal
 
 ```text
 src/
   components/
-    cards/        Tarjetas reutilizables para programas, eventos, oportunidades y testimonios.
-    layout/       Header, footer, layout general y encabezados de página.
-    sections/     Secciones principales de la página de inicio.
+    layout/       Header, footer y layout global.
     ui/           Componentes base reutilizables.
   data/
-    mockData.ts   Datos simulados tipados.
-  lib/
-    utils.ts      Utilidades compartidas.
-  pages/          Páginas navegables de la aplicación.
+    landingData.ts Contenido de la landing cristiana/PWA.
+    mockData.ts    Datos heredados no enlazados en la experiencia principal.
+  pages/
+    Home.tsx
+    PlaceholderPage.tsx
   routes/
-    AppRoutes.tsx Configuración de rutas.
-  App.tsx
-  main.tsx
+    AppRoutes.tsx
 ```
-
-## Páginas disponibles
-
-- Inicio
-- Sobre la Red
-- Eventos
-- Programas
-- Oportunidades
-- Contacto
-- Dashboard
-- Página 404
 
 ## Próximas fases sugeridas
 
-- Integrar autenticación y roles administrativos.
-- Conectar formularios, inscripciones y registros a un backend aprobado.
-- Agregar gestión real de programas, eventos y oportunidades.
-- Implementar persistencia de participantes y seguimiento de actividades.
-- Añadir pruebas automatizadas de componentes y flujos críticos.
-- Preparar despliegue continuo y configuración de ambientes.
+- Crear flujos reales de registro e ingreso.
+- Implementar demo navegable de sala de oración, foros, devocional y mapa.
+- Añadir manifest PWA, service worker y modo instalable real.
+- Definir backend solo con aprobación previa.
+- Agregar pruebas visuales y de navegación.
