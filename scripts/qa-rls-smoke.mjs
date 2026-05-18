@@ -214,6 +214,47 @@ async function main() {
     .select('id')
     .single()
 
+  const ownPrayerSupport = ownPrayer.data?.id
+    ? await userA.supabase
+        .from('prayer_supports')
+        .upsert(
+          {
+            prayer_request_id: ownPrayer.data.id,
+            user_id: userA.user.id,
+          },
+          { onConflict: 'prayer_request_id,user_id' },
+        )
+        .select('id')
+        .single()
+    : { data: null, error: new Error('No se creo oracion A.') }
+
+  const ownComment = ownPost.data?.id
+    ? await userA.supabase
+        .from('post_comments')
+        .insert({
+          post_id: ownPost.data.id,
+          user_id: userA.user.id,
+          body: `QA RLS comentario ${suffix}`,
+        })
+        .select('id')
+        .single()
+    : { data: null, error: new Error('No se creo post A.') }
+
+  const ownReaction = ownPost.data?.id
+    ? await userA.supabase
+        .from('post_reactions')
+        .upsert(
+          {
+            post_id: ownPost.data.id,
+            user_id: userA.user.id,
+            reaction: 'amen',
+          },
+          { onConflict: 'post_id,user_id,reaction' },
+        )
+        .select('id')
+        .single()
+    : { data: null, error: new Error('No se creo post A.') }
+
   const readAllowed = await Promise.all([
     userB.supabase.from('posts').select('id').limit(1),
     userB.supabase
@@ -238,14 +279,48 @@ async function main() {
         .from('prayer_requests')
         .update({ is_answered: true })
         .eq('id', ownPrayer.data.id)
+      .select('id')
+      .maybeSingle()
+    : { data: null, error: new Error('No se creo oracion A.') }
+
+  const commentUpdateByB = ownComment.data?.id
+    ? await userB.supabase
+        .from('post_comments')
+        .update({ body: `QA RLS intento comentario externo ${suffix}` })
+        .eq('id', ownComment.data.id)
         .select('id')
         .maybeSingle()
-    : { data: null, error: new Error('No se creo oracion A.') }
+    : { data: null, error: new Error('No se creo comentario A.') }
 
   const profileUpdateByB = await userB.supabase
     .from('profiles')
     .update({ bio: `QA RLS intento perfil externo ${suffix}` })
     .eq('id', userA.user.id)
+    .select('id')
+    .maybeSingle()
+
+  const adminRoleInsertByB = await userB.supabase
+    .from('user_roles')
+    .insert({
+      user_id: userB.user.id,
+      role: 'admin',
+    })
+    .select('id')
+    .maybeSingle()
+
+  const adminFunctionByB = await userB.supabase.rpc('has_role', {
+    required_role: 'admin',
+  })
+
+  const devotionalInsertByB = await userB.supabase
+    .from('devotionals')
+    .insert({
+      title: `QA RLS devocional externo ${suffix}`,
+      verse_reference: 'Mateo 5:14',
+      verse_text: 'Vosotros sois la luz del mundo.',
+      reflection: 'Intento de escritura no admin.',
+      devotional_date: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+    })
     .select('id')
     .maybeSingle()
 
@@ -266,6 +341,10 @@ async function main() {
       profile: ownProfileUpdate.error || !ownProfileUpdate.data ? 'FAILED' : 'OK',
       post: ownPost.error || !ownPost.data ? 'FAILED' : 'OK',
       prayer: ownPrayer.error || !ownPrayer.data ? 'FAILED' : 'OK',
+      prayerSupport:
+        ownPrayerSupport.error || !ownPrayerSupport.data ? 'FAILED' : 'OK',
+      comment: ownComment.error || !ownComment.data ? 'FAILED' : 'OK',
+      reaction: ownReaction.error || !ownReaction.data ? 'FAILED' : 'OK',
     },
     allowedReads: {
       posts: readAllowed[0].error ? 'FAILED' : 'OK',
@@ -275,7 +354,16 @@ async function main() {
     deniedCrossUserWrites: {
       post: summarizeDenied(postUpdateByB),
       prayer: summarizeDenied(prayerUpdateByB),
+      comment: summarizeDenied(commentUpdateByB),
       profile: summarizeDenied(profileUpdateByB),
+      adminRole: summarizeDenied(adminRoleInsertByB),
+      devotionalAdminWrite: summarizeDenied(devotionalInsertByB),
+    },
+    adminAccess: {
+      hasAdminRole:
+        adminFunctionByB.error || adminFunctionByB.data === true
+          ? 'FAILED'
+          : 'DENIED',
     },
     cleanupWarnings,
   }
@@ -285,10 +373,13 @@ async function main() {
   const failedDenied = Object.values(result.deniedCrossUserWrites).some(
     (item) => item.status !== 'DENIED',
   )
+  const failedAdminAccess = result.adminAccess.hasAdminRole !== 'DENIED'
 
-  if (failedOwnWrite || failedRead || failedDenied) {
+  if (failedOwnWrite || failedRead || failedDenied || failedAdminAccess) {
     result.status = 'FAILED_RLS'
     process.exitCode = 1
+  } else {
+    result.status = 'QA_RLS_OK'
   }
 
   console.log(JSON.stringify(result, null, 2))
