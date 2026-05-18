@@ -20,9 +20,12 @@ Fecha: 2026-05-17
 
 ## Validacion dinamica
 
-- Estado: bloqueada parcialmente.
-- `BLOCKED_EMAIL_CONFIRMATION`: no hay sesion QA confirmada disponible para ejecutar pruebas autenticadas completas.
+- Estado: preparada con script local.
+- Script: `npm run qa:rls`.
+- Resultado actual: pendiente por falta de credenciales QA locales confirmadas.
+- `BLOCKED_EMAIL_CONFIRMATION`: si no hay sesion QA confirmada disponible, no se pueden ejecutar pruebas autenticadas completas.
 - `BLOCKED_AUTH_RATE_LIMIT`: Supabase limito nuevos registros por email durante la sesion nocturna.
+- `BLOCKED_MISSING_QA_ENV`: no hay dos usuarios QA configurados en variables locales.
 
 ## Escenarios pendientes con sesion QA
 
@@ -35,6 +38,20 @@ Fecha: 2026-05-17
 - Intentar modificar post de otro usuario y confirmar rechazo.
 - Intentar modificar peticion de otro usuario y confirmar rechazo.
 - Intentar aprobar testimonios desde cliente y confirmar rechazo.
+
+## Script RLS disponible
+
+```bash
+npm run qa:rls
+```
+
+El script usa dos usuarios QA confirmados y no imprime correos ni contrasenas. Valida:
+
+- Login de usuario A y B.
+- Escrituras propias de usuario A.
+- Lecturas permitidas de usuario B.
+- Rechazo de modificaciones de usuario B sobre perfil, post y peticion de usuario A.
+- Limpieza de datos temporales creados por QA cuando sea posible.
 
 ## Revision de secretos
 

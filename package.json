@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "qa:auth": "node scripts/qa-auth-smoke.mjs"
+    "qa:auth": "node scripts/qa-auth-smoke.mjs",
+    "qa:rls": "node scripts/qa-rls-smoke.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",
