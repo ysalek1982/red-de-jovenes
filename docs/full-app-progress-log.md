@@ -289,3 +289,18 @@ No aplica. Los puntajes no se persisten todavía.
 - La emulación de viewport del navegador integrado no entregó captura móvil
   estable, por lo que queda recomendado QA manual adicional en dispositivos o
   navegador de escritorio con devtools.
+
+## 2026-05-18 · Fase 14
+
+### Cambios
+
+- Se actualizó README con rutas y módulos funcionales nuevos.
+- Se creó `docs/full-app-final-report.md`.
+- Se verificó lista de migraciones Supabase local/remoto.
+
+### Validaciones
+
+- `npm run lint`: OK.
+- `npm run build`: OK, con warning no bloqueante de chunk grande.
+- Revisión de secretos: sin coincidencias en archivos versionables.
+- `git status`: pendiente hasta commit final.

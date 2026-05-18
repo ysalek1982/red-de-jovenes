@@ -127,6 +127,7 @@ Privadas:
 - `/app/devocional`
 - `/app/juegos`
 - `/app/mapa`
+- `/app/seguridad`
 - `/app/perfil`
 - `/app/admin`
 
@@ -143,11 +144,16 @@ La landing pública usa anclas internas:
 - Registro y login con Supabase Auth.
 - Ruta privada protegida por sesión.
 - Perfil editable conectado a `profiles`.
-- Sala de oración conectada a `prayer_requests`.
-- Feed de comunidad conectado a `posts`.
-- Devocional diario conectado a `devotionals` con fallback al último disponible.
+- Sala de oración conectada a `prayer_requests`, con apoyo “Estoy orando”.
+- Foros con la Palabra conectados a `posts`, comentarios y reacciones “Amén”.
+- Devocional diario conectado a `devotionals`, con lecturas y favoritos.
+- Juegos de fe frontend: Versículo Rápido y Trivia Bíblica.
+- Mapa mundial conectado a `groups` con sugerencias de comunidades.
+- Espacio seguro con reportes de contenido.
+- Preferencias de notificaciones preparadas en perfil.
+- Panel administrador inicial protegido por rol.
 - Navegación privada mobile-first.
-- Manifest, metadata, service worker y fallback offline básico.
+- Manifest, metadata, service worker, fallback offline y prompt de instalación.
 
 ## Estructura principal
 
@@ -162,15 +168,23 @@ src/
     auth/
     community/
     devotionals/
+    admin/
+    map/
+    notifications/
     prayer/
     profile/
+    safety/
   pages/
     Home.tsx
     AppHome.tsx
     PrayerRoomPage.tsx
     CommunityFeedPage.tsx
     DevotionalPage.tsx
+    FaithGamesPage.tsx
+    WorldMapPage.tsx
+    SafetyPage.tsx
     AppProfile.tsx
+    AdminHome.tsx
   routes/
     AppRoutes.tsx
 ```
