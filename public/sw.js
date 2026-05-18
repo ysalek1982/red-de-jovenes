@@ -32,6 +32,9 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return
 
   const request = event.request
+  const url = new URL(request.url)
+
+  if (url.origin !== self.location.origin) return
 
   if (request.mode === 'navigate') {
     event.respondWith(

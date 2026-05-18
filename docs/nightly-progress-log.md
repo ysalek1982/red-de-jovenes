@@ -117,3 +117,18 @@ Estado: completada con bloqueo externo.
 - `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
 
 Commit esperado: `Valida seguridad RLS inicial`.
+
+## Macrofase 8 - Pulido visual integral
+
+Estado: completada.
+
+- Se reviso la landing publica en navegador local.
+- Se valido que `/app` sin sesion redirige a `/entrar`.
+- Se ajusto la navegacion privada para pantallas estrechas con truncado, `min-w-0` y foco visible.
+- Se ajusto el registro del service worker para evitar rechazos no capturados.
+- Se ajusto el service worker para cachear solo recursos del mismo origen.
+- QA visual documentado en `docs/visual-polish-qa.md`.
+- `npm run lint`: OK.
+- `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
+
+Commit esperado: `Pule experiencia visual integral`.

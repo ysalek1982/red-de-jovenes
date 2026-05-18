@@ -37,24 +37,24 @@ export function AppShell() {
                 end={item.end}
                 className={({ isActive }) =>
                   cn(
-                    'flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-[0.68rem] font-semibold text-white/55 transition hover:bg-white/10 hover:text-white sm:text-xs',
+                    'flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl px-1 text-[0.62rem] font-semibold text-white/55 transition hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 sm:px-2 sm:text-xs',
                     isActive &&
                       'bg-gradient-to-br from-emerald-300/20 to-amber-300/20 text-white ring-1 ring-white/10',
                   )
                 }
               >
                 <Icon className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
-                <span>{item.label}</span>
+                <span className="max-w-full truncate">{item.label}</span>
               </NavLink>
             )
           })}
           <button
             type="button"
             onClick={() => void handleSignOut()}
-            className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-2xl px-2 text-[0.68rem] font-semibold text-white/55 transition hover:bg-white/10 hover:text-white sm:text-xs"
+            className="flex min-h-14 min-w-0 flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl px-1 text-[0.62rem] font-semibold text-white/55 transition hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 sm:px-2 sm:text-xs"
           >
             <LogOut className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
-            <span>Salir</span>
+            <span className="max-w-full truncate">Salir</span>
           </button>
         </div>
       </nav>
