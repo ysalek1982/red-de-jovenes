@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   CheckCircle2,
   Gamepad2,
@@ -13,6 +13,9 @@ import {
   upcomingFaithGames,
   type FaithGameDefinition,
 } from '../data/faithGamesData'
+import { useAuth } from '../features/auth/useAuth'
+import { getMyGameScores, saveGameScore } from '../features/games/gameService'
+import type { GameScore } from '../types/database'
 
 function getFeedbackColor(isCorrect: boolean) {
   return isCorrect
@@ -21,11 +24,15 @@ function getFeedbackColor(isCorrect: boolean) {
 }
 
 export function FaithGamesPage() {
+  const { user } = useAuth()
   const [activeGameKey, setActiveGameKey] = useState(faithGames[0].key)
   const [questionIndex, setQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState('')
   const [score, setScore] = useState(0)
   const [isFinished, setIsFinished] = useState(false)
+  const [isScoreSaved, setIsScoreSaved] = useState(false)
+  const [scoreMessage, setScoreMessage] = useState('')
+  const [scoreHistory, setScoreHistory] = useState<GameScore[]>([])
 
   const activeGame = useMemo<FaithGameDefinition>(
     () =>
@@ -47,6 +54,8 @@ export function FaithGamesPage() {
     setSelectedAnswer('')
     setScore(0)
     setIsFinished(false)
+    setIsScoreSaved(false)
+    setScoreMessage('')
   }
 
   function handleSelectAnswer(answer: string) {
@@ -67,6 +76,31 @@ export function FaithGamesPage() {
     setQuestionIndex((currentIndex) => currentIndex + 1)
     setSelectedAnswer('')
   }
+
+  useEffect(() => {
+    if (!user?.id) return
+
+    getMyGameScores(user.id)
+      .then(setScoreHistory)
+      .catch(() => setScoreMessage('No pudimos cargar tu historial.'))
+  }, [user?.id])
+
+  useEffect(() => {
+    if (!user?.id || !isFinished || isScoreSaved) return
+
+    saveGameScore({
+      userId: user.id,
+      gameKey: activeGame.key,
+      score,
+      total: activeGame.questions.length,
+    })
+      .then((savedScore) => {
+        setScoreHistory((current) => [savedScore, ...current].slice(0, 12))
+        setIsScoreSaved(true)
+        setScoreMessage('Puntaje guardado en tu progreso.')
+      })
+      .catch(() => setScoreMessage('No pudimos guardar tu puntaje.'))
+  }, [activeGame.key, activeGame.questions.length, isFinished, isScoreSaved, score, user?.id])
 
   return (
     <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-24 pt-32 text-white">
@@ -151,6 +185,33 @@ export function FaithGamesPage() {
                 <p className="mt-3 text-sm leading-6">{game.description}</p>
               </article>
             ))}
+
+            <article className="rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/20 backdrop-blur">
+              <h2 className="font-black text-white">Mi progreso</h2>
+              <div className="mt-4 space-y-3">
+                {scoreHistory.length ? (
+                  scoreHistory.slice(0, 5).map((item) => (
+                    <div
+                      key={item.id}
+                      className="rounded-2xl border border-white/10 bg-slate-950/45 p-3"
+                    >
+                      <p className="text-sm font-bold text-white">
+                        {item.game_key === 'versiculo-rapido'
+                          ? 'Versiculo Rapido'
+                          : 'Trivia Biblica'}
+                      </p>
+                      <p className="mt-1 text-xs text-white/55">
+                        {item.score}/{item.total} puntos
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm leading-6 text-white/60">
+                    Completa un juego para guardar tu primer puntaje.
+                  </p>
+                )}
+              </div>
+            </article>
           </aside>
 
           <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur md:p-8">
@@ -169,6 +230,11 @@ export function FaithGamesPage() {
                   Cada respuesta es una oportunidad para conocer más la Palabra.
                   Repite el juego o prueba otra categoría.
                 </p>
+                {scoreMessage ? (
+                  <p className="mt-4 text-sm font-semibold text-emerald-200">
+                    {scoreMessage}
+                  </p>
+                ) : null}
                 <button
                   type="button"
                   onClick={() => resetGame()}
