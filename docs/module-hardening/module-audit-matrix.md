@@ -41,3 +41,24 @@ Base auditada: `529a91f Prepara despliegue staging para piloto`
 3. Recuperacion de contrasena depende de Site URL y Redirect URLs del hosting final.
 4. Juegos de fe son funcionales en frontend, pero deben presentarse como primera version de piloto, no producto final.
 5. Admin es suficiente para piloto, no para operacion publica amplia.
+
+## Actualizacion final de Fase 18
+
+| Modulo | Estado final |
+| --- | --- |
+| Auth/Login | Funcional para piloto; recuperacion cerrada con `/actualizar-contrasena` y pendiente de email real en staging |
+| Registro/Onboarding | Funcional para piloto |
+| Recuperacion de contrasena | Funcional con observacion operativa de redirects Supabase |
+| Perfil | Funcional para piloto |
+| Inicio privado `/app` | Funcional para piloto |
+| Sala de oracion | Funcional para piloto con `QA_PRAYER_OK` |
+| Foros con la Palabra | Funcional para piloto con `QA_FORUMS_OK` |
+| Devocional diario | Funcional para piloto |
+| Juegos de fe | Funcional base frontend |
+| Mapa mundial | Funcional base con datos reales en KPIs/lista |
+| Espacio seguro/reportes | Funcional para piloto |
+| Preferencias/notificaciones | Funcional base; push real futuro |
+| Panel admin | Funcional inicial para piloto |
+| PWA/offline/install | Funcional base; instalacion real pendiente en dispositivo |
+| Landing/demo/routing | Funcional para staging con fallback SPA requerido |
+| Supabase/RLS | Funcional y validado con QA A/B |
