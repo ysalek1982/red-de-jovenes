@@ -136,3 +136,22 @@ No aplica.
 ### Bloqueos
 
 - QA dinámico A/B sigue pendiente por `.env.qa.local` incompleto.
+
+## 2026-05-18 · Fase 6
+
+### Cambios
+
+- Se reemplazó el mock visual de juegos por dos juegos frontend funcionales.
+- “Versículo Rápido” permite completar versículos con opciones múltiples.
+- “Trivia Bíblica” permite responder preguntas por categorías simples.
+- Se agregaron feedback inmediato, puntaje, progreso y reinicio.
+- “Batallas de Fe” queda visible como próximo módulo, sin prometer backend.
+
+### Validaciones
+
+- `npm run lint`: OK.
+- `npm run build`: OK, con warning no bloqueante de chunk grande.
+
+### Migraciones
+
+No aplica. Los puntajes no se persisten todavía.
