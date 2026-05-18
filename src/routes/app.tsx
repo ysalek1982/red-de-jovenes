@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Home, Calendar, MessageSquare, Gamepad2, Globe2, HandHeart, User, Sparkles, Lightbulb, Search, Bell, BookOpen, Send, Menu, X, LogOut, Settings, Moon, Sun, Users, Flame } from "lucide-react";
+import { Home, Calendar, MessageSquare, Gamepad2, Globe2, HandHeart, User, Sparkles, Lightbulb, Bell, BookOpen, Send, Menu, X, LogOut, Settings, Moon, Sun, Users, Flame, Plus } from "lucide-react";
+import { CommandPalette, PaletteTrigger, useCommandPalette } from "@/components/CommandPalette";
 
 export const Route = createFileRoute("/app")({
   head: () => ({
