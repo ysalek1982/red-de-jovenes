@@ -248,3 +248,24 @@ No aplica. Los puntajes no se persisten todavía.
 - Tipos Supabase regenerados.
 - `npm run lint`: OK.
 - `npm run build`: OK, con warnings no bloqueantes de plugin timing y chunk grande.
+
+## 2026-05-18 · Fase 12
+
+### Cambios
+
+- Se documentó QA funcional integral en `docs/full-functional-qa.md`.
+- Se verificaron rutas principales públicas y privadas en documentación.
+- Se ejecutaron scripts QA disponibles.
+
+### Validaciones
+
+- `npm run lint`: OK.
+- `npm run build`: OK, con warning no bloqueante de chunk grande.
+- `npm run qa:auth`: `BLOCKED_MISSING_QA_ENV`.
+- `npm run qa:rls`: `BLOCKED_MISSING_QA_ENV`.
+
+### Bloqueos
+
+- `.env.qa.local` existe, pero faltan credenciales A/B:
+  `QA_USER_A_EMAIL`, `QA_USER_A_PASSWORD`, `QA_USER_B_EMAIL`,
+  `QA_USER_B_PASSWORD`.
