@@ -101,35 +101,65 @@ export function DevotionalPage() {
                   <p className="mt-8 text-lg leading-8 text-white/70">
                     {devotional.reflection}
                   </p>
+                  <div className="mt-8 rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/10 p-5">
+                    <h3 className="font-bold text-emerald-100">Reflexión guiada</h3>
+                    <ol className="mt-3 space-y-2 text-sm leading-6 text-white/70">
+                      <li>1. ¿Qué me dice este pasaje sobre quién es Dios?</li>
+                      <li>2. ¿Qué me dice sobre quién soy yo en Cristo?</li>
+                      <li>3. ¿Qué paso concreto puedo dar hoy en obediencia?</li>
+                    </ol>
+                  </div>
                 </div>
               </article>
 
-              <aside className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 shadow-2xl shadow-black/25 backdrop-blur">
-                <div className="flex items-center gap-3">
-                  <BookOpen className="h-6 w-6 text-emerald-300" aria-hidden="true" />
-                  <h2 className="text-2xl font-bold">Historial breve</h2>
+              <aside className="space-y-6">
+                <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+                  <h2 className="text-2xl font-bold">¿Cómo está tu corazón hoy?</h2>
+                  <p className="mt-2 text-sm text-white/60">
+                    Dios conoce tu estado y te encuentra ahí.
+                  </p>
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {['Gozo', 'Paz', 'Ansiedad', 'Gratitud', 'Duda', 'Esperanza'].map(
+                      (mood) => (
+                        <button
+                          key={mood}
+                          type="button"
+                          className="rounded-full border border-white/10 bg-slate-950/45 px-4 py-2 text-sm font-semibold text-white/65 transition hover:bg-white/10 hover:text-white"
+                        >
+                          {mood}
+                        </button>
+                      ),
+                    )}
+                  </div>
                 </div>
-                <div className="mt-6 space-y-3">
-                  {recentDevotionals.length ? (
-                    recentDevotionals.map((item) => (
-                      <article
-                        key={item.id}
-                        className="rounded-3xl border border-white/10 bg-slate-950/45 p-4"
-                      >
-                        <p className="text-xs font-semibold uppercase tracking-wide text-white/45">
-                          {formatDate(item.devotional_date)}
-                        </p>
-                        <h3 className="mt-2 font-bold">{item.title}</h3>
-                        <p className="mt-2 text-sm text-amber-200">
-                          {item.verse_reference}
-                        </p>
-                      </article>
-                    ))
-                  ) : (
-                    <p className="text-sm text-white/60">
-                      Aún no hay devocionales recientes.
-                    </p>
-                  )}
+
+                <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+                  <div className="flex items-center gap-3">
+                    <BookOpen className="h-6 w-6 text-emerald-300" aria-hidden="true" />
+                    <h2 className="text-2xl font-bold">Historial breve</h2>
+                  </div>
+                  <div className="mt-6 space-y-3">
+                    {recentDevotionals.length ? (
+                      recentDevotionals.map((item) => (
+                        <article
+                          key={item.id}
+                          className="rounded-3xl border border-white/10 bg-slate-950/45 p-4"
+                        >
+                          <p className="text-xs font-semibold uppercase tracking-wide text-white/45">
+                            {formatDate(item.devotional_date)}
+                          </p>
+                          <h3 className="mt-2 font-bold">{item.title}</h3>
+                          <p className="mt-2 text-sm text-amber-200">
+                            {item.verse_reference}
+                          </p>
+                        </article>
+                      ))
+                    ) : (
+                      <p className="text-sm text-white/60">
+                        Aún no hay devocionales recientes.
+                      </p>
+                    )}
+                  </div>
                 </div>
               </aside>
             </div>

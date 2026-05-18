@@ -22,7 +22,7 @@ Completa solo en `.env.admin.local`:
 
 ```bash
 SUPABASE_SERVICE_ROLE_KEY=valor_local_privado
-ADMIN_PASSWORD=<valor local privado>
+# ADMIN_PASSWORD debe completarse solo con un valor local privado
 ```
 
 Puedes ajustar los datos de perfil si hace falta:

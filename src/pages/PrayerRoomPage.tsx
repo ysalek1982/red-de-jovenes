@@ -134,6 +134,19 @@ export function PrayerRoomPage() {
               en oración.
             </p>
 
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4">
+                <p className="text-3xl font-black">1,247</p>
+                <p className="mt-1 text-sm text-white/60">jóvenes orando en vivo</p>
+              </div>
+              <div className="rounded-3xl border border-amber-300/20 bg-amber-300/10 p-4">
+                <p className="text-sm font-bold text-amber-200">Oración respirada</p>
+                <p className="mt-2 text-sm leading-6 text-white/65">
+                  Inhala Su paz · sostén Su nombre · exhala tu carga.
+                </p>
+              </div>
+            </div>
+
             <div className="mt-7 space-y-4">
               <div>
                 <label className="text-sm font-semibold" htmlFor="prayerTitle">
@@ -180,10 +193,22 @@ export function PrayerRoomPage() {
                 </p>
                 <h2 className="mt-2 text-3xl font-black">En oración</h2>
               </div>
-              <span className="rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm text-white/60">
-                {prayers.length} peticiones
+            <span className="rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm text-white/60">
+                En vivo · 47 países
               </span>
             </div>
+
+            <article className="mt-6 rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5">
+              <p className="text-sm font-bold text-amber-200">Oración del día</p>
+              <p className="mt-3 leading-7 text-white/70">
+                Padre, hoy entrego mis cargas. Llena mi corazón de Tu paz, mis
+                labios de Tu nombre y mis manos de Tu obra. En el nombre de
+                Jesús, amén.
+              </p>
+              <p className="mt-3 text-sm font-semibold text-emerald-300">
+                8,124 jóvenes oraron hoy
+              </p>
+            </article>
 
             {error ? (
               <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">

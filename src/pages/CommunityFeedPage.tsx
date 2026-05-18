@@ -5,11 +5,13 @@ import {
   Loader2,
   MessageCircle,
   Send,
+  Sparkles,
   Trash2,
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
+import { forumCategories, forumTopics } from '../data/appDemoData'
 import { useAuth } from '../features/auth/useAuth'
 import {
   createPost,
@@ -112,14 +114,27 @@ export function CommunityFeedPage() {
           >
             <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-amber-200">
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              Comunidad
+              Foros con la Palabra
             </p>
             <h1 className="mt-5 text-4xl font-black tracking-tight md:text-5xl">
-              Comparte con la Palabra al centro.
+              Debates anclados en la Palabra.
             </h1>
             <p className="mt-4 text-white/65">
-              Publica una reflexión, testimonio o palabra de ánimo para la Red.
+              Cada conversación empieza con versículos, respeto y una búsqueda
+              real de Cristo.
             </p>
+
+            <div className="mt-6 grid grid-cols-2 gap-2">
+              {forumCategories.slice(0, 4).map((category) => (
+                <div
+                  key={category.title}
+                  className="rounded-2xl border border-white/10 bg-slate-950/45 p-3"
+                >
+                  <p className="text-sm font-bold">{category.title}</p>
+                  <p className="mt-1 text-xs text-white/45">{category.threads}</p>
+                </div>
+              ))}
+            </div>
 
             <div className="mt-7 space-y-4">
               <div>
@@ -130,7 +145,7 @@ export function CommunityFeedPage() {
                   id="postBody"
                   value={body}
                   onChange={(event) => setBody(event.target.value)}
-                  placeholder="Comparte lo que Dios puso en tu corazón."
+                  placeholder="Abre un debate sano o comparte lo que Dios puso en tu corazón."
                   className="mt-2"
                 />
               </div>
@@ -175,13 +190,43 @@ export function CommunityFeedPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-amber-200">
-                  Feed cristiano
+                  Discusiones sanas y reales
                 </p>
-                <h2 className="mt-2 text-3xl font-black">Posts recientes</h2>
+                <h2 className="mt-2 text-3xl font-black">Foros con la Palabra</h2>
               </div>
               <span className="rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm text-white/60">
                 {posts.length} posts
               </span>
+            </div>
+
+            <div className="mt-6 grid gap-3">
+              {forumTopics.slice(0, 2).map((topic) => (
+                <article
+                  key={topic.title}
+                  className="rounded-[1.5rem] border border-amber-300/20 bg-amber-300/10 p-4"
+                >
+                  <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wide text-amber-200">
+                    <Sparkles className="h-4 w-4" aria-hidden="true" />
+                    {topic.category}
+                    {topic.isTrending ? <span>Tendencia</span> : null}
+                  </div>
+                  <h3 className="mt-3 text-lg font-black">{topic.title}</h3>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {topic.verses.map((verse) => (
+                      <span
+                        key={verse}
+                        className="rounded-full border border-white/10 bg-slate-950/45 px-3 py-1 text-xs font-semibold text-white/65"
+                      >
+                        {verse}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="mt-3 text-sm text-white/50">
+                    por {topic.author} · {topic.replies} respuestas · {topic.prayers}{' '}
+                    oraciones
+                  </p>
+                </article>
+              ))}
             </div>
 
             {error ? (

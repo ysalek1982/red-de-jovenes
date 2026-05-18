@@ -2,13 +2,18 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ArrowRight,
   BookOpen,
+  Gamepad2,
+  Globe2,
   Heart,
   Loader2,
   MessageCircle,
+  Plus,
+  ShieldCheck,
   Sparkles,
   UserRound,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { appStories, safePrinciples } from '../data/appDemoData'
 import { getRecentPosts, type PostWithAuthor } from '../features/community/communityService'
 import { getTodayDevotional } from '../features/devotionals/devotionalService'
 import {
@@ -20,13 +25,13 @@ import type { Devotional } from '../types/database'
 
 const quickActions = [
   {
-    title: 'Sala de oración',
-    text: 'Comparte peticiones y acompaña a otros jóvenes.',
+    title: 'Sala de oración global',
+    text: 'Comparte peticiones y ora con jóvenes de la Red.',
     to: '/app/oracion',
     icon: Heart,
   },
   {
-    title: 'Comunidad',
+    title: 'Foros con la Palabra',
     text: 'Publica reflexiones, testimonios y versículos.',
     to: '/app/comunidad',
     icon: MessageCircle,
@@ -36,6 +41,18 @@ const quickActions = [
     text: 'Vuelve a la Palabra con una reflexión diaria.',
     to: '/app/devocional',
     icon: BookOpen,
+  },
+  {
+    title: 'Juegos de fe',
+    text: 'Aprende jugando con Versículo Rápido y trivia bíblica.',
+    to: '/app/juegos',
+    icon: Gamepad2,
+  },
+  {
+    title: 'Mapa mundial',
+    text: 'Explora iglesias y grupos juveniles en 47 países.',
+    to: '/app/mapa',
+    icon: Globe2,
   },
   {
     title: 'Perfil',
@@ -102,8 +119,8 @@ export function AppHome() {
               Hola, {displayName}.
             </h1>
             <p className="mt-4 max-w-2xl text-white/65">
-              Tu espacio privado para oración, comunidad y devocional diario.
-              Todo conectado a Supabase y preparado para crecer.
+              Tu espacio privado para oración, foros con la Palabra, devocional,
+              juegos de fe y comunidad cristiana.
             </p>
           </div>
           <Link
@@ -128,7 +145,32 @@ export function AppHome() {
           </div>
         ) : (
           <div className="mt-10 space-y-6">
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              <div className="flex min-w-24 flex-col items-center rounded-3xl border border-dashed border-white/15 bg-white/[0.05] p-3 text-center">
+                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-xl font-black text-slate-950">
+                  <Plus className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <span className="mt-2 text-xs font-semibold text-white/60">
+                  Tu historia
+                </span>
+              </div>
+              {appStories.map((story) => (
+                <div
+                  key={story.name}
+                  className="flex min-w-24 flex-col items-center rounded-3xl border border-white/10 bg-white/[0.05] p-3 text-center"
+                >
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-300 to-amber-300 font-black text-slate-950">
+                    {story.initial}
+                  </span>
+                  <span className="mt-2 text-xs font-semibold text-white/70">
+                    {story.name}
+                  </span>
+                  <span className="text-[0.68rem] text-white/40">{story.detail}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {quickActions.map((action) => {
                 const Icon = action.icon
                 return (
@@ -213,7 +255,7 @@ export function AppHome() {
                 <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
                   <h2 className="flex items-center gap-2 text-xl font-bold">
                     <MessageCircle className="h-5 w-5 text-amber-200" aria-hidden="true" />
-                    Posts recientes
+                    Foros recientes
                   </h2>
                   <div className="mt-5 space-y-4">
                     {posts.length ? (
@@ -231,13 +273,30 @@ export function AppHome() {
                       ))
                     ) : (
                       <p className="text-sm text-white/60">
-                        Todavía no hay posts en la comunidad.
+                        Todavía no hay debates en los foros.
                       </p>
                     )}
                   </div>
                 </article>
               </div>
             </div>
+
+            <article className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <div className="flex items-center gap-3">
+                <ShieldCheck className="h-6 w-6 text-emerald-200" aria-hidden="true" />
+                <h2 className="text-2xl font-bold">Espacio seguro</h2>
+              </div>
+              <div className="mt-5 grid gap-4 md:grid-cols-3">
+                {safePrinciples.map((principle) => (
+                  <div key={principle.title} className="rounded-3xl bg-slate-950/45 p-4">
+                    <h3 className="font-bold">{principle.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-white/60">
+                      {principle.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </article>
           </div>
         )}
       </div>

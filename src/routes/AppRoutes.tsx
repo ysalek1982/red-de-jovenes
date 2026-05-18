@@ -4,7 +4,6 @@ import { Layout } from '../components/layout/Layout'
 import { useAuth } from '../features/auth/useAuth'
 import { CreateAccountPage } from '../pages/CreateAccountPage'
 import { Home } from '../pages/Home'
-import { PlaceholderPage } from '../pages/PlaceholderPage'
 import { SignInPage } from '../pages/SignInPage'
 
 const AppShell = lazy(() =>
@@ -38,6 +37,21 @@ const CommunityFeedPage = lazy(() =>
 const DevotionalPage = lazy(() =>
   import('../pages/DevotionalPage').then((module) => ({
     default: module.DevotionalPage,
+  })),
+)
+const DemoPage = lazy(() =>
+  import('../pages/DemoPage').then((module) => ({
+    default: module.DemoPage,
+  })),
+)
+const FaithGamesPage = lazy(() =>
+  import('../pages/FaithGamesPage').then((module) => ({
+    default: module.FaithGamesPage,
+  })),
+)
+const WorldMapPage = lazy(() =>
+  import('../pages/WorldMapPage').then((module) => ({
+    default: module.WorldMapPage,
   })),
 )
 
@@ -85,25 +99,18 @@ export function AppRoutes() {
           <Route index element={withSuspense(<AppHome />)} />
           <Route path="perfil" element={withSuspense(<AppProfile />)} />
           <Route path="oracion" element={withSuspense(<PrayerRoomPage />)} />
+          <Route path="orar" element={<Navigate to="/app/oracion" replace />} />
           <Route
             path="comunidad"
             element={withSuspense(<CommunityFeedPage />)}
           />
+          <Route path="foros" element={withSuspense(<CommunityFeedPage />)} />
           <Route path="devocional" element={withSuspense(<DevotionalPage />)} />
+          <Route path="juegos" element={withSuspense(<FaithGamesPage />)} />
+          <Route path="mapa" element={withSuspense(<WorldMapPage />)} />
           <Route path="admin" element={withSuspense(<AdminHome />)} />
         </Route>
-        <Route
-          path="demo"
-          element={
-            <PlaceholderPage
-              eyebrow="Demo"
-              title="Una vista previa de la experiencia."
-              description="La demo mantendrá el flujo de comunidad, oración, devocional y mapa mundial en una interfaz instalable."
-              actionLabel="Crear mi cuenta gratis"
-              actionTo="/crear-cuenta"
-            />
-          }
-        />
+        <Route path="demo" element={withSuspense(<DemoPage />)} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
