@@ -64,6 +64,7 @@ const quickActions = [
 
 export function AppHome() {
   const { user } = useAuth()
+  const userId = user?.id
   const [devotional, setDevotional] = useState<Devotional | null>(null)
   const [prayers, setPrayers] = useState<PrayerRequestWithAuthor[]>([])
   const [posts, setPosts] = useState<PostWithAuthor[]>([])
@@ -85,7 +86,7 @@ export function AppHome() {
       const [devotionalData, prayerData, postData] = await Promise.all([
         getTodayDevotional(),
         getPublicPrayerRequests(),
-        getRecentPosts(),
+        getRecentPosts(userId),
       ])
       setDevotional(devotionalData)
       setPrayers(prayerData.slice(0, 4))
@@ -95,7 +96,7 @@ export function AppHome() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [userId])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {

@@ -8,6 +8,10 @@ export type PrayerRequest =
 export type PrayerSupport =
   Database['public']['Tables']['prayer_supports']['Row']
 export type Post = Database['public']['Tables']['posts']['Row']
+export type PostComment =
+  Database['public']['Tables']['post_comments']['Row']
+export type PostReaction =
+  Database['public']['Tables']['post_reactions']['Row']
 export type Devotional = Database['public']['Tables']['devotionals']['Row']
 export type Testimony = Database['public']['Tables']['testimonies']['Row']
 export type Group = Database['public']['Tables']['groups']['Row']

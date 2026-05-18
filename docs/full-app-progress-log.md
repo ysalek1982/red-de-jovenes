@@ -94,3 +94,24 @@ No aplica.
 ### Bloqueos
 
 - QA dinámico con dos usuarios sigue pendiente por credenciales QA A/B.
+
+## 2026-05-18 · Fase 4
+
+### Cambios
+
+- Se agregaron `post_comments` y `post_reactions`.
+- Foros con la Palabra ahora permite comentar y reaccionar con “Amén”.
+- El feed muestra conteos de comentarios/reacciones.
+- RLS restringe escritura a contenido propio.
+
+### Validaciones
+
+- `npx supabase db push --dry-run`: OK.
+- `npx supabase db push`: OK.
+- Tipos Supabase regenerados.
+- `npm run lint`: OK.
+- `npm run build`: OK.
+
+### Bloqueos
+
+- QA dinámico A/B sigue pendiente.

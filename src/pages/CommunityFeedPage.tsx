@@ -15,8 +15,10 @@ import { forumCategories, forumTopics } from '../data/appDemoData'
 import { useAuth } from '../features/auth/useAuth'
 import {
   createPost,
+  createPostComment,
   deleteOwnPost,
   getRecentPosts,
+  toggleAmenReaction,
   type PostWithAuthor,
 } from '../features/community/communityService'
 
@@ -35,10 +37,12 @@ function getAuthor(post: PostWithAuthor) {
 
 export function CommunityFeedPage() {
   const { user } = useAuth()
+  const userId = user?.id
   const [posts, setPosts] = useState<PostWithAuthor[]>([])
   const [body, setBody] = useState('')
   const [verseReference, setVerseReference] = useState('')
   const [verseText, setVerseText] = useState('')
+  const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [busyPostId, setBusyPostId] = useState<string | null>(null)
@@ -48,14 +52,14 @@ export function CommunityFeedPage() {
     if (showLoading) setIsLoading(true)
     setError('')
     try {
-      const postData = await getRecentPosts()
+      const postData = await getRecentPosts(userId)
       setPosts(postData)
     } catch {
       setError('No pudimos cargar la comunidad.')
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [userId])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -98,6 +102,46 @@ export function CommunityFeedPage() {
       await loadPosts(false)
     } catch {
       setError('Solo puedes eliminar tus propios posts.')
+    } finally {
+      setBusyPostId(null)
+    }
+  }
+
+  async function handleToggleAmen(post: PostWithAuthor) {
+    if (!user) return
+    setBusyPostId(post.id)
+    setError('')
+    try {
+      await toggleAmenReaction({
+        postId: post.id,
+        userId: user.id,
+        hasReacted: post.reactedByMe,
+      })
+      await loadPosts(false)
+    } catch {
+      setError('No pudimos actualizar tu amén.')
+    } finally {
+      setBusyPostId(null)
+    }
+  }
+
+  async function handleComment(postId: string) {
+    if (!user) return
+    const comment = commentDrafts[postId]?.trim()
+    if (!comment) return
+
+    setBusyPostId(postId)
+    setError('')
+    try {
+      await createPostComment({
+        postId,
+        userId: user.id,
+        body: comment,
+      })
+      setCommentDrafts((current) => ({ ...current, [postId]: '' }))
+      await loadPosts(false)
+    } catch {
+      setError('No pudimos publicar tu comentario.')
     } finally {
       setBusyPostId(null)
     }
@@ -283,6 +327,63 @@ export function CommunityFeedPage() {
                           ) : null}
                         </div>
                       ) : null}
+
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        <Button
+                          type="button"
+                          variant={post.reactedByMe ? 'secondary' : 'accent'}
+                          size="sm"
+                          onClick={() => void handleToggleAmen(post)}
+                          disabled={busyPostId === post.id}
+                        >
+                          Amén · {post.amenCount}
+                        </Button>
+                        <span className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-white/55">
+                          {post.commentsCount} comentarios
+                        </span>
+                      </div>
+
+                      <div className="mt-5 space-y-3">
+                        {(post.post_comments ?? []).slice(0, 3).map((comment) => (
+                          <div
+                            key={comment.id}
+                            className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+                          >
+                            <p className="text-xs font-semibold uppercase tracking-wide text-white/40">
+                              {comment.profiles?.full_name ?? 'Joven de la Red'}
+                            </p>
+                            <p className="mt-2 text-sm leading-6 text-white/70">
+                              {comment.body}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+                        <Input
+                          value={commentDrafts[post.id] ?? ''}
+                          onChange={(event) =>
+                            setCommentDrafts((current) => ({
+                              ...current,
+                              [post.id]: event.target.value,
+                            }))
+                          }
+                          placeholder="Responder con gracia..."
+                          disabled={busyPostId === post.id}
+                        />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => void handleComment(post.id)}
+                          disabled={
+                            busyPostId === post.id ||
+                            !commentDrafts[post.id]?.trim()
+                          }
+                        >
+                          Comentar
+                        </Button>
+                      </div>
                     </article>
                   )
                 })}
