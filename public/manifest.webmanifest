@@ -1,0 +1,19 @@
+{
+  "name": "Red de Jóvenes",
+  "short_name": "Red Jóvenes",
+  "description": "La red social cristiana de la nueva generación. Comunidad, oración, devocionales, foros y juegos de fe para jóvenes.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#020617",
+  "theme_color": "#020617",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

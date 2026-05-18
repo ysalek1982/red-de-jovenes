@@ -1,35 +1,44 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import type { ReactNode } from 'react'
 import { Layout } from '../components/layout/Layout'
+import { useAuth } from '../features/auth/useAuth'
+import { AppHome } from '../pages/AppHome'
+import { CreateAccountPage } from '../pages/CreateAccountPage'
 import { Home } from '../pages/Home'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
+import { SignInPage } from '../pages/SignInPage'
+
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const { user, isLoading } = useAuth()
+
+  if (isLoading) {
+    return (
+      <section className="min-h-screen bg-slate-950 px-4 pt-36 text-center text-white">
+        Preparando tu red...
+      </section>
+    )
+  }
+
+  if (!user) {
+    return <Navigate to="/entrar" replace />
+  }
+
+  return children
+}
 
 export function AppRoutes() {
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<Home />} />
+        <Route path="entrar" element={<SignInPage />} />
+        <Route path="crear-cuenta" element={<CreateAccountPage />} />
         <Route
-          path="entrar"
+          path="app"
           element={
-            <PlaceholderPage
-              eyebrow="Entrar"
-              title="Vuelve a tu comunidad."
-              description="Acceso visual preparado para una futura autenticación de la Red de Jóvenes."
-              actionLabel="Crear cuenta"
-              actionTo="/crear-cuenta"
-            />
-          }
-        />
-        <Route
-          path="crear-cuenta"
-          element={
-            <PlaceholderPage
-              eyebrow="Crear cuenta"
-              title="Tu generación. Tu Red."
-              description="Muy pronto podrás crear tu perfil, unirte a salas de oración y conectar con jóvenes en Cristo."
-              actionLabel="Ver demo"
-              actionTo="/demo"
-            />
+            <ProtectedRoute>
+              <AppHome />
+            </ProtectedRoute>
           }
         />
         <Route

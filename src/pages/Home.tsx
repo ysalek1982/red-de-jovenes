@@ -50,7 +50,7 @@ function Glow() {
 
 function HeroCross() {
   return (
-    <div className="pointer-events-none absolute right-6 top-28 hidden h-56 w-56 overflow-hidden rounded-full opacity-75 shadow-[0_0_70px_rgba(252,211,77,0.22)] lg:block">
+    <div className="pointer-events-none absolute right-6 top-28 hidden h-56 w-56 overflow-hidden rounded-full opacity-75 shadow-[0_0_70px_rgba(252,211,77,0.22)] xl:block">
       <img
         src={crossImage}
         alt=""
@@ -81,19 +81,20 @@ export function Home() {
         <Glow />
         <HeroCross />
         <div className="section-shell relative flex min-h-screen flex-col items-center justify-center pb-16 pt-36 text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-medium text-white/70 shadow-2xl shadow-black/20 backdrop-blur">
+          <div className="inline-flex w-full max-w-md items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-center text-xs font-medium leading-5 text-white/70 shadow-2xl shadow-black/20 backdrop-blur sm:w-auto sm:max-w-full sm:text-sm">
             <Sparkles className="h-4 w-4 text-amber-300" aria-hidden="true" />
-            La red social cristiana de la nueva generación
+            <span>La red social cristiana de la nueva generación</span>
           </div>
 
-          <h1 className="mt-8 max-w-6xl text-5xl font-black leading-[0.96] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-8xl">
-            Conectando jóvenes
+          <h1 className="mt-8 w-full max-w-6xl text-5xl font-black leading-[0.96] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-8xl">
+            <span className="block md:inline">Conectando</span>
+            <span className="block md:inline"> jóvenes</span>
             <span className="block bg-gradient-to-r from-emerald-300 via-lime-200 to-amber-300 bg-clip-text font-serif italic font-normal text-transparent">
               en Cristo.
             </span>
           </h1>
 
-          <p className="mt-7 max-w-3xl text-lg leading-8 text-white/70 md:text-xl">
+          <p className="mt-7 w-full max-w-3xl text-lg leading-8 text-white/70 md:text-xl">
             Donde la fe se vive juntos. Comunidad, oración, eventos, foros
             anclados en la Palabra y juegos para crecer en grupo.
           </p>
@@ -115,7 +116,7 @@ export function Home() {
             </Link>
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-5 text-sm text-white/60">
+          <div className="mt-12 flex w-full flex-wrap items-center justify-center gap-5 text-sm text-white/60">
             {heroBenefits.map((benefit) => (
               <span key={benefit} className="inline-flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4 text-emerald-300" aria-hidden="true" />
