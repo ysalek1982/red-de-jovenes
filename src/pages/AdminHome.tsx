@@ -1,58 +1,204 @@
-import { useEffect, useState } from 'react'
+import type { FormEvent, ReactNode } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import {
   BookOpen,
   FileText,
   Heart,
   Loader2,
   MessageCircle,
+  Send,
   ShieldCheck,
   Users,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { hasRole } from '../features/auth/roleService'
+import {
+  createDevotional,
+  getAdminLatestItems,
+  getAdminOverview,
+  updateDevotional,
+  updateGroupSuggestionStatus,
+  updateReportStatus,
+  type AdminDevotionalPreview,
+  type AdminPostPreview,
+  type AdminPrayerPreview,
+  type AdminProfilePreview,
+  type AdminReportPreview,
+  type AdminSuggestionPreview,
+} from '../features/admin/adminService'
 
-const adminCards = [
-  {
-    title: 'Usuarios',
-    text: 'Revisión inicial de perfiles y participación.',
-    icon: Users,
-  },
-  {
-    title: 'Oraciones',
-    text: 'Moderación futura de peticiones públicas.',
-    icon: Heart,
-  },
-  {
-    title: 'Publicaciones',
-    text: 'Supervisión de posts y conversaciones.',
-    icon: MessageCircle,
-  },
-  {
-    title: 'Devocionales',
-    text: 'Gestión futura de contenido devocional.',
-    icon: BookOpen,
-  },
-  {
-    title: 'Testimonios',
-    text: 'Aprobación futura de historias compartidas.',
-    icon: FileText,
-  },
-]
+interface AdminOverview {
+  profiles: number
+  prayers: number
+  posts: number
+  devotionals: number
+  reports: number
+  groupSuggestions: number
+  testimonies: number
+}
+
+interface AdminLatestItems {
+  profiles: AdminProfilePreview[]
+  reports: AdminReportPreview[]
+  suggestions: AdminSuggestionPreview[]
+  posts: AdminPostPreview[]
+  prayers: AdminPrayerPreview[]
+  devotionals: AdminDevotionalPreview[]
+}
+
+const initialOverview: AdminOverview = {
+  profiles: 0,
+  prayers: 0,
+  posts: 0,
+  devotionals: 0,
+  reports: 0,
+  groupSuggestions: 0,
+  testimonies: 0,
+}
+
+const initialLatest: AdminLatestItems = {
+  profiles: [],
+  reports: [],
+  suggestions: [],
+  posts: [],
+  prayers: [],
+  devotionals: [],
+}
+
+function formatDate(value: string | null) {
+  if (!value) return 'Fecha pendiente'
+  return new Intl.DateTimeFormat('es', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(value))
+}
 
 export function AdminHome() {
   const [isLoading, setIsLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [overview, setOverview] = useState<AdminOverview>(initialOverview)
+  const [latest, setLatest] = useState<AdminLatestItems>(initialLatest)
+  const [message, setMessage] = useState('')
+  const [isSavingDevotional, setIsSavingDevotional] = useState(false)
+  const [editingDevotionalId, setEditingDevotionalId] = useState<string | null>(
+    null,
+  )
+  const [devotionalForm, setDevotionalForm] = useState({
+    title: '',
+    verseReference: '',
+    verseText: '',
+    reflection: '',
+    devotionalDate: new Date().toISOString().slice(0, 10),
+  })
+
+  const loadAdminData = useCallback(async () => {
+    const [overviewData, latestData] = await Promise.all([
+      getAdminOverview(),
+      getAdminLatestItems(),
+    ])
+    setOverview(overviewData)
+    setLatest(latestData)
+  }, [])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
       hasRole('admin')
-        .then(setIsAdmin)
+        .then(async (allowed) => {
+          setIsAdmin(allowed)
+          if (allowed) {
+            await loadAdminData()
+          }
+        })
         .catch(() => setIsAdmin(false))
         .finally(() => setIsLoading(false))
     }, 0)
 
     return () => window.clearTimeout(timer)
-  }, [])
+  }, [loadAdminData])
+
+  async function handleDevotionalSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const hasRequiredFields =
+      devotionalForm.title.trim() &&
+      devotionalForm.verseReference.trim() &&
+      devotionalForm.verseText.trim() &&
+      devotionalForm.reflection.trim() &&
+      devotionalForm.devotionalDate.trim()
+
+    if (!hasRequiredFields) {
+      setMessage('Completa todos los campos del devocional.')
+      return
+    }
+
+    setIsSavingDevotional(true)
+    setMessage('')
+    try {
+      if (editingDevotionalId) {
+        await updateDevotional({
+          devotionalId: editingDevotionalId,
+          ...devotionalForm,
+        })
+        setMessage('Devocional actualizado.')
+      } else {
+        await createDevotional(devotionalForm)
+        setMessage('Devocional creado.')
+      }
+      setEditingDevotionalId(null)
+      setDevotionalForm({
+        title: '',
+        verseReference: '',
+        verseText: '',
+        reflection: '',
+        devotionalDate: new Date().toISOString().slice(0, 10),
+      })
+      await loadAdminData()
+    } catch {
+      setMessage('No pudimos guardar el devocional. Revisa permisos o fecha única.')
+    } finally {
+      setIsSavingDevotional(false)
+    }
+  }
+
+  function handleEditDevotional(devotional: AdminDevotionalPreview) {
+    setEditingDevotionalId(devotional.id)
+    setDevotionalForm({
+      title: devotional.title,
+      verseReference: devotional.verse_reference,
+      verseText: '',
+      reflection: '',
+      devotionalDate: devotional.devotional_date,
+    })
+    setMessage('Carga el texto bíblico y la reflexión para actualizar.')
+  }
+
+  async function handleReportStatus(
+    reportId: string,
+    status: 'pending' | 'reviewed' | 'dismissed',
+  ) {
+    setMessage('')
+    try {
+      await updateReportStatus(reportId, status)
+      await loadAdminData()
+      setMessage('Reporte actualizado.')
+    } catch {
+      setMessage('No pudimos actualizar el reporte.')
+    }
+  }
+
+  async function handleSuggestionStatus(
+    suggestionId: string,
+    status: 'pending' | 'approved' | 'rejected',
+  ) {
+    setMessage('')
+    try {
+      await updateGroupSuggestionStatus(suggestionId, status)
+      await loadAdminData()
+      setMessage('Sugerencia actualizada.')
+    } catch {
+      setMessage('No pudimos actualizar la sugerencia.')
+    }
+  }
 
   if (isLoading) {
     return (
@@ -87,8 +233,17 @@ export function AdminHome() {
     )
   }
 
+  const kpis = [
+    { title: 'Usuarios', value: overview.profiles, icon: Users },
+    { title: 'Oraciones', value: overview.prayers, icon: Heart },
+    { title: 'Publicaciones', value: overview.posts, icon: MessageCircle },
+    { title: 'Devocionales', value: overview.devotionals, icon: BookOpen },
+    { title: 'Reportes', value: overview.reports, icon: ShieldCheck },
+    { title: 'Sugerencias', value: overview.groupSuggestions, icon: FileText },
+  ]
+
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
+    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-24 pt-32 text-white">
       <div className="pointer-events-none fixed right-0 top-24 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
       <div className="section-shell relative">
         <div className="max-w-3xl">
@@ -100,40 +255,255 @@ export function AdminHome() {
             Panel de administración
           </h1>
           <p className="mt-4 text-lg leading-8 text-white/70">
-            Gestión inicial de Red de Jóvenes.
+            Gestión inicial de Red de Jóvenes: cuidado, contenido y comunidad.
           </p>
         </div>
 
-        <div className="mt-10 rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
-          <p className="text-lg font-semibold text-white">
-            Módulo administrativo en preparación.
-          </p>
-          <p className="mt-2 text-sm text-white/60">
-            Esta pantalla solo habilita la base visual y de permisos para crecer
-            el módulo administrativo más adelante.
-          </p>
-        </div>
+        {message ? (
+          <div className="mt-8 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm font-semibold text-amber-100">
+            {message}
+          </div>
+        ) : null}
 
-        <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {adminCards.map((card) => {
+        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          {kpis.map((card) => {
             const Icon = card.icon
             return (
               <article
                 key={card.title}
                 className="rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/20 backdrop-blur"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-300/20 to-amber-300/20 text-amber-200 ring-1 ring-white/10">
-                  <Icon className="h-5 w-5" aria-hidden="true" />
-                </div>
-                <h2 className="mt-5 text-lg font-bold">{card.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-white/60">
-                  {card.text}
-                </p>
+                <Icon className="h-6 w-6 text-amber-200" aria-hidden="true" />
+                <p className="mt-4 text-3xl font-black">{card.value}</p>
+                <h2 className="mt-1 text-sm font-bold text-white/55">
+                  {card.title}
+                </h2>
               </article>
             )
           })}
         </div>
+
+        <div className="mt-8 grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+          <form
+            onSubmit={(event) => void handleDevotionalSubmit(event)}
+            className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur"
+          >
+            <div className="flex items-center gap-3">
+              <BookOpen className="h-6 w-6 text-amber-200" aria-hidden="true" />
+              <h2 className="text-2xl font-black">
+                {editingDevotionalId ? 'Editar devocional' : 'Crear devocional'}
+              </h2>
+            </div>
+            <div className="mt-5 grid gap-3">
+              <input
+                value={devotionalForm.title}
+                onChange={(event) =>
+                  setDevotionalForm((current) => ({
+                    ...current,
+                    title: event.target.value,
+                  }))
+                }
+                placeholder="Título"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+              />
+              <input
+                type="date"
+                value={devotionalForm.devotionalDate}
+                onChange={(event) =>
+                  setDevotionalForm((current) => ({
+                    ...current,
+                    devotionalDate: event.target.value,
+                  }))
+                }
+                className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none focus:border-amber-200/60"
+              />
+              <input
+                value={devotionalForm.verseReference}
+                onChange={(event) =>
+                  setDevotionalForm((current) => ({
+                    ...current,
+                    verseReference: event.target.value,
+                  }))
+                }
+                placeholder="Referencia bíblica"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+              />
+              <textarea
+                value={devotionalForm.verseText}
+                onChange={(event) =>
+                  setDevotionalForm((current) => ({
+                    ...current,
+                    verseText: event.target.value,
+                  }))
+                }
+                placeholder="Texto del versículo"
+                className="min-h-24 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+              />
+              <textarea
+                value={devotionalForm.reflection}
+                onChange={(event) =>
+                  setDevotionalForm((current) => ({
+                    ...current,
+                    reflection: event.target.value,
+                  }))
+                }
+                placeholder="Reflexión"
+                className="min-h-32 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isSavingDevotional}
+              className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-black text-slate-950 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Send className="h-4 w-4" aria-hidden="true" />
+              {isSavingDevotional ? 'Guardando...' : 'Guardar devocional'}
+            </button>
+          </form>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <AdminList title="Últimos usuarios">
+              {latest.profiles.map((profile) => (
+                <AdminListItem
+                  key={profile.id}
+                  title={profile.full_name}
+                  detail={`${profile.username ?? 'sin usuario'} · ${
+                    profile.city ?? 'sin ciudad'
+                  }`}
+                />
+              ))}
+            </AdminList>
+
+            <AdminList title="Reportes pendientes">
+              {latest.reports.map((report) => (
+                <AdminListItem
+                  key={report.id}
+                  title={report.reason}
+                  detail={`${report.target_type} · ${formatDate(report.created_at)}`}
+                  action={
+                    <button
+                      type="button"
+                      onClick={() => void handleReportStatus(report.id, 'reviewed')}
+                      className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-950"
+                    >
+                      Revisado
+                    </button>
+                  }
+                />
+              ))}
+            </AdminList>
+
+            <AdminList title="Sugerencias de grupos">
+              {latest.suggestions.map((suggestion) => (
+                <AdminListItem
+                  key={suggestion.id}
+                  title={suggestion.name}
+                  detail={`${suggestion.city ?? 'sin ciudad'} · ${suggestion.country}`}
+                  action={
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void handleSuggestionStatus(suggestion.id, 'approved')
+                      }
+                      className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-950"
+                    >
+                      Aprobar
+                    </button>
+                  }
+                />
+              ))}
+            </AdminList>
+
+            <AdminList title="Devocionales">
+              {latest.devotionals.map((devotional) => (
+                <AdminListItem
+                  key={devotional.id}
+                  title={devotional.title}
+                  detail={`${devotional.verse_reference} · ${formatDate(
+                    devotional.devotional_date,
+                  )}`}
+                  action={
+                    <button
+                      type="button"
+                      onClick={() => handleEditDevotional(devotional)}
+                      className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/70"
+                    >
+                      Editar
+                    </button>
+                  }
+                />
+              ))}
+            </AdminList>
+
+            <AdminList title="Posts recientes">
+              {latest.posts.map((post) => (
+                <AdminListItem
+                  key={post.id}
+                  title={post.body.slice(0, 64)}
+                  detail={`${post.profiles?.full_name ?? 'Joven'} · ${formatDate(
+                    post.created_at,
+                  )}`}
+                />
+              ))}
+            </AdminList>
+
+            <AdminList title="Peticiones recientes">
+              {latest.prayers.map((prayer) => (
+                <AdminListItem
+                  key={prayer.id}
+                  title={prayer.title}
+                  detail={`${prayer.is_answered ? 'Respondida' : 'En oración'} · ${
+                    prayer.profiles?.full_name ?? 'Joven'
+                  }`}
+                />
+              ))}
+            </AdminList>
+          </div>
+        </div>
       </div>
     </section>
+  )
+}
+
+function AdminList({
+  title,
+  children,
+}: {
+  title: string
+  children: ReactNode
+}) {
+  const hasItems = Array.isArray(children) ? children.length > 0 : Boolean(children)
+
+  return (
+    <article className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/20 backdrop-blur">
+      <h2 className="text-xl font-black">{title}</h2>
+      <div className="mt-4 space-y-3">
+        {hasItems ? (
+          children
+        ) : (
+          <p className="text-sm text-white/50">Sin registros todavía.</p>
+        )}
+      </div>
+    </article>
+  )
+}
+
+function AdminListItem({
+  title,
+  detail,
+  action,
+}: {
+  title: string
+  detail: string
+  action?: ReactNode
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+      <div className="min-w-0">
+        <p className="truncate font-bold">{title}</p>
+        <p className="mt-1 truncate text-xs text-white/45">{detail}</p>
+      </div>
+      {action}
+    </div>
   )
 }

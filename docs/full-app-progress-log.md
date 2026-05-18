@@ -197,3 +197,22 @@ No aplica. Los puntajes no se persisten todavía.
 ### Bloqueos
 
 - QA dinámico de reportes queda pendiente hasta tener usuarios QA A/B.
+
+## 2026-05-18 · Fase 9
+
+### Cambios
+
+- El panel admin pasó de placeholder a vista funcional inicial.
+- Se agregaron KPIs y listas recientes de usuarios, reportes, sugerencias,
+  posts, oraciones y devocionales.
+- Se agregó creación/edición inicial de devocionales.
+- Se agregaron acciones admin para revisar reportes y aprobar sugerencias.
+- Se aplicaron políticas RLS admin para moderación y devocionales.
+
+### Validaciones
+
+- `npx supabase db push --dry-run`: OK.
+- `npx supabase db push`: OK.
+- Tipos Supabase regenerados.
+- `npm run lint`: OK.
+- `npm run build`: OK, con warning no bloqueante de chunk grande.
