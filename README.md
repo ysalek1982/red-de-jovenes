@@ -75,6 +75,26 @@ npm run build
 npm run lint
 ```
 
+## QA autenticado local
+
+Configura dos usuarios QA confirmados en `.env.qa.local` o `.env.local`:
+
+```bash
+QA_USER_A_EMAIL=correo_qa_a
+QA_USER_A_PASSWORD=contrasena_qa_a
+QA_USER_B_EMAIL=correo_qa_b
+QA_USER_B_PASSWORD=contrasena_qa_b
+```
+
+Luego ejecuta:
+
+```bash
+npm run qa:auth
+npm run qa:rls
+```
+
+Los scripts no imprimen correos ni contrasenas. Si faltan variables locales devuelven `BLOCKED_MISSING_QA_ENV`.
+
 ## Supabase CLI
 
 ```bash
@@ -176,6 +196,11 @@ Estos assets fueron tomados de la referencia pública de Lovable para reconstruc
 - `docs/pwa-setup.md`
 - `docs/security-rls-qa.md`
 - `docs/visual-polish-qa.md`
+- `docs/qa-auth-setup.md`
+- `docs/qa-stabilization-report.md`
+- `docs/performance-qa.md`
+- `docs/visual-qa-phase-10.md`
+- `docs/stabilization-final-report.md`
 - `docs/nightly-work-plan.md`
 - `docs/nightly-progress-log.md`
 - `docs/nightly-final-report.md`
