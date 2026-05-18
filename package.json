@@ -11,6 +11,7 @@
     "qa:auth": "node scripts/qa-auth-smoke.mjs",
     "qa:rls": "node scripts/qa-rls-smoke.mjs",
     "qa:create-users": "node scripts/create-qa-users.mjs",
+    "qa:routes": "node scripts/qa-functional-routes.mjs",
     "admin:create": "node scripts/create-admin-user.mjs"
   },
   "dependencies": {
