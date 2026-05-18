@@ -31,6 +31,15 @@ const communityRules = [
   },
 ]
 
+const reportReasons = [
+  'Contenido ofensivo',
+  'Acoso',
+  'Spam',
+  'Informacion sensible',
+  'Falso o danino',
+  'Otro',
+]
+
 function formatDate(value: string | null) {
   if (!value) return 'Fecha pendiente'
   return new Intl.DateTimeFormat('es', {
@@ -174,12 +183,19 @@ export function SafetyPage() {
                   placeholder="ID del contenido"
                   className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
                 />
-                <input
+                <select
                   value={reason}
                   onChange={(event) => setReason(event.target.value)}
-                  placeholder="Motivo"
-                  className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
-                />
+                  className="h-11 rounded-2xl border border-white/10 bg-slate-950/70 px-4 text-sm font-bold text-white outline-none focus:border-amber-200/60"
+                  aria-label="Motivo del reporte"
+                >
+                  <option value="">Selecciona motivo</option>
+                  {reportReasons.map((item) => (
+                    <option key={item} value={item}>
+                      {item}
+                    </option>
+                  ))}
+                </select>
                 <textarea
                   value={details}
                   onChange={(event) => setDetails(event.target.value)}
