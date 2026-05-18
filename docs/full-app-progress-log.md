@@ -155,3 +155,24 @@ No aplica.
 ### Migraciones
 
 No aplica. Los puntajes no se persisten todavía.
+
+## 2026-05-18 · Fase 7
+
+### Cambios
+
+- El mapa mundial se conectó a `groups` en Supabase.
+- Se agregaron filtros por país y búsqueda por comunidad.
+- Se creó `group_suggestions` para sugerir nuevas comunidades.
+- La vista mantiene mapa visual premium y cards de grupos activos.
+
+### Validaciones
+
+- `npx supabase db push --dry-run`: OK.
+- `npx supabase db push`: OK.
+- Tipos Supabase regenerados.
+- `npm run lint`: OK.
+- `npm run build`: OK, con warning no bloqueante de chunk grande.
+
+### Bloqueos
+
+- QA dinámico de sugerencias queda pendiente hasta tener usuarios QA A/B.

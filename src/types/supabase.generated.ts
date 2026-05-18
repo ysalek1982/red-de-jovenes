@@ -269,32 +269,91 @@ export type Database = {
         }
         Relationships: []
       }
+      group_suggestions: {
+        Row: {
+          church_name: string | null
+          city: string | null
+          contact_url: string | null
+          country: string
+          created_at: string
+          id: string
+          name: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          church_name?: string | null
+          city?: string | null
+          contact_url?: string | null
+          country: string
+          created_at?: string
+          id?: string
+          name: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          church_name?: string | null
+          city?: string | null
+          contact_url?: string | null
+          country?: string
+          created_at?: string
+          id?: string
+          name?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_suggestions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       groups: {
         Row: {
           church_name: string | null
           city: string | null
+          contact_url: string | null
           country: string | null
           created_at: string | null
           description: string | null
           id: string
+          is_active: boolean
+          latitude: number | null
+          longitude: number | null
+          meeting_info: string | null
           name: string
         }
         Insert: {
           church_name?: string | null
           city?: string | null
+          contact_url?: string | null
           country?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          meeting_info?: string | null
           name: string
         }
         Update: {
           church_name?: string | null
           city?: string | null
+          contact_url?: string | null
           country?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          meeting_info?: string | null
           name?: string
         }
         Relationships: []

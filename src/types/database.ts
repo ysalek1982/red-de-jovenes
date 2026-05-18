@@ -19,3 +19,5 @@ export type DevotionalFavorite =
   Database['public']['Tables']['devotional_favorites']['Row']
 export type Testimony = Database['public']['Tables']['testimonies']['Row']
 export type Group = Database['public']['Tables']['groups']['Row']
+export type GroupSuggestion =
+  Database['public']['Tables']['group_suggestions']['Row']
