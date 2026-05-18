@@ -18,6 +18,7 @@ const publicRoutes = [
   '/entrar',
   '/crear-cuenta',
   '/recuperar',
+  '/actualizar-contrasena',
 ]
 
 const privateRoutes = [
