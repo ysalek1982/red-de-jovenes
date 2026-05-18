@@ -86,3 +86,19 @@ Estado: completada.
 - `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
 
 Commit esperado: `Mejora experiencia privada de la app`.
+
+## Macrofase 6 - PWA instalable
+
+Estado: completada.
+
+- Se reviso y amplio `public/manifest.webmanifest`.
+- Se agrego metadata movil en `index.html`.
+- Se agrego service worker manual en `public/sw.js`.
+- Se agrego fallback offline en `public/offline.html`.
+- Se registro el service worker desde `src/main.tsx` solo en produccion.
+- No se instalo dependencia PWA adicional; la base queda cubierta sin complejidad extra.
+- Documentacion creada en `docs/pwa-setup.md`.
+- `npm run lint`: OK.
+- `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
+
+Commit esperado: `Configura PWA instalable`.
