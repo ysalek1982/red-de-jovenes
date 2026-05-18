@@ -80,6 +80,16 @@ function validateProfile(form: ProfileForm) {
   if (!isValidUsername(form.username)) {
     return 'El usuario debe tener 3 a 30 caracteres y solo usar letras, números, punto, guion o guion bajo.'
   }
+  if (form.avatarUrl.trim()) {
+    try {
+      const url = new URL(form.avatarUrl.trim())
+      if (!['http:', 'https:'].includes(url.protocol)) {
+        return 'El avatar debe ser una URL http o https.'
+      }
+    } catch {
+      return 'Ingresa una URL de avatar valida o deja el campo vacio.'
+    }
+  }
   return ''
 }
 
@@ -213,9 +223,17 @@ export function AppProfile() {
       <div className="section-shell relative">
         <div className="grid gap-6 lg:grid-cols-[0.78fr_1.22fr]">
           <aside className="h-fit rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
-            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-300 via-lime-200 to-amber-300 text-slate-950 shadow-2xl shadow-amber-500/20">
-              <UserRound className="h-10 w-10" aria-hidden="true" />
-            </div>
+            {form.avatarUrl ? (
+              <img
+                src={form.avatarUrl}
+                alt=""
+                className="h-20 w-20 rounded-3xl border border-white/10 object-cover shadow-2xl shadow-amber-500/20"
+              />
+            ) : (
+              <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-emerald-300 via-lime-200 to-amber-300 text-slate-950 shadow-2xl shadow-amber-500/20">
+                <UserRound className="h-10 w-10" aria-hidden="true" />
+              </div>
+            )}
             <p className="mt-6 text-sm font-semibold text-amber-200">
               Perfil de la Red
             </p>
