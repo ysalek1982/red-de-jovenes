@@ -59,6 +59,7 @@ export function WorldMapPage() {
     city: '',
     churchName: '',
     contactUrl: '',
+    meetingInfo: '',
   })
 
   const loadGroups = useCallback(async () => {
@@ -139,6 +140,7 @@ export function WorldMapPage() {
         city: suggestion.city.trim(),
         churchName: suggestion.churchName.trim(),
         contactUrl: suggestion.contactUrl.trim(),
+        meetingInfo: suggestion.meetingInfo.trim(),
       })
       setSuggestion({
         name: '',
@@ -146,6 +148,7 @@ export function WorldMapPage() {
         city: '',
         churchName: '',
         contactUrl: '',
+        meetingInfo: '',
       })
       setFormMessage('Sugerencia enviada para revisión.')
     } catch {
@@ -381,6 +384,17 @@ export function WorldMapPage() {
                   }
                   placeholder="Link de contacto, opcional"
                   className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+                />
+                <textarea
+                  value={suggestion.meetingInfo}
+                  onChange={(event) =>
+                    setSuggestion((current) => ({
+                      ...current,
+                      meetingInfo: event.target.value,
+                    }))
+                  }
+                  placeholder="Informacion de reuniones, opcional"
+                  className="min-h-24 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
                 />
               </div>
               <button

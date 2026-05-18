@@ -19,6 +19,7 @@ export async function suggestGroup(input: {
   city?: string
   churchName?: string
   contactUrl?: string
+  meetingInfo?: string
 }) {
   const { data, error } = await supabase
     .from('group_suggestions')
@@ -29,6 +30,7 @@ export async function suggestGroup(input: {
       city: input.city || null,
       church_name: input.churchName || null,
       contact_url: input.contactUrl || null,
+      meeting_info: input.meetingInfo || null,
     })
     .select()
     .single()
