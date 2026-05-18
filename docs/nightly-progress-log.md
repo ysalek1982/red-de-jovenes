@@ -44,3 +44,18 @@ Estado: completada.
 - `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
 
 Commit esperado: `Implementa sala de oracion`.
+
+## Macrofase 3 - Comunidad
+
+Estado: completada.
+
+- Se agrego la ruta protegida `/app/comunidad`.
+- Se extendio `communityService` con lectura de posts recientes, creacion y eliminacion propia.
+- Se agrego compositor de posts con cuerpo, referencia biblica y texto de versiculo opcionales.
+- Se agregaron tarjetas con bloque destacado de versiculo, estados de carga, error y lista vacia.
+- No se creo migracion incremental; la tabla `posts` y RLS actuales cubren el flujo.
+- QA documentado en `docs/community-feed-qa.md`.
+- `npm run lint`: OK.
+- `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
+
+Commit esperado: `Implementa feed de comunidad`.

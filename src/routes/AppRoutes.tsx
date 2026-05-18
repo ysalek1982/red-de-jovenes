@@ -4,6 +4,7 @@ import { Layout } from '../components/layout/Layout'
 import { useAuth } from '../features/auth/useAuth'
 import { AppHome } from '../pages/AppHome'
 import { AppProfile } from '../pages/AppProfile'
+import { CommunityFeedPage } from '../pages/CommunityFeedPage'
 import { CreateAccountPage } from '../pages/CreateAccountPage'
 import { Home } from '../pages/Home'
 import { PlaceholderPage } from '../pages/PlaceholderPage'
@@ -56,6 +57,14 @@ export function AppRoutes() {
           element={
             <ProtectedRoute>
               <PrayerRoomPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="app/comunidad"
+          element={
+            <ProtectedRoute>
+              <CommunityFeedPage />
             </ProtectedRoute>
           }
         />

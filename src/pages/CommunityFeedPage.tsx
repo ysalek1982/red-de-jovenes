@@ -1,0 +1,256 @@
+import type { FormEvent } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import {
+  BookOpen,
+  Loader2,
+  MessageCircle,
+  Send,
+  Trash2,
+} from 'lucide-react'
+import { Button } from '../components/ui/button'
+import { Input } from '../components/ui/input'
+import { Textarea } from '../components/ui/textarea'
+import { useAuth } from '../features/auth/useAuth'
+import {
+  createPost,
+  deleteOwnPost,
+  getRecentPosts,
+  type PostWithAuthor,
+} from '../features/community/communityService'
+
+function formatDate(value: string | null) {
+  if (!value) return 'Fecha pendiente'
+  return new Intl.DateTimeFormat('es', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }).format(new Date(value))
+}
+
+function getAuthor(post: PostWithAuthor) {
+  return post.profiles?.full_name || 'Joven de la Red'
+}
+
+export function CommunityFeedPage() {
+  const { user } = useAuth()
+  const [posts, setPosts] = useState<PostWithAuthor[]>([])
+  const [body, setBody] = useState('')
+  const [verseReference, setVerseReference] = useState('')
+  const [verseText, setVerseText] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [busyPostId, setBusyPostId] = useState<string | null>(null)
+  const [error, setError] = useState('')
+
+  const loadPosts = useCallback(async (showLoading = true) => {
+    if (showLoading) setIsLoading(true)
+    setError('')
+    try {
+      const postData = await getRecentPosts()
+      setPosts(postData)
+    } catch {
+      setError('No pudimos cargar la comunidad.')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void loadPosts()
+    }, 0)
+
+    return () => window.clearTimeout(timer)
+  }, [loadPosts])
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!user || !body.trim()) return
+
+    setIsSubmitting(true)
+    setError('')
+    try {
+      await createPost({
+        userId: user.id,
+        body: body.trim(),
+        verseReference: verseReference.trim() || undefined,
+        verseText: verseText.trim() || undefined,
+      })
+      setBody('')
+      setVerseReference('')
+      setVerseText('')
+      await loadPosts(false)
+    } catch {
+      setError('No pudimos publicar tu post.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  async function handleDelete(postId: string) {
+    if (!user) return
+    setBusyPostId(postId)
+    setError('')
+    try {
+      await deleteOwnPost({ postId, userId: user.id })
+      await loadPosts(false)
+    } catch {
+      setError('Solo puedes eliminar tus propios posts.')
+    } finally {
+      setBusyPostId(null)
+    }
+  }
+
+  return (
+    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
+      <div className="pointer-events-none fixed right-0 top-24 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
+      <div className="section-shell relative">
+        <div className="grid gap-6 xl:grid-cols-[0.86fr_1.14fr]">
+          <form
+            onSubmit={handleSubmit}
+            className="h-fit rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur md:p-8"
+          >
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-amber-200">
+              <MessageCircle className="h-4 w-4" aria-hidden="true" />
+              Comunidad
+            </p>
+            <h1 className="mt-5 text-4xl font-black tracking-tight md:text-5xl">
+              Comparte con la Palabra al centro.
+            </h1>
+            <p className="mt-4 text-white/65">
+              Publica una reflexión, testimonio o palabra de ánimo para la Red.
+            </p>
+
+            <div className="mt-7 space-y-4">
+              <div>
+                <label className="text-sm font-semibold" htmlFor="postBody">
+                  Mensaje
+                </label>
+                <Textarea
+                  id="postBody"
+                  value={body}
+                  onChange={(event) => setBody(event.target.value)}
+                  placeholder="Comparte lo que Dios puso en tu corazón."
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold" htmlFor="verseReference">
+                  Referencia bíblica, opcional
+                </label>
+                <Input
+                  id="verseReference"
+                  value={verseReference}
+                  onChange={(event) => setVerseReference(event.target.value)}
+                  placeholder="Mateo 5:14"
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold" htmlFor="verseText">
+                  Texto del versículo, opcional
+                </label>
+                <Textarea
+                  id="verseText"
+                  value={verseText}
+                  onChange={(event) => setVerseText(event.target.value)}
+                  placeholder="Vosotros sois la luz del mundo..."
+                  className="mt-2 min-h-24"
+                />
+              </div>
+              <Button
+                type="submit"
+                variant="accent"
+                size="lg"
+                className="w-full"
+                disabled={isSubmitting || !body.trim()}
+              >
+                <Send className="h-5 w-5" aria-hidden="true" />
+                {isSubmitting ? 'Publicando...' : 'Publicar post'}
+              </Button>
+            </div>
+          </form>
+
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-4 shadow-2xl shadow-black/25 backdrop-blur md:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-amber-200">
+                  Feed cristiano
+                </p>
+                <h2 className="mt-2 text-3xl font-black">Posts recientes</h2>
+              </div>
+              <span className="rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm text-white/60">
+                {posts.length} posts
+              </span>
+            </div>
+
+            {error ? (
+              <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
+                {error}
+              </div>
+            ) : null}
+
+            {isLoading ? (
+              <div className="mt-8 flex items-center gap-3 text-white/65">
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+                Cargando comunidad...
+              </div>
+            ) : posts.length ? (
+              <div className="mt-6 grid gap-4">
+                {posts.map((post) => {
+                  const isOwner = post.user_id === user?.id
+                  return (
+                    <article
+                      key={post.id}
+                      className="rounded-[1.5rem] border border-white/10 bg-slate-950/45 p-5"
+                    >
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-white/45">
+                            {getAuthor(post)} · {formatDate(post.created_at)}
+                          </p>
+                          <p className="mt-3 leading-7 text-white/75">{post.body}</p>
+                        </div>
+                        {isOwner ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => void handleDelete(post.id)}
+                            disabled={busyPostId === post.id}
+                          >
+                            <Trash2 className="h-4 w-4" aria-hidden="true" />
+                            Eliminar
+                          </Button>
+                        ) : null}
+                      </div>
+
+                      {post.verse_reference || post.verse_text ? (
+                        <div className="mt-5 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-5">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-amber-200">
+                            <BookOpen className="h-4 w-4" aria-hidden="true" />
+                            {post.verse_reference || 'Versículo compartido'}
+                          </div>
+                          {post.verse_text ? (
+                            <p className="mt-3 text-sm leading-6 text-white/75">
+                              “{post.verse_text}”
+                            </p>
+                          ) : null}
+                        </div>
+                      ) : null}
+                    </article>
+                  )
+                })}
+              </div>
+            ) : (
+              <div className="mt-8 rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-8 text-center text-white/60">
+                Todavía no hay posts. Comparte la primera palabra de ánimo para
+                la comunidad.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

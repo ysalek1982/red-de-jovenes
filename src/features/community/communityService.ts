@@ -1,4 +1,5 @@
 import { supabase } from '../../lib/supabase'
+import type { Post } from '../../types/database'
 
 export interface CreatePostInput {
   userId: string
@@ -7,15 +8,26 @@ export interface CreatePostInput {
   verseText?: string
 }
 
+export interface PostAuthor {
+  full_name: string
+  username: string | null
+  city: string | null
+  country: string | null
+}
+
+export type PostWithAuthor = Post & {
+  profiles: PostAuthor | null
+}
+
 export async function getRecentPosts() {
   const { data, error } = await supabase
     .from('posts')
-    .select('*')
+    .select('*, profiles:user_id(full_name, username, city, country)')
     .order('created_at', { ascending: false })
-    .limit(6)
+    .limit(20)
 
   if (error) throw error
-  return data ?? []
+  return (data ?? []) as PostWithAuthor[]
 }
 
 export async function createPost(input: CreatePostInput) {
@@ -32,4 +44,14 @@ export async function createPost(input: CreatePostInput) {
 
   if (error) throw error
   return data
+}
+
+export async function deleteOwnPost(input: { postId: string; userId: string }) {
+  const { error } = await supabase
+    .from('posts')
+    .delete()
+    .eq('id', input.postId)
+    .eq('user_id', input.userId)
+
+  if (error) throw error
 }
