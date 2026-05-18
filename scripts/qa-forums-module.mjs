@@ -151,6 +151,30 @@ if (reportComment.error || !reportComment.data) {
   fail('FAILED_FORUM_COMMENT_REPORT', { error: reportComment.error?.message })
 }
 
+const ownPostUpdate = await userA.supabase
+  .from('posts')
+  .update({ body: `QA foro editado ${suffix}` })
+  .eq('id', post.data.id)
+  .eq('user_id', userA.user.id)
+  .select('id')
+  .single()
+
+if (ownPostUpdate.error || !ownPostUpdate.data) {
+  fail('FAILED_FORUM_POST_UPDATE', { error: ownPostUpdate.error?.message })
+}
+
+const ownCommentUpdate = await userA.supabase
+  .from('post_comments')
+  .update({ body: 'Comentario temporal QA editado.' })
+  .eq('id', comment.data.id)
+  .eq('user_id', userA.user.id)
+  .select('id')
+  .single()
+
+if (ownCommentUpdate.error || !ownCommentUpdate.data) {
+  fail('FAILED_FORUM_COMMENT_UPDATE', { error: ownCommentUpdate.error?.message })
+}
+
 const crossUserPostUpdate = await userB.supabase
   .from('posts')
   .update({ body: 'Intento QA no autorizado' })
@@ -206,6 +230,8 @@ console.log(
       createPost: 'OK',
       createComment: 'OK',
       createReaction: 'OK',
+      updatePost: 'OK',
+      updateComment: 'OK',
       duplicateReaction: 'DENIED',
       reportComment: 'OK',
       crossUserPostUpdate: 'DENIED',

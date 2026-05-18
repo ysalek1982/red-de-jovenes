@@ -15,6 +15,9 @@
     "qa:functional": "node scripts/qa-functional-routes.mjs",
     "qa:prayer": "node scripts/qa-prayer-module.mjs",
     "qa:forums": "node scripts/qa-forums-module.mjs",
+    "qa:admin": "node scripts/qa-admin-module.mjs",
+    "qa:games": "node scripts/qa-games-module.mjs",
+    "qa:map": "node scripts/qa-map-module.mjs",
     "smoke:build": "node scripts/smoke-production-build.mjs",
     "admin:create": "node scripts/create-admin-user.mjs"
   },

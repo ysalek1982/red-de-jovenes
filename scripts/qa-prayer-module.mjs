@@ -91,8 +91,10 @@ const prayer = await userA.supabase
     title: `QA Oracion ${suffix}`,
     body: 'Peticion temporal para auditoria funcional de sala de oracion.',
     visibility: 'public',
+    category: 'fe',
+    is_anonymous: true,
   })
-  .select('id,is_answered,user_id')
+  .select('id,is_answered,user_id,category,is_anonymous')
   .single()
 
 if (prayer.error || !prayer.data) {
@@ -129,7 +131,11 @@ const crossUserDenied = okNoRows(crossUserUpdate)
 
 const markAnswered = await userA.supabase
   .from('prayer_requests')
-  .update({ is_answered: true })
+  .update({
+    is_answered: true,
+    answered_testimony: 'Testimonio temporal QA.',
+    answered_at: new Date().toISOString(),
+  })
   .eq('id', prayer.data.id)
   .eq('user_id', userA.user.id)
   .select('id,is_answered')
@@ -137,6 +143,10 @@ const markAnswered = await userA.supabase
 
 if (markAnswered.error || markAnswered.data?.is_answered !== true) {
   fail('FAILED_PRAYER_MARK_ANSWERED', { error: markAnswered.error?.message })
+}
+
+if (prayer.data.category !== 'fe' || prayer.data.is_anonymous !== true) {
+  fail('FAILED_PRAYER_CATEGORY_ANONYMITY')
 }
 
 const readBack = await userA.supabase
@@ -175,6 +185,8 @@ console.log(
       duplicateSupport: 'DENIED',
       crossUserMarkAnswered: 'DENIED',
       ownMarkAnswered: 'OK',
+      category: 'OK',
+      anonymity: 'OK',
       supportCount: 1,
       cleanupWarnings: warnings,
     },
