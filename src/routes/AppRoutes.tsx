@@ -2,14 +2,28 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { lazy, Suspense, type ReactNode } from 'react'
 import { Layout } from '../components/layout/Layout'
 import { useAuth } from '../features/auth/useAuth'
-import { CreateAccountPage } from '../pages/CreateAccountPage'
-import { Home } from '../pages/Home'
-import { RecoverPasswordPage } from '../pages/RecoverPasswordPage'
-import { SignInPage } from '../pages/SignInPage'
 
 const AppShell = lazy(() =>
   import('../components/layout/AppShell').then((module) => ({
     default: module.AppShell,
+  })),
+)
+const Home = lazy(() =>
+  import('../pages/Home').then((module) => ({ default: module.Home })),
+)
+const SignInPage = lazy(() =>
+  import('../pages/SignInPage').then((module) => ({
+    default: module.SignInPage,
+  })),
+)
+const CreateAccountPage = lazy(() =>
+  import('../pages/CreateAccountPage').then((module) => ({
+    default: module.CreateAccountPage,
+  })),
+)
+const RecoverPasswordPage = lazy(() =>
+  import('../pages/RecoverPasswordPage').then((module) => ({
+    default: module.RecoverPasswordPage,
   })),
 )
 const AppHome = lazy(() =>
@@ -102,10 +116,13 @@ export function AppRoutes() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<AppEntryRoute />} />
-        <Route path="landing" element={<Home />} />
-        <Route path="entrar" element={<SignInPage />} />
-        <Route path="recuperar" element={<RecoverPasswordPage />} />
-        <Route path="crear-cuenta" element={<CreateAccountPage />} />
+        <Route path="landing" element={withSuspense(<Home />)} />
+        <Route path="entrar" element={withSuspense(<SignInPage />)} />
+        <Route path="recuperar" element={withSuspense(<RecoverPasswordPage />)} />
+        <Route
+          path="crear-cuenta"
+          element={withSuspense(<CreateAccountPage />)}
+        />
         <Route
           path="app"
           element={
