@@ -1,8 +1,21 @@
 import { useCallback, useEffect, useState } from 'react'
-import { BookOpen, CalendarDays, Loader2, Sparkles, Sun } from 'lucide-react'
 import {
+  BookMarked,
+  BookOpen,
+  CalendarDays,
+  CheckCircle2,
+  Loader2,
+  Sparkles,
+  Sun,
+} from 'lucide-react'
+import { useAuth } from '../features/auth/useAuth'
+import {
+  getDevotionalProgress,
+  getReadDevotionalsCount,
   getRecentDevotionals,
   getTodayDevotional,
+  markDevotionalRead,
+  toggleDevotionalFavorite,
 } from '../features/devotionals/devotionalService'
 import type { Devotional } from '../types/database'
 
@@ -15,14 +28,22 @@ function formatDate(value: string) {
 }
 
 export function DevotionalPage() {
+  const { user } = useAuth()
+  const userId = user?.id
   const [devotional, setDevotional] = useState<Devotional | null>(null)
   const [recentDevotionals, setRecentDevotionals] = useState<Devotional[]>([])
+  const [isRead, setIsRead] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
+  const [readCount, setReadCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
+  const [isSavingProgress, setIsSavingProgress] = useState(false)
   const [error, setError] = useState('')
+  const [actionMessage, setActionMessage] = useState('')
 
   const loadDevotional = useCallback(async () => {
     setIsLoading(true)
     setError('')
+    setActionMessage('')
     try {
       const [todayData, recentData] = await Promise.all([
         getTodayDevotional(),
@@ -30,12 +51,22 @@ export function DevotionalPage() {
       ])
       setDevotional(todayData)
       setRecentDevotionals(recentData)
+
+      if (userId && todayData) {
+        const [progress, totalReads] = await Promise.all([
+          getDevotionalProgress(userId, todayData.id),
+          getReadDevotionalsCount(userId),
+        ])
+        setIsRead(progress.isRead)
+        setIsFavorite(progress.isFavorite)
+        setReadCount(totalReads)
+      }
     } catch {
       setError('No pudimos cargar el devocional diario.')
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [userId])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -44,6 +75,50 @@ export function DevotionalPage() {
 
     return () => window.clearTimeout(timer)
   }, [loadDevotional])
+
+  async function handleMarkAsRead() {
+    if (!userId || !devotional || isRead) return
+
+    setIsSavingProgress(true)
+    setActionMessage('')
+    try {
+      await markDevotionalRead({
+        userId,
+        devotionalId: devotional.id,
+      })
+      setIsRead(true)
+      setReadCount((currentCount) => currentCount + 1)
+      setActionMessage('Devocional marcado como leído.')
+    } catch {
+      setActionMessage('No pudimos guardar tu progreso. Inténtalo nuevamente.')
+    } finally {
+      setIsSavingProgress(false)
+    }
+  }
+
+  async function handleToggleFavorite() {
+    if (!userId || !devotional) return
+
+    setIsSavingProgress(true)
+    setActionMessage('')
+    try {
+      await toggleDevotionalFavorite({
+        userId,
+        devotionalId: devotional.id,
+        isFavorite,
+      })
+      setIsFavorite((currentValue) => !currentValue)
+      setActionMessage(
+        isFavorite
+          ? 'Devocional quitado de guardados.'
+          : 'Devocional guardado para volver a leerlo.',
+      )
+    } catch {
+      setActionMessage('No pudimos actualizar tus guardados.')
+    } finally {
+      setIsSavingProgress(false)
+    }
+  }
 
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
@@ -109,10 +184,58 @@ export function DevotionalPage() {
                       <li>3. ¿Qué paso concreto puedo dar hoy en obediencia?</li>
                     </ol>
                   </div>
+                  <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                    <button
+                      type="button"
+                      onClick={handleMarkAsRead}
+                      disabled={isSavingProgress || isRead}
+                      className="inline-flex items-center justify-center gap-2 rounded-full bg-amber-300 px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-amber-200 disabled:cursor-not-allowed disabled:bg-amber-300/50"
+                    >
+                      <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                      {isRead ? 'Leído hoy' : 'Marcar como leído'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleToggleFavorite}
+                      disabled={isSavingProgress}
+                      className="inline-flex items-center justify-center gap-2 rounded-full border border-white/10 bg-white/10 px-5 py-3 text-sm font-black text-white transition hover:bg-white/15 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <BookMarked className="h-4 w-4" aria-hidden="true" />
+                      {isFavorite ? 'Guardado' : 'Guardar'}
+                    </button>
+                  </div>
+                  {actionMessage ? (
+                    <p className="mt-4 text-sm font-semibold text-emerald-200">
+                      {actionMessage}
+                    </p>
+                  ) : null}
                 </div>
               </article>
 
               <aside className="space-y-6">
+                <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+                  <h2 className="text-2xl font-bold">Progreso espiritual</h2>
+                  <p className="mt-2 text-sm text-white/60">
+                    Tu caminar diario se construye con pasos pequeños y fieles.
+                  </p>
+                  <div className="mt-5 grid grid-cols-2 gap-3">
+                    <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                      <p className="text-3xl font-black text-amber-200">{readCount}</p>
+                      <p className="mt-1 text-xs font-semibold uppercase text-white/45">
+                        Devocionales leídos
+                      </p>
+                    </div>
+                    <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                      <p className="text-3xl font-black text-emerald-200">
+                        {isFavorite ? 'Sí' : 'No'}
+                      </p>
+                      <p className="mt-1 text-xs font-semibold uppercase text-white/45">
+                        Guardado hoy
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
                 <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 shadow-2xl shadow-black/25 backdrop-blur">
                   <h2 className="text-2xl font-bold">¿Cómo está tu corazón hoy?</h2>
                   <p className="mt-2 text-sm text-white/60">

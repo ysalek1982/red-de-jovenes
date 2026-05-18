@@ -13,5 +13,9 @@ export type PostComment =
 export type PostReaction =
   Database['public']['Tables']['post_reactions']['Row']
 export type Devotional = Database['public']['Tables']['devotionals']['Row']
+export type DevotionalRead =
+  Database['public']['Tables']['devotional_reads']['Row']
+export type DevotionalFavorite =
+  Database['public']['Tables']['devotional_favorites']['Row']
 export type Testimony = Database['public']['Tables']['testimonies']['Row']
 export type Group = Database['public']['Tables']['groups']['Row']

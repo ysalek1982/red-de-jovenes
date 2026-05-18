@@ -131,6 +131,78 @@ export type Database = {
         }
         Relationships: []
       }
+      devotional_favorites: {
+        Row: {
+          created_at: string | null
+          devotional_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          devotional_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          devotional_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devotional_favorites_devotional_id_fkey"
+            columns: ["devotional_id"]
+            isOneToOne: false
+            referencedRelation: "devotionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devotional_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      devotional_reads: {
+        Row: {
+          devotional_id: string
+          id: string
+          read_at: string | null
+          user_id: string
+        }
+        Insert: {
+          devotional_id: string
+          id?: string
+          read_at?: string | null
+          user_id: string
+        }
+        Update: {
+          devotional_id?: string
+          id?: string
+          read_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "devotional_reads_devotional_id_fkey"
+            columns: ["devotional_id"]
+            isOneToOne: false
+            referencedRelation: "devotionals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "devotional_reads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       devotionals: {
         Row: {
           created_at: string | null

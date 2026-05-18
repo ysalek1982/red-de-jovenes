@@ -115,3 +115,24 @@ No aplica.
 ### Bloqueos
 
 - QA dinámico A/B sigue pendiente.
+
+## 2026-05-18 · Fase 5
+
+### Cambios
+
+- Se agregaron `devotional_reads` y `devotional_favorites`.
+- El devocional diario permite marcar como leído y guardar favorito.
+- La pantalla muestra progreso espiritual con conteo de devocionales leídos.
+- Se mantiene fallback al último devocional disponible si no existe uno para hoy.
+
+### Validaciones
+
+- `npx supabase db push --dry-run`: OK.
+- `npx supabase db push`: OK.
+- Tipos Supabase regenerados.
+- `npm run lint`: OK.
+- `npm run build`: OK, con warning no bloqueante de chunk grande.
+
+### Bloqueos
+
+- QA dinámico A/B sigue pendiente por `.env.qa.local` incompleto.
