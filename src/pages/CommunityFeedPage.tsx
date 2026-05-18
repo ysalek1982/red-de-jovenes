@@ -18,8 +18,11 @@ import {
   createPost,
   createPostComment,
   deleteOwnPost,
+  deleteOwnPostComment,
   getRecentPosts,
   toggleAmenReaction,
+  updateOwnPost,
+  updateOwnPostComment,
   type PostWithAuthor,
 } from '../features/community/communityService'
 import { createContentReport } from '../features/safety/safetyService'
@@ -45,6 +48,12 @@ export function CommunityFeedPage() {
   const [verseReference, setVerseReference] = useState('')
   const [verseText, setVerseText] = useState('')
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({})
+  const [commentEdits, setCommentEdits] = useState<Record<string, string>>({})
+  const [editingPostId, setEditingPostId] = useState<string | null>(null)
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
+  const [postFilter, setPostFilter] = useState<'recent' | 'verse' | 'commented'>(
+    'recent',
+  )
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [busyPostId, setBusyPostId] = useState<string | null>(null)
@@ -109,6 +118,40 @@ export function CommunityFeedPage() {
     }
   }
 
+  function startEditingPost(post: PostWithAuthor) {
+    setEditingPostId(post.id)
+    setBody(post.body)
+    setVerseReference(post.verse_reference ?? '')
+    setVerseText(post.verse_text ?? '')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  async function handleSaveEditedPost(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!user || !editingPostId || !body.trim()) return
+
+    setIsSubmitting(true)
+    setError('')
+    try {
+      await updateOwnPost({
+        postId: editingPostId,
+        userId: user.id,
+        body: body.trim(),
+        verseReference: verseReference.trim() || undefined,
+        verseText: verseText.trim() || undefined,
+      })
+      setEditingPostId(null)
+      setBody('')
+      setVerseReference('')
+      setVerseText('')
+      await loadPosts(false)
+    } catch {
+      setError('No pudimos editar tu publicacion.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   async function handleToggleAmen(post: PostWithAuthor) {
     if (!user) return
     setBusyPostId(post.id)
@@ -144,6 +187,44 @@ export function CommunityFeedPage() {
       await loadPosts(false)
     } catch {
       setError('No pudimos publicar tu comentario.')
+    } finally {
+      setBusyPostId(null)
+    }
+  }
+
+  async function handleUpdateComment(commentId: string) {
+    if (!user) return
+    const bodyValue = commentEdits[commentId]?.trim()
+    if (!bodyValue) return
+
+    setBusyPostId(commentId)
+    setError('')
+    try {
+      await updateOwnPostComment({
+        commentId,
+        userId: user.id,
+        body: bodyValue,
+      })
+      setEditingCommentId(null)
+      setCommentEdits((current) => ({ ...current, [commentId]: '' }))
+      await loadPosts(false)
+    } catch {
+      setError('No pudimos editar tu comentario.')
+    } finally {
+      setBusyPostId(null)
+    }
+  }
+
+  async function handleDeleteComment(commentId: string) {
+    if (!user) return
+
+    setBusyPostId(commentId)
+    setError('')
+    try {
+      await deleteOwnPostComment({ commentId, userId: user.id })
+      await loadPosts(false)
+    } catch {
+      setError('Solo puedes eliminar tus propios comentarios.')
     } finally {
       setBusyPostId(null)
     }
@@ -189,18 +270,30 @@ export function CommunityFeedPage() {
     }
   }
 
+  const visiblePosts = [...posts]
+    .filter((post) => {
+      if (postFilter === 'verse') return Boolean(post.verse_reference || post.verse_text)
+      return true
+    })
+    .sort((firstPost, secondPost) => {
+      if (postFilter === 'commented') {
+        return secondPost.commentsCount - firstPost.commentsCount
+      }
+      return 0
+    })
+
   return (
     <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
       <div className="pointer-events-none fixed right-0 top-24 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
       <div className="section-shell relative">
         <div className="grid gap-6 xl:grid-cols-[0.86fr_1.14fr]">
           <form
-            onSubmit={handleSubmit}
+            onSubmit={editingPostId ? handleSaveEditedPost : handleSubmit}
             className="h-fit rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur md:p-8"
           >
             <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-amber-200">
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              Foros con la Palabra
+              {editingPostId ? 'Editando post' : 'Foros con la Palabra'}
             </p>
             <h1 className="mt-5 text-4xl font-black tracking-tight md:text-5xl">
               Debates anclados en la Palabra.
@@ -267,8 +360,26 @@ export function CommunityFeedPage() {
                 disabled={isSubmitting || !body.trim()}
               >
                 <Send className="h-5 w-5" aria-hidden="true" />
-                {isSubmitting ? 'Publicando...' : 'Publicar post'}
+                {isSubmitting
+                  ? 'Guardando...'
+                  : editingPostId
+                    ? 'Guardar cambios'
+                    : 'Publicar post'}
               </Button>
+              {editingPostId ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingPostId(null)
+                    setBody('')
+                    setVerseReference('')
+                    setVerseText('')
+                  }}
+                  className="w-full rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-white/65 transition hover:bg-white/10 hover:text-white"
+                >
+                  Cancelar edicion
+                </button>
+              ) : null}
             </div>
           </form>
 
@@ -283,6 +394,29 @@ export function CommunityFeedPage() {
               <span className="rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm text-white/60">
                 {posts.length} posts
               </span>
+            </div>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              {[
+                ['recent', 'Recientes'],
+                ['verse', 'Con versiculo'],
+                ['commented', 'Mas comentadas'],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() =>
+                    setPostFilter(value as 'recent' | 'verse' | 'commented')
+                  }
+                  className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                    postFilter === value
+                      ? 'border-amber-300/30 bg-amber-300/15 text-amber-100'
+                      : 'border-white/10 bg-white/[0.05] text-white/55 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
             </div>
 
             <div className="mt-6 grid gap-3">
@@ -329,9 +463,9 @@ export function CommunityFeedPage() {
                 <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
                 Cargando comunidad...
               </div>
-            ) : posts.length ? (
+            ) : visiblePosts.length ? (
               <div className="mt-6 grid gap-4">
-                {posts.map((post) => {
+                {visiblePosts.map((post) => {
                   const isOwner = post.user_id === user?.id
                   return (
                     <article
@@ -346,6 +480,16 @@ export function CommunityFeedPage() {
                           <p className="mt-3 leading-7 text-white/75">{post.body}</p>
                         </div>
                         {isOwner ? (
+                          <div className="flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => startEditingPost(post)}
+                            disabled={busyPostId === post.id}
+                          >
+                            Editar
+                          </Button>
                           <Button
                             type="button"
                             variant="outline"
@@ -356,6 +500,7 @@ export function CommunityFeedPage() {
                             <Trash2 className="h-4 w-4" aria-hidden="true" />
                             Eliminar
                           </Button>
+                          </div>
                         ) : null}
                         <Button
                           type="button"
@@ -408,18 +553,72 @@ export function CommunityFeedPage() {
                               <p className="text-xs font-semibold uppercase tracking-wide text-white/40">
                                 {comment.profiles?.full_name ?? 'Joven de la Red'}
                               </p>
-                              <button
-                                type="button"
-                                onClick={() => void handleReportComment(comment.id)}
-                                disabled={busyPostId === comment.id}
-                                className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/45 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
-                              >
-                                Reportar
-                              </button>
+                              <div className="flex flex-wrap gap-1">
+                                {comment.user_id === user?.id ? (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setEditingCommentId(comment.id)
+                                        setCommentEdits((current) => ({
+                                          ...current,
+                                          [comment.id]: comment.body,
+                                        }))
+                                      }}
+                                      className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/45 transition hover:bg-white/10 hover:text-white"
+                                    >
+                                      Editar
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => void handleDeleteComment(comment.id)}
+                                      disabled={busyPostId === comment.id}
+                                      className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/45 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+                                    >
+                                      Eliminar
+                                    </button>
+                                  </>
+                                ) : null}
+                                <button
+                                  type="button"
+                                  onClick={() => void handleReportComment(comment.id)}
+                                  disabled={busyPostId === comment.id}
+                                  className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/45 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+                                >
+                                  Reportar
+                                </button>
+                              </div>
                             </div>
-                            <p className="mt-2 text-sm leading-6 text-white/70">
-                              {comment.body}
-                            </p>
+                            {editingCommentId === comment.id ? (
+                              <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                                <Input
+                                  value={commentEdits[comment.id] ?? ''}
+                                  onChange={(event) =>
+                                    setCommentEdits((current) => ({
+                                      ...current,
+                                      [comment.id]: event.target.value,
+                                    }))
+                                  }
+                                  disabled={busyPostId === comment.id}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="secondary"
+                                  size="sm"
+                                  onClick={() => void handleUpdateComment(comment.id)}
+                                  disabled={
+                                    busyPostId === comment.id ||
+                                    !commentEdits[comment.id]?.trim()
+                                  }
+                                >
+                                  Guardar
+                                </Button>
+                              </div>
+                            ) : (
+                              <p className="mt-2 text-sm leading-6 text-white/70">
+                                {comment.body}
+                              </p>
+                            )}
                           </div>
                         ))}
                       </div>

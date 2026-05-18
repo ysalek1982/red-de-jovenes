@@ -97,6 +97,29 @@ export async function deleteOwnPost(input: { postId: string; userId: string }) {
   if (error) throw error
 }
 
+export async function updateOwnPost(input: {
+  postId: string
+  userId: string
+  body: string
+  verseReference?: string
+  verseText?: string
+}) {
+  const { data, error } = await supabase
+    .from('posts')
+    .update({
+      body: input.body,
+      verse_reference: input.verseReference || null,
+      verse_text: input.verseText || null,
+    })
+    .eq('id', input.postId)
+    .eq('user_id', input.userId)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
 export async function createPostComment(input: {
   postId: string
   userId: string
@@ -114,6 +137,36 @@ export async function createPostComment(input: {
 
   if (error) throw error
   return data
+}
+
+export async function updateOwnPostComment(input: {
+  commentId: string
+  userId: string
+  body: string
+}) {
+  const { data, error } = await supabase
+    .from('post_comments')
+    .update({ body: input.body })
+    .eq('id', input.commentId)
+    .eq('user_id', input.userId)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function deleteOwnPostComment(input: {
+  commentId: string
+  userId: string
+}) {
+  const { error } = await supabase
+    .from('post_comments')
+    .delete()
+    .eq('id', input.commentId)
+    .eq('user_id', input.userId)
+
+  if (error) throw error
 }
 
 export async function toggleAmenReaction(input: {
