@@ -121,10 +121,10 @@ export function SignInPage() {
       </div>
 
       <Link
-        to="/"
+        to="/landing"
         className="mx-auto mt-10 flex w-fit items-center gap-2 text-sm font-semibold text-white/60 hover:text-white"
       >
-        Volver al inicio
+        Ver landing pública
         <ArrowRight className="h-4 w-4" aria-hidden="true" />
       </Link>
     </section>

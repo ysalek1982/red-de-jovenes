@@ -81,11 +81,22 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   return children
 }
 
+function AppEntryRoute() {
+  const { user, isLoading } = useAuth()
+
+  if (isLoading) {
+    return <RouteLoading />
+  }
+
+  return <Navigate to={user ? '/app' : '/entrar'} replace />
+}
+
 export function AppRoutes() {
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route index element={<Home />} />
+        <Route index element={<AppEntryRoute />} />
+        <Route path="landing" element={<Home />} />
         <Route path="entrar" element={<SignInPage />} />
         <Route path="crear-cuenta" element={<CreateAccountPage />} />
         <Route

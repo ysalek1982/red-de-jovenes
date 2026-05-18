@@ -111,7 +111,8 @@ La migración inicial prepara autenticación, perfiles, peticiones de oración, 
 
 Públicas:
 
-- `/`
+- `/` entrada de app: redirige a `/entrar` sin sesión o `/app` con sesión.
+- `/landing`
 - `/entrar`
 - `/crear-cuenta`
 - `/demo`
@@ -121,15 +122,19 @@ Privadas:
 - `/app`
 - `/app/oracion`
 - `/app/comunidad`
+- `/app/foros`
 - `/app/devocional`
+- `/app/juegos`
+- `/app/mapa`
 - `/app/perfil`
+- `/app/admin`
 
-La página principal usa anclas internas:
+La landing pública usa anclas internas:
 
-- `#mision`
-- `#funciones`
-- `#testimonios`
-- `#comunidad`
+- `/landing#mision`
+- `/landing#funciones`
+- `/landing#testimonios`
+- `/landing#comunidad`
 
 ## Funcionalidad actual
 

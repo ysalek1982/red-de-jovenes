@@ -4,9 +4,9 @@ import { Header } from './Header'
 
 export function Layout() {
   const { pathname } = useLocation()
-  const isPrivateApp = pathname.startsWith('/app')
+  const isChromeLessRoute = pathname === '/' || pathname.startsWith('/app')
 
-  if (isPrivateApp) {
+  if (isChromeLessRoute) {
     return (
       <div className="min-h-screen bg-slate-950">
         <Outlet />

@@ -5,10 +5,10 @@ import { useAuth } from '../../features/auth/useAuth'
 import { cn } from '../../lib/utils'
 
 const navigation = [
-  { label: 'Misión', href: '/#mision' },
-  { label: 'Funciones', href: '/#funciones' },
-  { label: 'Testimonios', href: '/#testimonios' },
-  { label: 'Comunidad', href: '/#comunidad' },
+  { label: 'Misión', href: '/landing#mision' },
+  { label: 'Funciones', href: '/landing#funciones' },
+  { label: 'Testimonios', href: '/landing#testimonios' },
+  { label: 'Comunidad', href: '/landing#comunidad' },
 ]
 
 export function Header() {
@@ -72,7 +72,7 @@ export function Header() {
       >
         <div className="flex items-center justify-between gap-4">
           <Link
-            to="/"
+            to="/landing"
             aria-label="+ Red de Jóvenes"
             className="flex items-center gap-3 text-sm font-bold text-white sm:text-base"
             onClick={() => setIsOpen(false)}
