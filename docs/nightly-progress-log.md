@@ -102,3 +102,18 @@ Estado: completada.
 - `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
 
 Commit esperado: `Configura PWA instalable`.
+
+## Macrofase 7 - Seguridad y RLS QA
+
+Estado: completada con bloqueo externo.
+
+- Se revisaron estaticamente las politicas RLS de la migracion inicial.
+- `npx supabase migration list`: local/remoto alineado en `20260517214049`.
+- No se crearon migraciones nuevas.
+- Se documento QA de seguridad en `docs/security-rls-qa.md`.
+- Revision de secretos versionables: sin coincidencias reales.
+- Bloqueos: `BLOCKED_EMAIL_CONFIRMATION` y `BLOCKED_AUTH_RATE_LIMIT`.
+- `npm run lint`: OK.
+- `npm run build`: OK, con advertencia no bloqueante de chunk mayor a 500 kB.
+
+Commit esperado: `Valida seguridad RLS inicial`.
