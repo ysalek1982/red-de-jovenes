@@ -11,6 +11,8 @@ import {
 import { useAuth } from '../features/auth/useAuth'
 import {
   getDevotionalProgress,
+  getFavoriteDevotionals,
+  getFavoriteDevotionalsCount,
   getReadDevotionalsCount,
   getRecentDevotionals,
   getTodayDevotional,
@@ -32,9 +34,11 @@ export function DevotionalPage() {
   const userId = user?.id
   const [devotional, setDevotional] = useState<Devotional | null>(null)
   const [recentDevotionals, setRecentDevotionals] = useState<Devotional[]>([])
+  const [favoriteDevotionals, setFavoriteDevotionals] = useState<Devotional[]>([])
   const [isRead, setIsRead] = useState(false)
   const [isFavorite, setIsFavorite] = useState(false)
   const [readCount, setReadCount] = useState(0)
+  const [favoriteCount, setFavoriteCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isSavingProgress, setIsSavingProgress] = useState(false)
   const [error, setError] = useState('')
@@ -54,13 +58,17 @@ export function DevotionalPage() {
       setRecentDevotionals(recentData)
 
       if (userId && todayData) {
-        const [progress, totalReads] = await Promise.all([
+        const [progress, totalReads, totalFavorites, favorites] = await Promise.all([
           getDevotionalProgress(userId, todayData.id),
           getReadDevotionalsCount(userId),
+          getFavoriteDevotionalsCount(userId),
+          getFavoriteDevotionals(userId),
         ])
         setIsRead(progress.isRead)
         setIsFavorite(progress.isFavorite)
         setReadCount(totalReads)
+        setFavoriteCount(totalFavorites)
+        setFavoriteDevotionals(favorites)
       }
     } catch {
       setError('No pudimos cargar el devocional diario.')
@@ -109,6 +117,14 @@ export function DevotionalPage() {
         isFavorite,
       })
       setIsFavorite((currentValue) => !currentValue)
+      setFavoriteCount((currentCount) =>
+        isFavorite ? Math.max(0, currentCount - 1) : currentCount + 1,
+      )
+      setFavoriteDevotionals((currentFavorites) =>
+        isFavorite
+          ? currentFavorites.filter((item) => item.id !== devotional.id)
+          : [devotional, ...currentFavorites],
+      )
       setActionMessage(
         isFavorite
           ? 'Devocional quitado de guardados.'
@@ -177,6 +193,14 @@ export function DevotionalPage() {
                   <p className="mt-8 text-lg leading-8 text-white/70">
                     {devotional.reflection}
                   </p>
+                  {devotional.prayer ? (
+                    <div className="mt-8 rounded-[1.5rem] border border-white/10 bg-slate-950/45 p-5">
+                      <h3 className="font-bold text-amber-100">Oracion para hoy</h3>
+                      <p className="mt-3 leading-7 text-white/70">
+                        {devotional.prayer}
+                      </p>
+                    </div>
+                  ) : null}
                   <div className="mt-8 rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/10 p-5">
                     <h3 className="font-bold text-emerald-100">Reflexión guiada</h3>
                     <ol className="mt-3 space-y-2 text-sm leading-6 text-white/70">
@@ -235,6 +259,9 @@ export function DevotionalPage() {
                       </p>
                     </div>
                   </div>
+                  <p className="mt-4 text-sm text-white/55">
+                    Total guardados en tu biblioteca: {favoriteCount}
+                  </p>
                 </div>
 
                 <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 shadow-2xl shadow-black/25 backdrop-blur">
@@ -265,6 +292,32 @@ export function DevotionalPage() {
                       Anotado para tu reflexiÃ³n personal: {selectedMood}.
                     </p>
                   ) : null}
+                </div>
+
+                <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+                  <div className="flex items-center gap-3">
+                    <BookMarked className="h-6 w-6 text-amber-200" aria-hidden="true" />
+                    <h2 className="text-2xl font-bold">Guardados</h2>
+                  </div>
+                  <div className="mt-6 space-y-3">
+                    {favoriteDevotionals.length ? (
+                      favoriteDevotionals.map((item) => (
+                        <article
+                          key={item.id}
+                          className="rounded-3xl border border-white/10 bg-slate-950/45 p-4"
+                        >
+                          <h3 className="font-bold">{item.title}</h3>
+                          <p className="mt-2 text-sm text-amber-200">
+                            {item.verse_reference}
+                          </p>
+                        </article>
+                      ))
+                    ) : (
+                      <p className="text-sm text-white/60">
+                        Aun no guardaste devocionales.
+                      </p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-6 shadow-2xl shadow-black/25 backdrop-blur">

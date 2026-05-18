@@ -10,6 +10,7 @@ export async function getTodayDevotional() {
     .from('devotionals')
     .select('*')
     .eq('devotional_date', today)
+    .eq('is_active', true)
     .maybeSingle()
 
   if (error) throw error
@@ -22,6 +23,7 @@ export async function getLatestDevotionalFallback() {
     .from('devotionals')
     .select('*')
     .lte('devotional_date', today)
+    .eq('is_active', true)
     .order('devotional_date', { ascending: false })
     .limit(1)
     .maybeSingle()
@@ -36,6 +38,7 @@ export async function getRecentDevotionals(limit = 5) {
     .from('devotionals')
     .select('*')
     .lte('devotional_date', today)
+    .eq('is_active', true)
     .order('devotional_date', { ascending: false })
     .limit(limit)
 
@@ -123,6 +126,39 @@ export async function toggleDevotionalFavorite(input: {
 export async function getReadDevotionalsCount(userId: string) {
   const { count, error } = await supabase
     .from('devotional_reads')
+    .select('id', { count: 'exact', head: true })
+    .eq('user_id', userId)
+
+  if (error) throw error
+  return count ?? 0
+}
+
+export async function getFavoriteDevotionals(userId: string, limit = 5) {
+  const { data: favorites, error: favoriteError } = await supabase
+    .from('devotional_favorites')
+    .select('devotional_id')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(limit)
+
+  if (favoriteError) throw favoriteError
+
+  const ids = (favorites ?? []).map((favorite) => favorite.devotional_id)
+  if (!ids.length) return []
+
+  const { data, error } = await supabase
+    .from('devotionals')
+    .select('*')
+    .in('id', ids)
+    .eq('is_active', true)
+
+  if (error) throw error
+  return data ?? []
+}
+
+export async function getFavoriteDevotionalsCount(userId: string) {
+  const { count, error } = await supabase
+    .from('devotional_favorites')
     .select('id', { count: 'exact', head: true })
     .eq('user_id', userId)
 
