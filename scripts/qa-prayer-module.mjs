@@ -99,19 +99,34 @@ if (activeGroup.error || !activeGroup.data) {
   fail('FAILED_PRAYER_GROUP_READ', { error: activeGroup.error?.message })
 }
 
-const membership = await userA.supabase
+let membership = await userA.supabase
   .from('group_members')
-  .upsert(
-    {
+  .select('id')
+  .eq('group_id', activeGroup.data.id)
+  .eq('user_id', userA.user.id)
+  .maybeSingle()
+
+if (!membership.data && !membership.error) {
+  membership = await userA.supabase
+    .from('group_members')
+    .insert({
       group_id: activeGroup.data.id,
       user_id: userA.user.id,
       role: 'member',
       status: 'active',
-    },
-    { onConflict: 'group_id,user_id' },
-  )
-  .select('id')
-  .single()
+    })
+    .select('id')
+    .single()
+
+  if (membership.error?.code === '23505') {
+    membership = await userA.supabase
+      .from('group_members')
+      .select('id')
+      .eq('group_id', activeGroup.data.id)
+      .eq('user_id', userA.user.id)
+      .maybeSingle()
+  }
+}
 
 if (membership.error || !membership.data) {
   fail('FAILED_PRAYER_GROUP_MEMBERSHIP', { error: membership.error?.message })

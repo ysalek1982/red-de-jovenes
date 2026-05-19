@@ -32,6 +32,7 @@ Fecha: 2026-05-19
 
 - La creacion de conversaciones fallaba porque el flujo intentaba leer la conversacion antes de insertar miembros. Se corrigio generando `id` localmente, insertando conversacion sin `select`, creando miembros y luego leyendo.
 - El QA de foros no era idempotente cuando el usuario ya tenia membresia en una comunidad. Se ajusto para reutilizar membresia existente.
+- Los QA de oracion y comunidad tenian el mismo problema de idempotencia con `group_members`; se ajustaron para reutilizar membresias o manejar duplicado seguro.
 - Se agregaron migraciones incrementales para relajar creacion de conversaciones y cerrar la insercion de miembros solo al creador.
 
 ## Pendientes reales

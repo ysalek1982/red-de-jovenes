@@ -64,7 +64,21 @@ Todos los scripts locales ejecutados pasaron:
 
 ## QA staging
 
-Pendiente de ejecutar despues del push/deploy de esta fase contra `https://red-de-jovenes.vercel.app/`.
+Ejecutado contra `https://red-de-jovenes.vercel.app/` despues del push a `main`.
+
+- `npm run qa:functional`: `QA_FUNCTIONAL_ROUTES_OK`
+- `npm run qa:map`: `QA_MAP_OK`
+- `npm run qa:forums`: `QA_FORUMS_OK`
+- `npm run qa:prayer`: `QA_PRAYER_OK`
+- `npm run qa:community`: `QA_COMMUNITY_OK`
+- `npm run qa:bible`: `QA_BIBLE_OK`
+- `npm run qa:events`: `QA_EVENTS_OK`
+- `npm run qa:discipleship`: `QA_DISCIPLESHIP_OK`
+- `npm run qa:messages`: `QA_MESSAGES_OK`
+- `npm run qa:social`: `QA_SOCIAL_OK`
+- `npm run qa:build-network`: `QA_BUILD_NETWORK_OK`
+- `npm run qa:search`: `QA_SEARCH_OK`
+- `npm run qa:notifications`: `QA_NOTIFICATIONS_OK`
 
 ## Pendientes reales
 
@@ -76,4 +90,4 @@ Pendiente de ejecutar despues del push/deploy de esta fase contra `https://red-d
 
 ## Recomendacion
 
-Desplegar esta fase a staging y ejecutar QA minimo de rutas, mapa, foros, oracion, comunidad, Biblia, Eventos, Discipulado, Mensajes, Social, Busqueda y Notificaciones. Si staging pasa, iniciar piloto avanzado con observacion sobre realtime/push.
+Iniciar piloto avanzado con observacion sobre realtime, push y Biblia completa por API/licencia.
