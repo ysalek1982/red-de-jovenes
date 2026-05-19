@@ -191,7 +191,7 @@ export function BiblePage() {
       prompt: `Explica brevemente ${verse.reference} para jovenes: ${verse.verse_text}`,
     })
     setAiExplanation(
-      result.text ||
+      result?.text ||
         'Gemini no esta configurado todavia. La solicitud quedo registrada para revision.',
     )
     setStatus('Explicacion generada para revisar.')

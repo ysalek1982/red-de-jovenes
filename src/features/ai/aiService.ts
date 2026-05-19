@@ -12,7 +12,7 @@ export interface AiProviderStatus {
   last_test_status: string | null
 }
 
-async function invokeAiFunction<T>(name: string, body: unknown) {
+async function invokeAiFunction<T>(name: string, body: Record<string, unknown>) {
   const { data, error } = await supabase.functions.invoke<T>(name, { body })
   if (error) throw error
   return data

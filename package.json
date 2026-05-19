@@ -29,6 +29,8 @@
     "qa:build-network": "node scripts/qa-build-network-module.mjs",
     "qa:search": "node scripts/qa-global-search.mjs",
     "qa:notifications": "node scripts/qa-notifications-module.mjs",
+    "qa:ai-settings": "node scripts/qa-ai-settings.mjs",
+    "qa:ai-actions": "node scripts/qa-ai-actions.mjs",
     "qa:journeys": "node scripts/qa-user-journeys.mjs",
     "qa:seed": "node scripts/qa-seed-data.mjs",
     "smoke:build": "node scripts/smoke-production-build.mjs",

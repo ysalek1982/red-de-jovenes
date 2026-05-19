@@ -140,7 +140,7 @@ export function AdminHome() {
     ])
     setOverview(overviewData)
     setLatest(latestData)
-    setAiStatus(aiStatusData.provider)
+    setAiStatus(aiStatusData?.provider ?? null)
     setAiQueue(aiQueueData)
   }, [])
 
@@ -220,20 +220,20 @@ export function AdminHome() {
     }
     const result = await saveAiProviderKey({ apiKey: aiKey.trim(), model: aiModel })
     setAiKey('')
-    setMessage(`Gemini configurado. Key terminada en ****${result.key_last4}`)
-    await loadData()
+    setMessage(`Gemini configurado. Key terminada en ****${result?.key_last4 ?? '****'}`)
+    await loadAdminData()
   }
 
   async function handleTestAiSettings() {
     const result = await testAiProviderKey()
-    setMessage(result.status === 'GEMINI_TEST_OK' ? 'Gemini respondio correctamente.' : 'Gemini no esta configurado.')
-    await loadData()
+    setMessage(result?.status === 'GEMINI_TEST_OK' ? 'Gemini respondio correctamente.' : 'Gemini no esta configurado.')
+    await loadAdminData()
   }
 
   async function handleDisableAi() {
     await disableAiProvider()
     setMessage('Gemini fue desactivado.')
-    await loadData()
+    await loadAdminData()
   }
 
   async function handleGenerateAi() {
@@ -246,13 +246,13 @@ export function AdminHome() {
       actionType: aiActionType,
       prompt: aiPrompt,
     })
-    if (result.text) setAiOutput(result.text)
+    if (result?.text) setAiOutput(result.text)
     setMessage(
-      result.status === 'AI_PROVIDER_NOT_CONFIGURED'
+      result?.status === 'AI_PROVIDER_NOT_CONFIGURED'
         ? 'Gemini no esta configurado. La solicitud quedo en cola para revision.'
         : 'Respuesta IA generada para revision humana.',
     )
-    await loadData()
+    await loadAdminData()
   }
 
   function handleEditDevotional(devotional: AdminDevotionalPreview) {
