@@ -1,6 +1,7 @@
 import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
 import { Bell, Loader2, Save, UserRound } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
@@ -11,10 +12,18 @@ import {
   upsertNotificationPreferences,
 } from '../features/notifications/notificationPreferencesService'
 import {
+  getActiveGroups,
+  type GroupWithMembership,
+} from '../features/map/worldMapService'
+import {
   ensureProfile,
   isValidUsername,
   updateProfile,
 } from '../features/profile/profileService'
+import {
+  getMyFaithProgress,
+  type FaithProgressSummary,
+} from '../features/progress/progressService'
 import type { NotificationPreference, Profile } from '../types/database'
 
 interface ProfileForm {
@@ -100,6 +109,8 @@ export function AppProfile() {
   const [form, setForm] = useState<ProfileForm>(emptyForm)
   const [notifications, setNotifications] =
     useState<NotificationForm>(defaultNotifications)
+  const [communities, setCommunities] = useState<GroupWithMembership[]>([])
+  const [progress, setProgress] = useState<FaithProgressSummary | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [isSavingNotifications, setIsSavingNotifications] = useState(false)
@@ -122,15 +133,20 @@ export function AppProfile() {
       setIsLoading(true)
       setError('')
       try {
-        const [profileData, preferenceData] = await Promise.all([
-          ensureProfile(user),
-          getNotificationPreferences(user.id),
-        ])
+        const [profileData, preferenceData, groupData, progressData] =
+          await Promise.all([
+            ensureProfile(user),
+            getNotificationPreferences(user.id),
+            getActiveGroups(user.id),
+            getMyFaithProgress(user.id),
+          ])
         const adminRole = await hasRole('admin')
         if (!isMounted) return
         setProfile(profileData)
         setForm(profileToForm(profileData))
         setNotifications(preferencesToForm(preferenceData))
+        setCommunities(groupData.filter((group) => group.isMember))
+        setProgress(progressData)
         setIsAdmin(adminRole)
       } catch {
         if (isMounted) {
@@ -259,6 +275,67 @@ export function AppProfile() {
             ) : null}
             <div className="mt-3 rounded-3xl border border-white/10 bg-slate-950/45 p-4 text-sm text-white/65">
               Rol visible: {isAdmin ? 'Administrador' : 'Miembro'}
+            </div>
+            <div className="mt-6 rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4">
+              <p className="text-sm font-black text-emerald-100">
+                Mis comunidades
+              </p>
+              <div className="mt-3 space-y-2">
+                {communities.length ? (
+                  communities.slice(0, 3).map((community) => (
+                    <div
+                      key={community.id}
+                      className="rounded-2xl border border-white/10 bg-slate-950/45 p-3"
+                    >
+                      <p className="truncate text-sm font-bold">
+                        {community.name}
+                      </p>
+                      <p className="mt-1 text-xs text-white/50">
+                        {community.city ?? 'Sin ciudad'}, {community.country ?? 'Sin pais'}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm leading-6 text-white/60">
+                    Aun no perteneces a una comunidad.
+                  </p>
+                )}
+              </div>
+              <Link
+                to="/app/mapa"
+                className="mt-4 inline-flex h-9 items-center justify-center rounded-full bg-white px-4 text-xs font-black text-slate-950 transition hover:bg-amber-100"
+              >
+                Encontrar comunidad
+              </Link>
+            </div>
+            <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+              <p className="text-sm font-black text-white">Mi actividad</p>
+              <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
+                <span className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                  <strong className="block text-xl text-white">
+                    {progress?.devotionalReads ?? 0}
+                  </strong>
+                  <span className="text-white/50">devocionales</span>
+                </span>
+                <span className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                  <strong className="block text-xl text-white">
+                    {progress?.prayerSupports ?? 0}
+                  </strong>
+                  <span className="text-white/50">oraciones</span>
+                </span>
+                <span className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                  <strong className="block text-xl text-white">
+                    {progress?.gamesPlayed ?? 0}
+                  </strong>
+                  <span className="text-white/50">juegos</span>
+                </span>
+                <span className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                  <strong className="block text-xl text-white">
+                    {progress?.totalGamePoints ?? 0}
+                  </strong>
+                  <span className="text-white/50">puntos</span>
+                </span>
+              </div>
             </div>
           </aside>
 
