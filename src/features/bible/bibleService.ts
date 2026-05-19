@@ -2,6 +2,9 @@ import { supabase } from '../../lib/supabase'
 import type {
   BibleHighlight,
   BibleBook,
+  BiblePlanProgress,
+  BibleReadingPlan,
+  BibleReadingPlanDay,
   BibleReadingProgress,
   BibleSavedVerse,
   BibleTranslation,
@@ -22,6 +25,18 @@ export interface BibleVerseResult {
   verse: number
   reference: string
   verse_text: string
+}
+
+export interface BibleDailyVerseResult extends BibleVerseResult {
+  devotional_hint: string | null
+}
+
+export interface BibleSearchResult extends BibleVerseResult {
+  rank: number
+}
+
+export type BibleReadingPlanWithDays = BibleReadingPlan & {
+  bible_reading_plan_days: BibleReadingPlanDay[]
 }
 
 export async function getActiveBibleTranslations() {
@@ -73,6 +88,36 @@ export async function getBibleChapter(input: {
 
   if (error) throw error
   return (data ?? []) as BibleVerseResult[]
+}
+
+export async function searchBibleVerses(input: {
+  query: string
+  translationCode?: string
+  bookCode?: string | null
+  limit?: number
+}) {
+  const { data, error } = await supabase.rpc('search_bible_verses', {
+    p_query: input.query,
+    p_translation_code: input.translationCode || 'RVR1909',
+    p_book_code: input.bookCode ?? undefined,
+    p_limit: input.limit ?? 25,
+  })
+
+  if (error) throw error
+  return (data ?? []) as BibleSearchResult[]
+}
+
+export async function getDailyBibleVerse(input?: {
+  date?: string
+  translationCode?: string
+}) {
+  const { data, error } = await supabase.rpc('get_daily_bible_verse', {
+    p_date: input?.date ?? undefined,
+    p_translation_code: input?.translationCode || 'RVR1909',
+  })
+
+  if (error) throw error
+  return ((data ?? []) as BibleDailyVerseResult[])[0] ?? null
 }
 
 export async function getBibleVerse(input: {
@@ -196,6 +241,56 @@ export async function getMyReadingProgress(userId: string) {
 
   if (error) throw error
   return (data ?? []) as BibleReadingProgress[]
+}
+
+export async function getBibleReadingPlans() {
+  const { data, error } = await supabase
+    .from('bible_reading_plans')
+    .select('*, bible_reading_plan_days(*)')
+    .eq('is_active', true)
+    .order('duration_days', { ascending: true })
+    .order('day_number', {
+      ascending: true,
+      foreignTable: 'bible_reading_plan_days',
+    })
+
+  if (error) throw error
+  return (data ?? []) as BibleReadingPlanWithDays[]
+}
+
+export async function getMyBiblePlanProgress(userId: string) {
+  const { data, error } = await supabase
+    .from('bible_plan_progress')
+    .select('*')
+    .eq('user_id', userId)
+    .order('completed_at', { ascending: false })
+
+  if (error) throw error
+  return (data ?? []) as BiblePlanProgress[]
+}
+
+export async function markBiblePlanDayComplete(input: {
+  userId: string
+  planId: string
+  dayId: string
+  note?: string
+}) {
+  const { data, error } = await supabase
+    .from('bible_plan_progress')
+    .upsert(
+      {
+        user_id: input.userId,
+        plan_id: input.planId,
+        day_id: input.dayId,
+        note: input.note || null,
+      },
+      { onConflict: 'user_id,day_id' },
+    )
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
 }
 
 export async function markReadingDayComplete(input: {

@@ -19,6 +19,10 @@ const allowedActions = new Set([
   'classify_content_report',
   'suggest_prayer_response',
   'explain_bible_verse',
+  'create_bible_reflection',
+  'create_bible_group_question',
+  'create_bible_prayer',
+  'suggest_bible_forum_post',
   'generate_event_description',
   'create_discipleship_reflection',
   'summarize_community_activity',
@@ -77,6 +81,18 @@ Deno.serve(async (req) => {
         outputChars: 0,
         tokensEstimated: estimatedInputTokens,
         status: 'provider_not_configured',
+      })
+      await supabase.from('ai_action_logs').insert({
+        user_id: user.id,
+        action_type: actionType,
+        provider: 'gemini',
+        model: settings?.model ?? 'gemini-2.0-flash',
+        prompt_summary: summarize(prompt),
+        input_ref_type: body.targetType || null,
+        input_ref_id: body.targetId || null,
+        output_summary: 'Proveedor IA no configurado; solicitud enviada a cola humana.',
+        status: 'queued_without_provider',
+        tokens_estimated: estimatedInputTokens,
       })
       const { data: queue, error: queueError } = await supabase
         .from('ai_action_queue')

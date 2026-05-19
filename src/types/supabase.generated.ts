@@ -477,6 +477,27 @@ export type Database = {
             referencedColumns: ["code"]
           },
           {
+            foreignKeyName: "bible_daily_verses_book_code_fkey"
+            columns: ["book_code"]
+            isOneToOne: false
+            referencedRelation: "bible_missing_chapters_report"
+            referencedColumns: ["book_code"]
+          },
+          {
+            foreignKeyName: "bible_daily_verses_translation_code_fkey"
+            columns: ["translation_code"]
+            isOneToOne: false
+            referencedRelation: "bible_missing_chapters_report"
+            referencedColumns: ["translation_code"]
+          },
+          {
+            foreignKeyName: "bible_daily_verses_translation_code_fkey"
+            columns: ["translation_code"]
+            isOneToOne: false
+            referencedRelation: "bible_translation_stats"
+            referencedColumns: ["code"]
+          },
+          {
             foreignKeyName: "bible_daily_verses_translation_code_fkey"
             columns: ["translation_code"]
             isOneToOne: false
@@ -522,6 +543,161 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      bible_plan_progress: {
+        Row: {
+          completed_at: string | null
+          day_id: string | null
+          id: string
+          note: string | null
+          plan_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          day_id?: string | null
+          id?: string
+          note?: string | null
+          plan_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          day_id?: string | null
+          id?: string
+          note?: string | null
+          plan_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bible_plan_progress_day_id_fkey"
+            columns: ["day_id"]
+            isOneToOne: false
+            referencedRelation: "bible_reading_plan_days"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bible_plan_progress_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "bible_reading_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bible_plan_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bible_reading_plan_days: {
+        Row: {
+          book_code: string | null
+          created_at: string | null
+          day_number: number
+          description: string | null
+          end_chapter: number | null
+          end_verse: number | null
+          id: string
+          plan_id: string | null
+          reading_reference: string
+          reflection_prompt: string | null
+          start_chapter: number | null
+          start_verse: number | null
+          title: string
+        }
+        Insert: {
+          book_code?: string | null
+          created_at?: string | null
+          day_number: number
+          description?: string | null
+          end_chapter?: number | null
+          end_verse?: number | null
+          id?: string
+          plan_id?: string | null
+          reading_reference: string
+          reflection_prompt?: string | null
+          start_chapter?: number | null
+          start_verse?: number | null
+          title: string
+        }
+        Update: {
+          book_code?: string | null
+          created_at?: string | null
+          day_number?: number
+          description?: string | null
+          end_chapter?: number | null
+          end_verse?: number | null
+          id?: string
+          plan_id?: string | null
+          reading_reference?: string
+          reflection_prompt?: string | null
+          start_chapter?: number | null
+          start_verse?: number | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bible_reading_plan_days_book_code_fkey"
+            columns: ["book_code"]
+            isOneToOne: false
+            referencedRelation: "bible_books"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "bible_reading_plan_days_book_code_fkey"
+            columns: ["book_code"]
+            isOneToOne: false
+            referencedRelation: "bible_missing_chapters_report"
+            referencedColumns: ["book_code"]
+          },
+          {
+            foreignKeyName: "bible_reading_plan_days_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "bible_reading_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bible_reading_plans: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          duration_days: number
+          id: string
+          is_active: boolean | null
+          plan_key: string
+          theme: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          duration_days: number
+          id?: string
+          is_active?: boolean | null
+          plan_key: string
+          theme?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          duration_days?: number
+          id?: string
+          is_active?: boolean | null
+          plan_key?: string
+          theme?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       bible_reading_progress: {
         Row: {
@@ -666,6 +842,27 @@ export type Database = {
             columns: ["book_code"]
             isOneToOne: false
             referencedRelation: "bible_books"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "bible_verses_book_code_fkey"
+            columns: ["book_code"]
+            isOneToOne: false
+            referencedRelation: "bible_missing_chapters_report"
+            referencedColumns: ["book_code"]
+          },
+          {
+            foreignKeyName: "bible_verses_translation_code_fkey"
+            columns: ["translation_code"]
+            isOneToOne: false
+            referencedRelation: "bible_missing_chapters_report"
+            referencedColumns: ["translation_code"]
+          },
+          {
+            foreignKeyName: "bible_verses_translation_code_fkey"
+            columns: ["translation_code"]
+            isOneToOne: false
+            referencedRelation: "bible_translation_stats"
             referencedColumns: ["code"]
           },
           {
@@ -2559,6 +2756,32 @@ export type Database = {
         }
         Relationships: []
       }
+      bible_missing_chapters_report: {
+        Row: {
+          book_code: string | null
+          book_name: string | null
+          chapter: number | null
+          translation_code: string | null
+        }
+        Relationships: []
+      }
+      bible_translation_stats: {
+        Row: {
+          books_with_verses: number | null
+          chapters_with_verses: number | null
+          code: string | null
+          estimated_completion_percent: number | null
+          is_active: boolean | null
+          is_public_domain: boolean | null
+          language: string | null
+          license: string | null
+          name: string | null
+          source_name: string | null
+          source_url: string | null
+          verses_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       get_bible_chapter: {
@@ -2571,6 +2794,19 @@ export type Database = {
           book_code: string
           book_name: string
           chapter: number
+          reference: string
+          translation_code: string
+          verse: number
+          verse_text: string
+        }[]
+      }
+      get_daily_bible_verse: {
+        Args: { p_date?: string; p_translation_code?: string }
+        Returns: {
+          book_code: string
+          book_name: string
+          chapter: number
+          devotional_hint: string
           reference: string
           translation_code: string
           verse: number
@@ -2608,6 +2844,24 @@ export type Database = {
       is_conversation_member: {
         Args: { target_conversation_id: string }
         Returns: boolean
+      }
+      search_bible_verses: {
+        Args: {
+          p_book_code?: string
+          p_limit?: number
+          p_query: string
+          p_translation_code?: string
+        }
+        Returns: {
+          book_code: string
+          book_name: string
+          chapter: number
+          rank: number
+          reference: string
+          translation_code: string
+          verse: number
+          verse_text: string
+        }[]
       }
     }
     Enums: {

@@ -6,7 +6,11 @@ import type {
   AiUsageDaily,
   AiCostEvent,
   BibleDailyVerse,
+  BibleMissingChapterReport,
+  BibleReadingPlan,
+  BibleReadingPlanDay,
   BibleTranslation,
+  BibleTranslationStats,
 } from '../../types/database'
 import type { AiActionType } from './aiGuardrails'
 
@@ -18,6 +22,21 @@ export interface AiProviderStatus {
   configured_at: string | null
   last_tested_at: string | null
   last_test_status: string | null
+}
+
+export type AdminBibleReadingPlan = BibleReadingPlan & {
+  bible_reading_plan_days?: BibleReadingPlanDay[]
+}
+
+export interface AdminBibleStatus {
+  status: string
+  translations: BibleTranslation[]
+  booksCount: number
+  versesCount: number
+  recentDailyVerses: BibleDailyVerse[]
+  translationStats: BibleTranslationStats[]
+  missingChapters: BibleMissingChapterReport[]
+  readingPlans: AdminBibleReadingPlan[]
 }
 
 async function invokeAiFunction<T>(name: string, body: Record<string, unknown>) {
@@ -123,13 +142,41 @@ export async function activateAiPromptTemplate(templateId: string) {
 }
 
 export async function getAdminBibleStatus() {
-  return invokeAiFunction<{
-    status: string
-    translations: BibleTranslation[]
-    booksCount: number
-    versesCount: number
-    recentDailyVerses: BibleDailyVerse[]
-  }>('admin-ai-settings', { action: 'get_bible_admin_status' })
+  const status = await invokeAiFunction<Partial<AdminBibleStatus>>('admin-ai-settings', {
+    action: 'get_bible_admin_status',
+  })
+  const response = status ?? {}
+  if (
+    response.translationStats &&
+    response.missingChapters &&
+    response.readingPlans
+  ) {
+    return response as AdminBibleStatus
+  }
+
+  const [stats, missing, plans] = await Promise.all([
+    supabase.from('bible_translation_stats').select('*').order('code'),
+    supabase.from('bible_missing_chapters_report').select('*').limit(12),
+    supabase
+      .from('bible_reading_plans')
+      .select('*, bible_reading_plan_days(*)')
+      .order('created_at', { ascending: false })
+      .limit(20),
+  ])
+  if (stats.error) throw stats.error
+  if (missing.error) throw missing.error
+  if (plans.error) throw plans.error
+
+  return {
+    status: response.status ?? 'OK',
+    translations: response.translations ?? [],
+    booksCount: response.booksCount ?? 0,
+    versesCount: response.versesCount ?? 0,
+    recentDailyVerses: response.recentDailyVerses ?? [],
+    translationStats: stats.data ?? [],
+    missingChapters: missing.data ?? [],
+    readingPlans: plans.data ?? [],
+  } as AdminBibleStatus
 }
 
 export async function saveDailyBibleVerse(input: {

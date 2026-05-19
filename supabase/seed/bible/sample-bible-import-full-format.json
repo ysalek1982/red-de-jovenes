@@ -1,0 +1,48 @@
+{
+  "metadata": {
+    "translation_code": "RVR1909_SAMPLE_FULL",
+    "translation_name": "Reina-Valera 1909 - muestra formato completo",
+    "language": "es",
+    "license": "Dominio publico; muestra minima para validar formato de importacion.",
+    "source_name": "Proyecto Red de Jovenes QA",
+    "source_url": "https://red-de-jovenes.vercel.app/",
+    "is_public_domain": true,
+    "license_confirmed": true
+  },
+  "verses": [
+    {
+      "translation_code": "RVR1909_SAMPLE_FULL",
+      "translation_name": "Reina-Valera 1909 - muestra formato completo",
+      "language": "es",
+      "license": "Dominio publico; muestra minima para validar formato de importacion.",
+      "source_name": "Proyecto Red de Jovenes QA",
+      "source_url": "https://red-de-jovenes.vercel.app/",
+      "is_public_domain": true,
+      "book_code": "JHN",
+      "book_name": "Juan",
+      "testament": "new",
+      "book_order": 43,
+      "chapters_count": 21,
+      "chapter": 3,
+      "verse": 16,
+      "verse_text": "Porque de tal manera amo Dios al mundo, que ha dado a su Hijo unigenito."
+    },
+    {
+      "translation_code": "RVR1909_SAMPLE_FULL",
+      "translation_name": "Reina-Valera 1909 - muestra formato completo",
+      "language": "es",
+      "license": "Dominio publico; muestra minima para validar formato de importacion.",
+      "source_name": "Proyecto Red de Jovenes QA",
+      "source_url": "https://red-de-jovenes.vercel.app/",
+      "is_public_domain": true,
+      "book_code": "PSA",
+      "book_name": "Salmos",
+      "testament": "old",
+      "book_order": 19,
+      "chapters_count": 150,
+      "chapter": 23,
+      "verse": 1,
+      "verse_text": "Jehova es mi pastor; nada me faltara."
+    }
+  ]
+}

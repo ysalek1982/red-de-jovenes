@@ -34,6 +34,16 @@ export type BibleBook = Database['public']['Tables']['bible_books']['Row']
 export type BibleVerse = Database['public']['Tables']['bible_verses']['Row']
 export type BibleDailyVerse =
   Database['public']['Tables']['bible_daily_verses']['Row']
+export type BibleTranslationStats =
+  Database['public']['Views']['bible_translation_stats']['Row']
+export type BibleMissingChapterReport =
+  Database['public']['Views']['bible_missing_chapters_report']['Row']
+export type BibleReadingPlan =
+  Database['public']['Tables']['bible_reading_plans']['Row']
+export type BibleReadingPlanDay =
+  Database['public']['Tables']['bible_reading_plan_days']['Row']
+export type BiblePlanProgress =
+  Database['public']['Tables']['bible_plan_progress']['Row']
 export type Event = Database['public']['Tables']['events']['Row']
 export type EventRsvp = Database['public']['Tables']['event_rsvps']['Row']
 export type DiscipleshipTrack =

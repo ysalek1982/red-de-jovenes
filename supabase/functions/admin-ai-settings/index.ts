@@ -227,7 +227,7 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'get_bible_admin_status') {
-      const [translations, books, verses, daily] = await Promise.all([
+      const [translations, books, verses, daily, stats, missing, plans] = await Promise.all([
         supabase.from('bible_translations').select('*').order('code', { ascending: true }),
         supabase.from('bible_books').select('id', { count: 'exact', head: true }),
         supabase
@@ -239,8 +239,15 @@ Deno.serve(async (req) => {
           .select('*')
           .order('active_date', { ascending: false })
           .limit(7),
+        supabase.from('bible_translation_stats').select('*').order('code', { ascending: true }),
+        supabase.from('bible_missing_chapters_report').select('*').limit(12),
+        supabase
+          .from('bible_reading_plans')
+          .select('*, bible_reading_plan_days(*)')
+          .order('created_at', { ascending: false })
+          .limit(20),
       ])
-      for (const result of [translations, books, verses, daily]) {
+      for (const result of [translations, books, verses, daily, stats, missing, plans]) {
         if (result.error) throw result.error
       }
       return jsonResponse({
@@ -249,6 +256,9 @@ Deno.serve(async (req) => {
         booksCount: books.count ?? 0,
         versesCount: verses.count ?? 0,
         recentDailyVerses: daily.data ?? [],
+        translationStats: stats.data ?? [],
+        missingChapters: missing.data ?? [],
+        readingPlans: plans.data ?? [],
       })
     }
 

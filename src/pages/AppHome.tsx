@@ -20,7 +20,7 @@ import {
   type PostWithAuthor,
 } from '../features/community/communityService'
 import {
-  getRandomBibleVerse,
+  getDailyBibleVerse,
   verseOfTheMoment,
   type BibleVerseResult,
 } from '../features/bible/bibleService'
@@ -199,7 +199,7 @@ export function AppHome() {
         getActiveGroups(userId),
         userId ? getProfile(userId) : Promise.resolve(null),
         getUpcomingEvents(userId),
-        getRandomBibleVerse({ translationCode: 'RVR1909' }),
+        getDailyBibleVerse({ translationCode: 'RVR1909' }),
       ])
       setDevotional(devotionalData)
       setProfile(profileData)

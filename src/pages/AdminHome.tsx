@@ -73,7 +73,11 @@ import type {
   AiUsageDaily,
   AiUsageLimit,
   BibleDailyVerse,
+  BibleMissingChapterReport,
+  BibleReadingPlan,
+  BibleReadingPlanDay,
   BibleTranslation,
+  BibleTranslationStats,
   PilotFeedback,
   PilotIncident,
 } from '../types/database'
@@ -247,7 +251,20 @@ export function AdminHome() {
     booksCount: number
     versesCount: number
     recentDailyVerses: BibleDailyVerse[]
-  }>({ translations: [], booksCount: 0, versesCount: 0, recentDailyVerses: [] })
+    translationStats: BibleTranslationStats[]
+    missingChapters: BibleMissingChapterReport[]
+    readingPlans: (BibleReadingPlan & {
+      bible_reading_plan_days?: BibleReadingPlanDay[]
+    })[]
+  }>({
+    translations: [],
+    booksCount: 0,
+    versesCount: 0,
+    recentDailyVerses: [],
+    translationStats: [],
+    missingChapters: [],
+    readingPlans: [],
+  })
   const [dailyVerseForm, setDailyVerseForm] = useState({
     translationCode: 'RVR1909',
     bookCode: 'JHN',
@@ -285,6 +302,9 @@ export function AdminHome() {
         booksCount: 0,
         versesCount: 0,
         recentDailyVerses: [],
+        translationStats: [],
+        missingChapters: [],
+        readingPlans: [],
       })),
       getPilotMetrics().catch(() => initialPilotMetrics),
       getAdminPilotFeedback().catch(() => []),
@@ -303,6 +323,9 @@ export function AdminHome() {
       booksCount: bibleStatusData?.booksCount ?? 0,
       versesCount: bibleStatusData?.versesCount ?? 0,
       recentDailyVerses: bibleStatusData?.recentDailyVerses ?? [],
+      translationStats: bibleStatusData?.translationStats ?? [],
+      missingChapters: bibleStatusData?.missingChapters ?? [],
+      readingPlans: bibleStatusData?.readingPlans ?? [],
     })
     setPilotMetrics(pilotMetricsData)
     setPilotFeedback(pilotFeedbackData)
@@ -1169,12 +1192,15 @@ export function AdminHome() {
                 <div className="mt-3 space-y-2">
                   {bibleAdmin.translations.map((translation) => (
                     <div key={translation.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-sm">
-                      <p className="font-bold">{translation.code} · {translation.name}</p>
+                      <p className="font-bold">{translation.code} - {translation.name}</p>
                       <p className="mt-1 text-xs text-white/50">
-                        {translation.is_public_domain ? 'Dominio publico' : 'Licencia requerida'} · {translation.license ?? 'sin nota de licencia'}
+                        {translation.is_public_domain ? 'Dominio publico' : 'Licencia requerida'} - {translation.license ?? 'sin nota de licencia'}
                       </p>
                     </div>
                   ))}
+                  {bibleAdmin.translations.length ? null : (
+                    <p className="text-sm text-white/55">No hay traducciones registradas.</p>
+                  )}
                 </div>
               </div>
               <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
@@ -1198,9 +1224,56 @@ export function AdminHome() {
                 <div className="mt-3 space-y-2">
                   {bibleAdmin.recentDailyVerses.slice(0, 3).map((daily) => (
                     <p key={daily.id} className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white/55">
-                      {daily.active_date} · {daily.book_code} {daily.chapter}:{daily.verse}
+                      {daily.active_date} - {daily.book_code} {daily.chapter}:{daily.verse}
                     </p>
                   ))}
+                  {bibleAdmin.recentDailyVerses.length ? null : (
+                    <p className="text-sm text-white/55">No hay versiculos diarios programados.</p>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-3 lg:grid-cols-3">
+              <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <h3 className="font-black">Completitud por traduccion</h3>
+                <div className="mt-3 space-y-2">
+                  {bibleAdmin.translationStats.slice(0, 4).map((item) => (
+                    <div key={item.code ?? item.name} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs text-white/60">
+                      <p className="font-bold text-white">{item.code} - {item.name}</p>
+                      <p className="mt-1">
+                        {item.verses_count ?? 0} versiculos - {item.books_with_verses ?? 0} libros - {item.estimated_completion_percent ?? 0}% estimado
+                      </p>
+                    </div>
+                  ))}
+                  {bibleAdmin.translationStats.length ? null : (
+                    <p className="text-sm text-white/55">Sin estadisticas todavia.</p>
+                  )}
+                </div>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <h3 className="font-black">Planes de lectura</h3>
+                <div className="mt-3 space-y-2">
+                  {bibleAdmin.readingPlans.slice(0, 5).map((plan) => (
+                    <p key={plan.id} className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white/60">
+                      <span className="font-bold text-white">{plan.title}</span> - {plan.duration_days} dias - {plan.is_active ? 'activo' : 'inactivo'}
+                    </p>
+                  ))}
+                  {bibleAdmin.readingPlans.length ? null : (
+                    <p className="text-sm text-white/55">No hay planes de lectura activos.</p>
+                  )}
+                </div>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <h3 className="font-black">Diagnostico</h3>
+                <div className="mt-3 space-y-2">
+                  {bibleAdmin.missingChapters.slice(0, 5).map((item) => (
+                    <p key={`${item.translation_code}-${item.book_code}-${item.chapter}`} className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white/60">
+                      {item.translation_code} - {item.book_name} {item.chapter}
+                    </p>
+                  ))}
+                  {bibleAdmin.missingChapters.length ? null : (
+                    <p className="text-sm text-white/55">No se detectaron capitulos vacios en el muestreo.</p>
+                  )}
                 </div>
               </div>
             </div>
