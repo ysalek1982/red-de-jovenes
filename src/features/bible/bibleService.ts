@@ -1,14 +1,97 @@
 import { supabase } from '../../lib/supabase'
 import type {
   BibleHighlight,
+  BibleBook,
   BibleReadingProgress,
   BibleSavedVerse,
+  BibleTranslation,
+  BibleVerse,
 } from '../../types/database'
 
 export const verseOfTheMoment = {
   reference: 'Filipenses 4:13',
   text: 'Todo lo puedo en Cristo que me fortalece.',
   note: 'Una verdad breve para recordar que la fuerza viene de Cristo.',
+}
+
+export interface BibleVerseResult {
+  translation_code: string
+  book_code: string
+  book_name: string
+  chapter: number
+  verse: number
+  reference: string
+  verse_text: string
+}
+
+export async function getActiveBibleTranslations() {
+  const { data, error } = await supabase
+    .from('bible_translations')
+    .select('*')
+    .eq('is_active', true)
+    .order('name', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []) as BibleTranslation[]
+}
+
+export async function getBibleBooks() {
+  const { data, error } = await supabase
+    .from('bible_books')
+    .select('*')
+    .order('book_order', { ascending: true })
+
+  if (error) throw error
+  return (data ?? []) as BibleBook[]
+}
+
+export async function getRandomBibleVerse(input?: {
+  translationCode?: string
+  testament?: 'old' | 'new' | null
+  bookCode?: string | null
+}) {
+  const { data, error } = await supabase.rpc('get_random_bible_verse', {
+    p_translation_code: input?.translationCode || 'RVR1909',
+    p_testament: input?.testament ?? undefined,
+    p_book_code: input?.bookCode ?? undefined,
+  })
+
+  if (error) throw error
+  return ((data ?? []) as BibleVerseResult[])[0] ?? null
+}
+
+export async function getBibleChapter(input: {
+  translationCode: string
+  bookCode: string
+  chapter: number
+}) {
+  const { data, error } = await supabase.rpc('get_bible_chapter', {
+    p_translation_code: input.translationCode,
+    p_book_code: input.bookCode,
+    p_chapter: input.chapter,
+  })
+
+  if (error) throw error
+  return (data ?? []) as BibleVerseResult[]
+}
+
+export async function getBibleVerse(input: {
+  translationCode: string
+  bookCode: string
+  chapter: number
+  verse: number
+}) {
+  const { data, error } = await supabase
+    .from('bible_verses')
+    .select('*')
+    .eq('translation_code', input.translationCode)
+    .eq('book_code', input.bookCode)
+    .eq('chapter', input.chapter)
+    .eq('verse', input.verse)
+    .maybeSingle()
+
+  if (error) throw error
+  return data as BibleVerse | null
 }
 
 export const bibleReadingPlans = [

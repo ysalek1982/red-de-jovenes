@@ -20,6 +20,8 @@
     "qa:map": "node scripts/qa-map-module.mjs",
     "qa:community": "node scripts/qa-community-network.mjs",
     "qa:bible": "node scripts/qa-bible-module.mjs",
+    "qa:bible-db": "node scripts/qa-bible-database.mjs",
+    "qa:bible-random": "node scripts/qa-bible-random-verse.mjs",
     "qa:events": "node scripts/qa-events-module.mjs",
     "qa:discipleship": "node scripts/qa-discipleship-module.mjs",
     "qa:messages": "node scripts/qa-messages-module.mjs",

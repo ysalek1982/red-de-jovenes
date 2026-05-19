@@ -19,7 +19,11 @@ import {
   getRecentPosts,
   type PostWithAuthor,
 } from '../features/community/communityService'
-import { verseOfTheMoment } from '../features/bible/bibleService'
+import {
+  getRandomBibleVerse,
+  verseOfTheMoment,
+  type BibleVerseResult,
+} from '../features/bible/bibleService'
 import { getTodayDevotional } from '../features/devotionals/devotionalService'
 import { getUpcomingEvents, type EventWithRsvps } from '../features/events/eventService'
 import { getActiveGroups, type GroupWithMembership } from '../features/map/worldMapService'
@@ -159,6 +163,7 @@ export function AppHome() {
   const [posts, setPosts] = useState<PostWithAuthor[]>([])
   const [communities, setCommunities] = useState<GroupWithMembership[]>([])
   const [events, setEvents] = useState<EventWithRsvps[]>([])
+  const [momentVerse, setMomentVerse] = useState<BibleVerseResult | null>(null)
   const [progress, setProgress] = useState<FaithProgressSummary | null>(null)
   const [quickPost, setQuickPost] = useState('')
   const [quickStatus, setQuickStatus] = useState('')
@@ -185,6 +190,7 @@ export function AppHome() {
         groupData,
         profileData,
         eventData,
+        momentVerseData,
       ] = await Promise.all([
         getTodayDevotional(),
         getPublicPrayerRequests(),
@@ -193,6 +199,7 @@ export function AppHome() {
         getActiveGroups(userId),
         userId ? getProfile(userId) : Promise.resolve(null),
         getUpcomingEvents(userId),
+        getRandomBibleVerse({ translationCode: 'RVR1909' }),
       ])
       setDevotional(devotionalData)
       setProfile(profileData)
@@ -201,6 +208,7 @@ export function AppHome() {
       setCommunities(groupData)
       setProgress(progressData)
       setEvents(eventData.slice(0, 3))
+      setMomentVerse(momentVerseData)
     } catch {
       setError('No pudimos cargar tu Red. Revisa la conexión o intenta más tarde.')
     } finally {
@@ -268,6 +276,11 @@ export function AppHome() {
     await loadData()
   }
 
+  const displayedMomentVerse = momentVerse ?? {
+    reference: verseOfTheMoment.reference,
+    verse_text: verseOfTheMoment.text,
+  }
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       void loadData()
@@ -326,10 +339,10 @@ export function AppHome() {
                   Versiculo del momento
                 </p>
                 <p className="mt-4 text-2xl leading-10 text-white">
-                  "{verseOfTheMoment.text}"
+                  "{displayedMomentVerse.verse_text}"
                 </p>
                 <p className="mt-3 font-bold text-amber-200">
-                  {verseOfTheMoment.reference}
+                  {displayedMomentVerse.reference}
                 </p>
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Link
