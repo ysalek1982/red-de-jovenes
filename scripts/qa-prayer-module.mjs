@@ -63,6 +63,10 @@ function okNoRows(response) {
   return !response.error && (!response.data || response.data.length === 0)
 }
 
+function denied(response) {
+  return Boolean(response.error) || !response.data || response.data.length === 0
+}
+
 loadLocalEnv()
 
 const missing = REQUIRED_KEYS.filter((key) => !process.env[key])
@@ -84,6 +88,35 @@ const userB = await signIn(
 const suffix = Date.now()
 const warnings = []
 
+const activeGroup = await userA.supabase
+  .from('groups')
+  .select('id,name')
+  .eq('is_active', true)
+  .limit(1)
+  .maybeSingle()
+
+if (activeGroup.error || !activeGroup.data) {
+  fail('FAILED_PRAYER_GROUP_READ', { error: activeGroup.error?.message })
+}
+
+const membership = await userA.supabase
+  .from('group_members')
+  .upsert(
+    {
+      group_id: activeGroup.data.id,
+      user_id: userA.user.id,
+      role: 'member',
+      status: 'active',
+    },
+    { onConflict: 'group_id,user_id' },
+  )
+  .select('id')
+  .single()
+
+if (membership.error || !membership.data) {
+  fail('FAILED_PRAYER_GROUP_MEMBERSHIP', { error: membership.error?.message })
+}
+
 const prayer = await userA.supabase
   .from('prayer_requests')
   .insert({
@@ -93,8 +126,9 @@ const prayer = await userA.supabase
     visibility: 'public',
     category: 'fe',
     is_anonymous: true,
+    group_id: activeGroup.data.id,
   })
-  .select('id,is_answered,user_id,category,is_anonymous')
+  .select('id,is_answered,user_id,category,is_anonymous,group_id')
   .single()
 
 if (prayer.error || !prayer.data) {
@@ -129,6 +163,19 @@ const crossUserUpdate = await userB.supabase
 
 const crossUserDenied = okNoRows(crossUserUpdate)
 
+const crossUserGroupPrayer = await userB.supabase
+  .from('prayer_requests')
+  .insert({
+    user_id: userB.user.id,
+    title: `Intento QA comunidad ajena ${suffix}`,
+    body: 'No debe permitirse en comunidad ajena.',
+    visibility: 'public',
+    category: 'fe',
+    is_anonymous: false,
+    group_id: activeGroup.data.id,
+  })
+  .select('id')
+
 const markAnswered = await userA.supabase
   .from('prayer_requests')
   .update({
@@ -145,17 +192,26 @@ if (markAnswered.error || markAnswered.data?.is_answered !== true) {
   fail('FAILED_PRAYER_MARK_ANSWERED', { error: markAnswered.error?.message })
 }
 
-if (prayer.data.category !== 'fe' || prayer.data.is_anonymous !== true) {
+if (
+  prayer.data.category !== 'fe' ||
+  prayer.data.is_anonymous !== true ||
+  prayer.data.group_id !== activeGroup.data.id
+) {
   fail('FAILED_PRAYER_CATEGORY_ANONYMITY')
 }
 
 const readBack = await userA.supabase
   .from('prayer_requests')
-  .select('id,prayer_supports(id,user_id)')
+  .select('id,group_id,groups:group_id(id,name),prayer_supports(id,user_id)')
   .eq('id', prayer.data.id)
   .single()
 
-if (readBack.error || readBack.data?.prayer_supports?.length !== 1) {
+if (
+  readBack.error ||
+  readBack.data?.group_id !== activeGroup.data.id ||
+  !readBack.data?.groups ||
+  readBack.data?.prayer_supports?.length !== 1
+) {
   fail('FAILED_PRAYER_SUPPORT_COUNT', { error: readBack.error?.message })
 }
 
@@ -167,12 +223,23 @@ const deleted = await userA.supabase
 
 if (deleted.error) warnings.push('No se pudo limpiar la peticion QA.')
 
-if (!duplicateDenied || !crossUserDenied) {
+const cleanupMembership = await userA.supabase
+  .from('group_members')
+  .delete()
+  .eq('id', membership.data.id)
+
+if (cleanupMembership.error) warnings.push('No se pudo limpiar membresia QA.')
+
+const crossUserGroupPrayerDenied = denied(crossUserGroupPrayer)
+
+if (!duplicateDenied || !crossUserDenied || !crossUserGroupPrayerDenied) {
   fail('FAILED_PRAYER_RLS_EXPECTATION', {
     duplicateDenied,
     crossUserDenied,
+    crossUserGroupPrayerDenied,
     duplicateError: duplicateSupport.error?.code,
     crossUserError: crossUserUpdate.error?.message,
+    crossUserGroupPrayerError: crossUserGroupPrayer.error?.message,
   })
 }
 
@@ -187,6 +254,8 @@ console.log(
       ownMarkAnswered: 'OK',
       category: 'OK',
       anonymity: 'OK',
+      groupContext: 'OK',
+      crossUserGroupPrayer: 'DENIED',
       supportCount: 1,
       cleanupWarnings: warnings,
     },

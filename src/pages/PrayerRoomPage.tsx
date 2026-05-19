@@ -7,6 +7,7 @@ import {
   Loader2,
   Send,
   Trash2,
+  Users,
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
@@ -21,6 +22,7 @@ import {
   supportPrayer,
   type PrayerRequestWithAuthor,
 } from '../features/prayer/prayerService'
+import { getActiveGroups, type GroupWithMembership } from '../features/map/worldMapService'
 import { createContentReport } from '../features/safety/safetyService'
 
 const prayerCategories = [
@@ -54,6 +56,8 @@ export function PrayerRoomPage() {
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
   const [category, setCategory] = useState('otro')
+  const [groupId, setGroupId] = useState('')
+  const [groups, setGroups] = useState<GroupWithMembership[]>([])
   const [isAnonymous, setIsAnonymous] = useState(false)
   const [answeredTestimony, setAnsweredTestimony] = useState<Record<string, string>>({})
   const [isLoading, setIsLoading] = useState(true)
@@ -61,6 +65,7 @@ export function PrayerRoomPage() {
   const [busyPrayerId, setBusyPrayerId] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<
     'all' | 'active' | 'answered' | 'mine' | 'supporting'
+    | 'myCommunity'
   >('all')
   const [error, setError] = useState('')
   const [actionMessage, setActionMessage] = useState('')
@@ -69,8 +74,12 @@ export function PrayerRoomPage() {
     if (showLoading) setIsLoading(true)
     setError('')
     try {
-      const prayerData = await getPublicPrayerRequests(userId)
+      const [prayerData, groupData] = await Promise.all([
+        getPublicPrayerRequests(userId),
+        userId ? getActiveGroups(userId) : Promise.resolve([]),
+      ])
       setPrayers(prayerData)
+      setGroups(groupData.filter((group) => group.isMember))
     } catch {
       setError('No pudimos cargar la sala de oración.')
     } finally {
@@ -100,10 +109,12 @@ export function PrayerRoomPage() {
         body: body.trim(),
         category,
         isAnonymous,
+        groupId: groupId || null,
       })
       setTitle('')
       setBody('')
       setCategory('otro')
+      setGroupId('')
       setIsAnonymous(false)
       await loadPrayers(false)
       setActionMessage('Peticion publicada. La sala ya puede orar contigo.')
@@ -200,6 +211,11 @@ export function PrayerRoomPage() {
     if (statusFilter === 'answered') return prayer.is_answered
     if (statusFilter === 'mine') return prayer.user_id === userId
     if (statusFilter === 'supporting') return prayer.supportedByMe
+    if (statusFilter === 'myCommunity') {
+      return Boolean(
+        prayer.group_id && groups.some((group) => group.id === prayer.group_id),
+      )
+    }
     return true
   })
   const activePrayers = prayers.filter((prayer) => !prayer.is_answered).length
@@ -299,6 +315,29 @@ export function PrayerRoomPage() {
                   Mostrar anonima
                 </label>
               </div>
+              <div>
+                <label className="text-sm font-semibold" htmlFor="prayerGroup">
+                  Comunidad, opcional
+                </label>
+                <select
+                  id="prayerGroup"
+                  value={groupId}
+                  onChange={(event) => setGroupId(event.target.value)}
+                  className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+                >
+                  <option value="">Sala general de la Red</option>
+                  {groups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+                {!groups.length ? (
+                  <p className="mt-2 text-xs leading-5 text-white/45">
+                    Únete a una comunidad en el mapa para relacionar peticiones.
+                  </p>
+                ) : null}
+              </div>
               <Button
                 type="submit"
                 variant="accent"
@@ -332,6 +371,7 @@ export function PrayerRoomPage() {
                 ['answered', 'Respondidas'],
                 ['mine', 'Mias'],
                 ['supporting', 'Estoy orando'],
+                ['myCommunity', 'Mi comunidad'],
               ].map(([value, label]) => (
                 <button
                   key={value}
@@ -343,7 +383,8 @@ export function PrayerRoomPage() {
                         | 'active'
                         | 'answered'
                         | 'mine'
-                        | 'supporting',
+                        | 'supporting'
+                        | 'myCommunity',
                     )
                   }
                   className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
@@ -412,6 +453,12 @@ export function PrayerRoomPage() {
                             {prayerCategories.find(([value]) => value === prayer.category)?.[1] ??
                               'Otro'}
                           </span>
+                          {prayer.groups ? (
+                            <span className="w-fit rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-semibold text-emerald-100">
+                              <Users className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
+                              {prayer.groups.name}
+                            </span>
+                          ) : null}
                         </div>
                       </div>
                       <p className="mt-4 leading-7 text-white/65">{prayer.body}</p>

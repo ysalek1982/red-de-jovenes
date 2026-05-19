@@ -792,6 +792,7 @@ export type Database = {
           body: string
           category: string
           created_at: string | null
+          group_id: string | null
           id: string
           is_anonymous: boolean
           is_answered: boolean | null
@@ -806,6 +807,7 @@ export type Database = {
           body: string
           category?: string
           created_at?: string | null
+          group_id?: string | null
           id?: string
           is_anonymous?: boolean
           is_answered?: boolean | null
@@ -820,6 +822,7 @@ export type Database = {
           body?: string
           category?: string
           created_at?: string | null
+          group_id?: string | null
           id?: string
           is_anonymous?: boolean
           is_answered?: boolean | null
@@ -829,6 +832,13 @@ export type Database = {
           visibility?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "prayer_requests_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "prayer_requests_user_id_fkey"
             columns: ["user_id"]

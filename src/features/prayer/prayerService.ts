@@ -7,6 +7,7 @@ export interface CreatePrayerRequestInput {
   body: string
   category: string
   isAnonymous: boolean
+  groupId?: string | null
 }
 
 export interface PrayerAuthor {
@@ -16,8 +17,16 @@ export interface PrayerAuthor {
   country: string | null
 }
 
+export interface PrayerGroup {
+  id: string
+  name: string
+  city: string | null
+  country: string | null
+}
+
 export type PrayerRequestWithAuthor = PrayerRequest & {
   profiles: PrayerAuthor | null
+  groups: PrayerGroup | null
   prayer_supports?: Array<{ id: string; user_id: string }>
   supportsCount: number
   supportedByMe: boolean
@@ -26,6 +35,7 @@ export type PrayerRequestWithAuthor = PrayerRequest & {
 function mapPrayerRequest(
   prayer: PrayerRequest & {
     profiles: PrayerAuthor | null
+    groups: PrayerGroup | null
     prayer_supports?: Array<{ id: string; user_id: string }>
   },
   userId?: string,
@@ -42,7 +52,7 @@ export async function getPublicPrayerRequests(userId?: string) {
   const { data, error } = await supabase
     .from('prayer_requests')
     .select(
-      '*, profiles:user_id(full_name, username, city, country), prayer_supports(id, user_id)',
+      '*, profiles:user_id(full_name, username, city, country), groups:group_id(id, name, city, country), prayer_supports(id, user_id)',
     )
     .eq('visibility', 'public')
     .order('created_at', { ascending: false })
@@ -52,6 +62,7 @@ export async function getPublicPrayerRequests(userId?: string) {
   return ((data ?? []) as Array<
     PrayerRequest & {
       profiles: PrayerAuthor | null
+      groups: PrayerGroup | null
       prayer_supports?: Array<{ id: string; user_id: string }>
     }
   >).map((prayer) => mapPrayerRequest(prayer, userId))
@@ -67,6 +78,7 @@ export async function createPrayerRequest(input: CreatePrayerRequestInput) {
       visibility: 'public',
       category: input.category,
       is_anonymous: input.isAnonymous,
+      group_id: input.groupId || null,
     })
     .select()
     .single()
