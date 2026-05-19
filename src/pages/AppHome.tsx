@@ -17,6 +17,10 @@ import {
   getPublicPrayerRequests,
   type PrayerRequestWithAuthor,
 } from '../features/prayer/prayerService'
+import {
+  getMyFaithProgress,
+  type FaithProgressSummary,
+} from '../features/progress/progressService'
 import { useAuth } from '../features/auth/useAuth'
 import type { Devotional } from '../types/database'
 
@@ -77,12 +81,35 @@ const onboardingSteps = [
   },
 ]
 
+function ProgressStat({
+  label,
+  value,
+  to,
+}: {
+  label: string
+  value: number
+  to: string
+}) {
+  return (
+    <Link
+      to={to}
+      className="rounded-3xl border border-white/10 bg-slate-950/45 p-4 transition hover:bg-white/10"
+    >
+      <span className="text-3xl font-black text-white">{value}</span>
+      <span className="mt-2 block text-sm font-semibold leading-5 text-white/62">
+        {label}
+      </span>
+    </Link>
+  )
+}
+
 export function AppHome() {
   const { user } = useAuth()
   const userId = user?.id
   const [devotional, setDevotional] = useState<Devotional | null>(null)
   const [prayers, setPrayers] = useState<PrayerRequestWithAuthor[]>([])
   const [posts, setPosts] = useState<PostWithAuthor[]>([])
+  const [progress, setProgress] = useState<FaithProgressSummary | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -98,14 +125,16 @@ export function AppHome() {
     setIsLoading(true)
     setError('')
     try {
-      const [devotionalData, prayerData, postData] = await Promise.all([
+      const [devotionalData, prayerData, postData, progressData] = await Promise.all([
         getTodayDevotional(),
         getPublicPrayerRequests(),
         getRecentPosts(userId),
+        userId ? getMyFaithProgress(userId) : Promise.resolve(null),
       ])
       setDevotional(devotionalData)
       setPrayers(prayerData.slice(0, 4))
       setPosts(postData.slice(0, 4))
+      setProgress(progressData)
     } catch {
       setError('No pudimos cargar tu Red. Revisa la conexión o intenta más tarde.')
     } finally {
@@ -220,6 +249,49 @@ export function AppHome() {
                 ))}
               </div>
             </article>
+
+            {progress ? (
+              <article className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-emerald-100">
+                      Tu progreso de fe
+                    </p>
+                    <h2 className="mt-2 text-2xl font-black">
+                      Pasos reales dentro de la Red.
+                    </h2>
+                  </div>
+                  <Sparkles className="h-8 w-8 text-emerald-200" aria-hidden="true" />
+                </div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <ProgressStat
+                    label="Devocionales leidos"
+                    value={progress.devotionalReads}
+                    to="/app/devocional"
+                  />
+                  <ProgressStat
+                    label="Juegos completados"
+                    value={progress.gamesPlayed}
+                    to="/app/juegos"
+                  />
+                  <ProgressStat
+                    label="Puntos de juegos"
+                    value={progress.totalGamePoints}
+                    to="/app/juegos"
+                  />
+                  <ProgressStat
+                    label="Oraciones apoyadas"
+                    value={progress.prayerSupports}
+                    to="/app/oracion"
+                  />
+                </div>
+                <p className="mt-4 text-sm leading-6 text-white/65">
+                  {progress.lastGame
+                    ? `Ultimo juego: ${progress.lastGame.title} (${progress.lastGame.score}/${progress.lastGame.total}).`
+                    : 'Completa tu primer juego para iniciar tu historial.'}
+                </p>
+              </article>
+            ) : null}
 
             <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
               <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
