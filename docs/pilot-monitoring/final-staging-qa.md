@@ -6,7 +6,7 @@
 
 ## Deploy
 
-- Deployment Vercel final: `https://red-de-jovenes-j3l8bn2im-ysaleks-projects.vercel.app`
+- Deployment Vercel final: `https://red-de-jovenes-f96uymstz-ysaleks-projects.vercel.app`
 - Alias principal: `https://red-de-jovenes.vercel.app`
 
 ## Resultado general
