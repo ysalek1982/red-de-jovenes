@@ -28,6 +28,12 @@ export type BibleReadingProgress =
   Database['public']['Tables']['bible_reading_progress']['Row']
 export type BibleHighlight =
   Database['public']['Tables']['bible_highlights']['Row']
+export type BibleTranslation =
+  Database['public']['Tables']['bible_translations']['Row']
+export type BibleBook = Database['public']['Tables']['bible_books']['Row']
+export type BibleVerse = Database['public']['Tables']['bible_verses']['Row']
+export type BibleDailyVerse =
+  Database['public']['Tables']['bible_daily_verses']['Row']
 export type Event = Database['public']['Tables']['events']['Row']
 export type EventRsvp = Database['public']['Tables']['event_rsvps']['Row']
 export type DiscipleshipTrack =
@@ -46,6 +52,11 @@ export type UserFollow = Database['public']['Tables']['user_follows']['Row']
 export type FeedbackSuggestion =
   Database['public']['Tables']['feedback_suggestions']['Row']
 export type Notification = Database['public']['Tables']['notifications']['Row']
+export type AiProviderSetting =
+  Database['public']['Tables']['ai_provider_settings']['Row']
+export type AiActionLog = Database['public']['Tables']['ai_action_logs']['Row']
+export type AiActionQueue =
+  Database['public']['Tables']['ai_action_queue']['Row']
 export type ContentReport =
   Database['public']['Tables']['content_reports']['Row']
 export type NotificationPreference =

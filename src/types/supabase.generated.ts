@@ -14,6 +14,181 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_action_logs: {
+        Row: {
+          action_type: string
+          created_at: string
+          error_message: string | null
+          id: string
+          input_ref_id: string | null
+          input_ref_type: string | null
+          model: string | null
+          output_summary: string | null
+          prompt_summary: string | null
+          provider: string
+          status: string
+          tokens_estimated: number | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_ref_id?: string | null
+          input_ref_type?: string | null
+          model?: string | null
+          output_summary?: string | null
+          prompt_summary?: string | null
+          provider?: string
+          status?: string
+          tokens_estimated?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_ref_id?: string | null
+          input_ref_type?: string | null
+          model?: string | null
+          output_summary?: string | null
+          prompt_summary?: string | null
+          provider?: string
+          status?: string
+          tokens_estimated?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_action_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_action_queue: {
+        Row: {
+          action_type: string
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          error_message: string | null
+          executed_at: string | null
+          id: string
+          prompt: string
+          proposed_result: Json | null
+          requested_by: string | null
+          requires_approval: boolean
+          status: string
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action_type: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          error_message?: string | null
+          executed_at?: string | null
+          id?: string
+          prompt: string
+          proposed_result?: Json | null
+          requested_by?: string | null
+          requires_approval?: boolean
+          status?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action_type?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          error_message?: string | null
+          executed_at?: string | null
+          id?: string
+          prompt?: string
+          proposed_result?: Json | null
+          requested_by?: string | null
+          requires_approval?: boolean
+          status?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_action_queue_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_action_queue_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_provider_settings: {
+        Row: {
+          configured_at: string | null
+          configured_by: string | null
+          created_at: string
+          encrypted_api_key: string | null
+          id: string
+          is_enabled: boolean
+          key_last4: string | null
+          last_test_status: string | null
+          last_tested_at: string | null
+          model: string
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          configured_at?: string | null
+          configured_by?: string | null
+          created_at?: string
+          encrypted_api_key?: string | null
+          id?: string
+          is_enabled?: boolean
+          key_last4?: string | null
+          last_test_status?: string | null
+          last_tested_at?: string | null
+          model?: string
+          provider?: string
+          updated_at?: string
+        }
+        Update: {
+          configured_at?: string | null
+          configured_by?: string | null
+          created_at?: string
+          encrypted_api_key?: string | null
+          id?: string
+          is_enabled?: boolean
+          key_last4?: string | null
+          last_test_status?: string | null
+          last_tested_at?: string | null
+          model?: string
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_provider_settings_configured_by_fkey"
+            columns: ["configured_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       AiSetting: {
         Row: {
           apiKey: string
@@ -46,6 +221,84 @@ export type Database = {
           updatedAt?: string
         }
         Relationships: []
+      }
+      bible_books: {
+        Row: {
+          book_order: number
+          chapters_count: number
+          code: string
+          created_at: string
+          id: string
+          name: string
+          testament: string
+        }
+        Insert: {
+          book_order: number
+          chapters_count?: number
+          code: string
+          created_at?: string
+          id?: string
+          name: string
+          testament: string
+        }
+        Update: {
+          book_order?: number
+          chapters_count?: number
+          code?: string
+          created_at?: string
+          id?: string
+          name?: string
+          testament?: string
+        }
+        Relationships: []
+      }
+      bible_daily_verses: {
+        Row: {
+          active_date: string | null
+          book_code: string | null
+          chapter: number
+          created_at: string
+          devotional_hint: string | null
+          id: string
+          translation_code: string | null
+          verse: number
+        }
+        Insert: {
+          active_date?: string | null
+          book_code?: string | null
+          chapter: number
+          created_at?: string
+          devotional_hint?: string | null
+          id?: string
+          translation_code?: string | null
+          verse: number
+        }
+        Update: {
+          active_date?: string | null
+          book_code?: string | null
+          chapter?: number
+          created_at?: string
+          devotional_hint?: string | null
+          id?: string
+          translation_code?: string | null
+          verse?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bible_daily_verses_book_code_fkey"
+            columns: ["book_code"]
+            isOneToOne: false
+            referencedRelation: "bible_books"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "bible_daily_verses_translation_code_fkey"
+            columns: ["translation_code"]
+            isOneToOne: false
+            referencedRelation: "bible_translations"
+            referencedColumns: ["code"]
+          },
+        ]
       }
       bible_highlights: {
         Row: {
@@ -149,6 +402,93 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      bible_translations: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          is_public_domain: boolean
+          language: string
+          license: string | null
+          name: string
+          source_name: string | null
+          source_url: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_public_domain?: boolean
+          language?: string
+          license?: string | null
+          name: string
+          source_name?: string | null
+          source_url?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_public_domain?: boolean
+          language?: string
+          license?: string | null
+          name?: string
+          source_name?: string | null
+          source_url?: string | null
+        }
+        Relationships: []
+      }
+      bible_verses: {
+        Row: {
+          book_code: string
+          chapter: number
+          created_at: string
+          id: string
+          normalized_text: string | null
+          translation_code: string
+          verse: number
+          verse_text: string
+        }
+        Insert: {
+          book_code: string
+          chapter: number
+          created_at?: string
+          id?: string
+          normalized_text?: string | null
+          translation_code: string
+          verse: number
+          verse_text: string
+        }
+        Update: {
+          book_code?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          normalized_text?: string | null
+          translation_code?: string
+          verse?: number
+          verse_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bible_verses_book_code_fkey"
+            columns: ["book_code"]
+            isOneToOne: false
+            referencedRelation: "bible_books"
+            referencedColumns: ["code"]
+          },
+          {
+            foreignKeyName: "bible_verses_translation_code_fkey"
+            columns: ["translation_code"]
+            isOneToOne: false
+            referencedRelation: "bible_translations"
+            referencedColumns: ["code"]
           },
         ]
       }
@@ -1888,14 +2228,75 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_ai_provider_status: {
+        Row: {
+          configured_at: string | null
+          is_enabled: boolean | null
+          key_last4: string | null
+          last_test_status: string | null
+          last_tested_at: string | null
+          model: string | null
+          provider: string | null
+        }
+        Insert: {
+          configured_at?: string | null
+          is_enabled?: boolean | null
+          key_last4?: string | null
+          last_test_status?: string | null
+          last_tested_at?: string | null
+          model?: string | null
+          provider?: string | null
+        }
+        Update: {
+          configured_at?: string | null
+          is_enabled?: boolean | null
+          key_last4?: string | null
+          last_test_status?: string | null
+          last_tested_at?: string | null
+          model?: string | null
+          provider?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      get_bible_chapter: {
+        Args: {
+          p_book_code: string
+          p_chapter: number
+          p_translation_code: string
+        }
+        Returns: {
+          book_code: string
+          book_name: string
+          chapter: number
+          reference: string
+          translation_code: string
+          verse: number
+          verse_text: string
+        }[]
+      }
       get_group_member_counts: {
         Args: never
         Returns: {
           group_id: string
           members_count: number
+        }[]
+      }
+      get_random_bible_verse: {
+        Args: {
+          p_book_code?: string
+          p_testament?: string
+          p_translation_code?: string
+        }
+        Returns: {
+          book_code: string
+          book_name: string
+          chapter: number
+          reference: string
+          translation_code: string
+          verse: number
+          verse_text: string
         }[]
       }
       has_role: { Args: { required_role: string }; Returns: boolean }
