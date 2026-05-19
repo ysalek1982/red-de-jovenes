@@ -109,7 +109,7 @@ export function CommunityFeedPage() {
       setVerseText('')
       setGroupId('')
       await loadPosts(false)
-      setActionMessage('Post publicado en los foros.')
+      setActionMessage('Tu aporte quedó en la Red. Gracias por edificar.')
     } catch {
       setError('No pudimos publicar tu post.')
     } finally {
@@ -188,7 +188,11 @@ export function CommunityFeedPage() {
         hasReacted: post.reactedByMe,
       })
       await loadPosts(false)
-      setActionMessage(post.reactedByMe ? 'Amen retirado.' : 'Amen registrado.')
+      setActionMessage(
+        post.reactedByMe
+          ? 'Quitaste tu Amén de esta publicación.'
+          : 'Tu Amén quedó registrado.',
+      )
     } catch {
       setError('No pudimos actualizar tu amén.')
     } finally {
@@ -212,7 +216,7 @@ export function CommunityFeedPage() {
       })
       setCommentDrafts((current) => ({ ...current, [postId]: '' }))
       await loadPosts(false)
-      setActionMessage('Comentario publicado.')
+      setActionMessage('Comentario publicado con gracia.')
     } catch {
       setError('No pudimos publicar tu comentario.')
     } finally {

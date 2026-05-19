@@ -260,7 +260,7 @@ export function WorldMapPage() {
       setMySuggestions(suggestions)
       setGroups(data)
       setMyCommunities(data.filter((group) => group.isMember))
-      setFormMessage('Sugerencia enviada para revision.')
+      setFormMessage('Tu comunidad fue sugerida para revisión.')
     } catch {
       setFormMessage('No pudimos enviar la sugerencia. Intentalo nuevamente.')
     } finally {
@@ -277,10 +277,10 @@ export function WorldMapPage() {
     try {
       if (group.isMember) {
         await leaveGroup({ groupId: group.id, userId })
-        setActionMessage(`Saliste de ${group.name}.`)
+        setActionMessage(`Saliste de ${group.name}. Puedes volver cuando quieras.`)
       } else {
         await joinGroup({ groupId: group.id, userId })
-        setActionMessage(`Ya eres parte de ${group.name}.`)
+        setActionMessage(`Ya eres parte de ${group.name}. Bienvenido a conectar.`)
       }
       const data = await getActiveGroups(userId)
       setGroups(data)

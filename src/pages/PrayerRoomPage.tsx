@@ -117,7 +117,7 @@ export function PrayerRoomPage() {
       setGroupId('')
       setIsAnonymous(false)
       await loadPrayers(false)
-      setActionMessage('Peticion publicada. La sala ya puede orar contigo.')
+      setActionMessage('Petición publicada. La sala ya puede orar contigo.')
     } catch {
       setError('No pudimos publicar tu petición de oración.')
     } finally {
@@ -137,7 +137,7 @@ export function PrayerRoomPage() {
         answeredTestimony: answeredTestimony[prayerId]?.trim(),
       })
       await loadPrayers(false)
-      setActionMessage('Peticion marcada como respondida.')
+      setActionMessage('Celebramos contigo: petición marcada como respondida.')
     } catch {
       setError('Solo puedes marcar como respondidas tus propias peticiones.')
     } finally {
@@ -175,8 +175,8 @@ export function PrayerRoomPage() {
       await loadPrayers(false)
       setActionMessage(
         prayer.supportedByMe
-          ? 'Dejaste de marcar esta peticion como oracion activa.'
-          : 'Tu apoyo de oracion quedo registrado.',
+          ? 'Dejaste de marcar esta petición como oración activa.'
+          : 'Gracias por acompañar esta petición en oración.',
       )
     } catch {
       setError('No pudimos actualizar tu oración por esta petición.')
