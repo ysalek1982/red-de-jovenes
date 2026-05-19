@@ -24,6 +24,7 @@ import {
   type BibleVerseResult,
 } from '../features/bible/bibleService'
 import { createPost } from '../features/community/communityService'
+import { generateAiContent } from '../features/ai/aiService'
 import { useAuth } from '../features/auth/useAuth'
 import type {
   BibleBook,
@@ -49,6 +50,7 @@ export function BiblePage() {
   const [selectedPlan, setSelectedPlan] = useState(bibleReadingPlans[0].key)
   const [note, setNote] = useState('')
   const [status, setStatus] = useState('')
+  const [aiExplanation, setAiExplanation] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(true)
 
@@ -183,6 +185,18 @@ export function BiblePage() {
     setStatus('Versiculo copiado.')
   }
 
+  async function handleExplainVerse(verse = activeVerse) {
+    const result = await generateAiContent({
+      actionType: 'explain_bible_verse',
+      prompt: `Explica brevemente ${verse.reference} para jovenes: ${verse.verse_text}`,
+    })
+    setAiExplanation(
+      result.text ||
+        'Gemini no esta configurado todavia. La solicitud quedo registrada para revision.',
+    )
+    setStatus('Explicacion generada para revisar.')
+  }
+
   async function handleLoadChapter() {
     await loadChapter()
     setStatus('Capitulo cargado.')
@@ -221,7 +235,15 @@ export function BiblePage() {
               <button type="button" onClick={() => void handleCopy()} className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 px-5 text-sm font-bold text-white">
                 <Copy className="h-4 w-4" /> Copiar
               </button>
+              <button type="button" onClick={() => void handleExplainVerse()} className="inline-flex h-11 items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-5 text-sm font-bold text-emerald-100">
+                Explicar con IA
+              </button>
             </div>
+            {aiExplanation ? (
+              <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/45 p-4 text-sm leading-6 text-white/70">
+                {aiExplanation}
+              </div>
+            ) : null}
             {status ? <p className="mt-4 text-sm font-semibold text-emerald-200">{status}</p> : null}
             {error ? <p className="mt-4 text-sm font-semibold text-amber-100">{error}</p> : null}
           </article>
