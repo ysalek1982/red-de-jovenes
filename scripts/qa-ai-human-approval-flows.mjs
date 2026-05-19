@@ -34,9 +34,18 @@ async function main() {
 
   const admin = await signIn(process.env.ADMIN_EMAIL, process.env.ADMIN_PASSWORD)
   const userA = await signIn(process.env.QA_USER_A_EMAIL, process.env.QA_USER_A_PASSWORD)
+  const actionType = 'suggest_prayer_response'
+  const today = new Date().toISOString().slice(0, 10)
+  await admin.supabase
+    .from('ai_usage_daily')
+    .delete()
+    .eq('user_id', userA.user.id)
+    .eq('usage_date', today)
+    .eq('action_type', actionType)
+
   const generated = await userA.supabase.functions.invoke('ai-generate', {
     body: {
-      actionType: 'suggest_prayer_response',
+      actionType,
       prompt: 'QA aprobacion humana para una respuesta pastoral breve.',
     },
   })

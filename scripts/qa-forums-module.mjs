@@ -106,16 +106,27 @@ let membership = await userA.supabase
   .eq('user_id', userA.user.id)
   .maybeSingle()
 
+let createdMembership = false
 if (!membership.data && !membership.error) {
   membership = await userA.supabase
     .from('group_members')
-    .insert({
+    .upsert({
       group_id: activeGroup.data.id,
       user_id: userA.user.id,
       role: 'member',
       status: 'active',
-    })
+    }, { onConflict: 'group_id,user_id' })
     .select('id')
+    .single()
+  createdMembership = !membership.error
+}
+
+if (membership.error?.code === '23505') {
+  membership = await userA.supabase
+    .from('group_members')
+    .select('id')
+    .eq('group_id', activeGroup.data.id)
+    .eq('user_id', userA.user.id)
     .single()
 }
 
@@ -260,12 +271,14 @@ const deleted = await userA.supabase
 
 if (deleted.error) warnings.push('No se pudo limpiar post QA.')
 
-const cleanupMembership = await userA.supabase
-  .from('group_members')
-  .delete()
-  .eq('id', membership.data.id)
+if (createdMembership) {
+  const cleanupMembership = await userA.supabase
+    .from('group_members')
+    .delete()
+    .eq('id', membership.data.id)
 
-if (cleanupMembership.error) warnings.push('No se pudo limpiar membresia QA.')
+  if (cleanupMembership.error) warnings.push('No se pudo limpiar membresia QA.')
+}
 
 const crossUserPostDenied = okNoRows(crossUserPostUpdate)
 const crossUserCommentDenied = okNoRows(crossUserCommentDelete)
