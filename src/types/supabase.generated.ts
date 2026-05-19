@@ -371,6 +371,48 @@ export type Database = {
           },
         ]
       }
+      group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          role: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "group_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       group_suggestions: {
         Row: {
           church_name: string | null
@@ -382,6 +424,8 @@ export type Database = {
           id: string
           internal_note: string | null
           meeting_info: string | null
+          modality: string
+          moderator_note: string | null
           name: string
           reviewed_at: string | null
           reviewed_by: string | null
@@ -398,6 +442,8 @@ export type Database = {
           id?: string
           internal_note?: string | null
           meeting_info?: string | null
+          modality?: string
+          moderator_note?: string | null
           name: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -414,6 +460,8 @@ export type Database = {
           id?: string
           internal_note?: string | null
           meeting_info?: string | null
+          modality?: string
+          moderator_note?: string | null
           name?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -444,12 +492,14 @@ export type Database = {
           contact_url: string | null
           country: string | null
           created_at: string | null
+          created_from_suggestion_id: string | null
           description: string | null
           id: string
           is_active: boolean
           latitude: number | null
           longitude: number | null
           meeting_info: string | null
+          modality: string
           name: string
         }
         Insert: {
@@ -458,12 +508,14 @@ export type Database = {
           contact_url?: string | null
           country?: string | null
           created_at?: string | null
+          created_from_suggestion_id?: string | null
           description?: string | null
           id?: string
           is_active?: boolean
           latitude?: number | null
           longitude?: number | null
           meeting_info?: string | null
+          modality?: string
           name: string
         }
         Update: {
@@ -472,15 +524,25 @@ export type Database = {
           contact_url?: string | null
           country?: string | null
           created_at?: string | null
+          created_from_suggestion_id?: string | null
           description?: string | null
           id?: string
           is_active?: boolean
           latitude?: number | null
           longitude?: number | null
           meeting_info?: string | null
+          modality?: string
           name?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "groups_created_from_suggestion_id_fkey"
+            columns: ["created_from_suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "group_suggestions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       HomepageContent: {
         Row: {
@@ -1181,6 +1243,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_group_member_counts: {
+        Args: never
+        Returns: {
+          group_id: string
+          members_count: number
+        }[]
+      }
       has_role: { Args: { required_role: string }; Returns: boolean }
     }
     Enums: {
@@ -1338,3 +1407,4 @@ export const Constants = {
     },
   },
 } as const
+

@@ -21,6 +21,7 @@ export type Testimony = Database['public']['Tables']['testimonies']['Row']
 export type Group = Database['public']['Tables']['groups']['Row']
 export type GroupSuggestion =
   Database['public']['Tables']['group_suggestions']['Row']
+export type GroupMember = Database['public']['Tables']['group_members']['Row']
 export type ContentReport =
   Database['public']['Tables']['content_reports']['Row']
 export type NotificationPreference =

@@ -289,6 +289,8 @@ export async function updateGroupSuggestionStatus(
       description:
         suggestion.description ||
         'Comunidad aprobada desde sugerencias del piloto.',
+      modality: suggestion.modality,
+      created_from_suggestion_id: suggestion.id,
       is_active: true,
     }
 

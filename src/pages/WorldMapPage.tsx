@@ -1,23 +1,31 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
 import {
   ArrowRight,
+  CheckCircle2,
   Globe2,
   Loader2,
+  LogOut,
   MapPin,
   Plus,
   Search,
   ShieldCheck,
   Sparkles,
+  UserPlus,
+  Users,
 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { hasRole } from '../features/auth/roleService'
 import { useAuth } from '../features/auth/useAuth'
 import {
   getActiveGroups,
+  joinGroup,
   getMyGroupSuggestions,
   getPendingGroupSuggestionsCount,
+  leaveGroup,
   suggestGroup,
+  type GroupWithMembership,
 } from '../features/map/worldMapService'
-import type { Group, GroupSuggestion } from '../types/database'
+import type { GroupSuggestion } from '../types/database'
 
 const mapNodePositions = [
   'left-[18%] top-[30%]',
@@ -55,11 +63,21 @@ function normalize(value: string | null) {
   return value?.trim() || 'Sin dato'
 }
 
+const modalityLabels: Record<string, string> = {
+  presencial: 'Presencial',
+  online: 'Online',
+  hibrida: 'Hibrida',
+}
+
 export function WorldMapPage() {
   const { user } = useAuth()
   const userId = user?.id
-  const [groups, setGroups] = useState<Group[]>([])
+  const [groups, setGroups] = useState<GroupWithMembership[]>([])
+  const [selectedGroup, setSelectedGroup] = useState<GroupWithMembership | null>(
+    null,
+  )
   const [mySuggestions, setMySuggestions] = useState<GroupSuggestion[]>([])
+  const [myCommunities, setMyCommunities] = useState<GroupWithMembership[]>([])
   const [pendingSuggestionsCount, setPendingSuggestionsCount] = useState(0)
   const [isAdmin, setIsAdmin] = useState(false)
   const [countryFilter, setCountryFilter] = useState('todos')
@@ -67,8 +85,10 @@ export function WorldMapPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [busyGroupId, setBusyGroupId] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [formMessage, setFormMessage] = useState('')
+  const [actionMessage, setActionMessage] = useState('')
   const [suggestion, setSuggestion] = useState({
     name: '',
     country: '',
@@ -77,6 +97,8 @@ export function WorldMapPage() {
     contactUrl: '',
     meetingInfo: '',
     description: '',
+    modality: 'presencial',
+    moderatorNote: '',
   })
 
   const loadGroups = useCallback(async () => {
@@ -84,12 +106,16 @@ export function WorldMapPage() {
     setError('')
     try {
       const [data, suggestions, admin] = await Promise.all([
-        getActiveGroups(),
+        getActiveGroups(userId),
         userId ? getMyGroupSuggestions(userId) : Promise.resolve([]),
         hasRole('admin').catch(() => false),
       ])
 
       setGroups(data)
+      setMyCommunities(data.filter((group) => group.isMember))
+      setSelectedGroup((current) =>
+        current ? data.find((group) => group.id === current.id) ?? null : null,
+      )
       setMySuggestions(suggestions)
       setIsAdmin(admin)
       setPendingSuggestionsCount(
@@ -213,6 +239,8 @@ export function WorldMapPage() {
         contactUrl: suggestion.contactUrl.trim(),
         meetingInfo: suggestion.meetingInfo.trim(),
         description: suggestion.description.trim(),
+        modality: suggestion.modality,
+        moderatorNote: suggestion.moderatorNote.trim(),
       })
       setSuggestion({
         name: '',
@@ -222,8 +250,16 @@ export function WorldMapPage() {
         contactUrl: '',
         meetingInfo: '',
         description: '',
+        modality: 'presencial',
+        moderatorNote: '',
       })
-      setMySuggestions(await getMyGroupSuggestions(userId))
+      const [suggestions, data] = await Promise.all([
+        getMyGroupSuggestions(userId),
+        getActiveGroups(userId),
+      ])
+      setMySuggestions(suggestions)
+      setGroups(data)
+      setMyCommunities(data.filter((group) => group.isMember))
       setFormMessage('Sugerencia enviada para revision.')
     } catch {
       setFormMessage('No pudimos enviar la sugerencia. Intentalo nuevamente.')
@@ -232,10 +268,38 @@ export function WorldMapPage() {
     }
   }
 
+  async function handleMembership(group: GroupWithMembership) {
+    if (!userId) return
+
+    setBusyGroupId(group.id)
+    setError('')
+    setActionMessage('')
+    try {
+      if (group.isMember) {
+        await leaveGroup({ groupId: group.id, userId })
+        setActionMessage(`Saliste de ${group.name}.`)
+      } else {
+        await joinGroup({ groupId: group.id, userId })
+        setActionMessage(`Ya eres parte de ${group.name}.`)
+      }
+      const data = await getActiveGroups(userId)
+      setGroups(data)
+      setMyCommunities(data.filter((item) => item.isMember))
+      setSelectedGroup((current) =>
+        current ? data.find((item) => item.id === current.id) ?? null : null,
+      )
+    } catch {
+      setError('No pudimos actualizar tu comunidad. Intentalo nuevamente.')
+    } finally {
+      setBusyGroupId(null)
+    }
+  }
+
   const kpis = [
     [String(groups.length), 'comunidades activas'],
     [String(countries.length), 'paises'],
     [String(cities.length), 'ciudades'],
+    [String(myCommunities.length), 'mis comunidades'],
     [
       String(isAdmin ? pendingSuggestionsCount : mySuggestions.length),
       isAdmin ? 'sugerencias pendientes' : 'mis sugerencias',
@@ -261,7 +325,7 @@ export function WorldMapPage() {
               Explora iglesias y grupos juveniles activos en la Red. Este
               directorio usa datos reales revisados y sugerencias del piloto.
             </p>
-            <div className="mt-7 grid max-w-2xl grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="mt-7 grid max-w-3xl grid-cols-2 gap-3 md:grid-cols-5">
               {kpis.map(([value, label]) => (
                 <div
                   key={label}
@@ -381,6 +445,11 @@ export function WorldMapPage() {
                 {error}
               </div>
             ) : null}
+            {actionMessage ? (
+              <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm text-emerald-100">
+                {actionMessage}
+              </div>
+            ) : null}
 
             {isLoading ? (
               <div className="mt-8 flex items-center justify-center gap-3 text-white/60">
@@ -408,26 +477,68 @@ export function WorldMapPage() {
                           {group.church_name || 'Comunidad juvenil cristiana'}
                         </p>
                       </div>
-                      <ArrowRight
-                        className="mt-1 h-4 w-4 flex-none text-amber-200"
-                        aria-hidden="true"
-                      />
+                      {group.isMember ? (
+                        <span className="mt-1 flex flex-none items-center gap-1 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-100">
+                          <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                          Mi comunidad
+                        </span>
+                      ) : (
+                        <ArrowRight
+                          className="mt-1 h-4 w-4 flex-none text-amber-200"
+                          aria-hidden="true"
+                        />
+                      )}
                     </div>
                     <p className="mt-4 line-clamp-2 text-sm leading-6 text-white/55">
                       {group.meeting_info ||
                         group.description ||
                         'Grupo juvenil conectado a Red de Jovenes.'}
                     </p>
-                    {group.contact_url ? (
-                      <a
-                        href={group.contact_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-3 inline-flex text-xs font-bold text-emerald-200 hover:text-emerald-100"
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-bold text-white/60">
+                        <Users className="mr-1 inline h-3.5 w-3.5" aria-hidden="true" />
+                        {group.membersCount} miembros
+                      </span>
+                      <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-bold text-white/60">
+                        {modalityLabels[group.modality] ?? 'Presencial'}
+                      </span>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedGroup(group)}
+                        className="rounded-full border border-white/10 px-4 py-2 text-xs font-black text-white/65 transition hover:bg-white/10 hover:text-white"
                       >
-                        Ver contacto
-                      </a>
-                    ) : null}
+                        Ver comunidad
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleMembership(group)}
+                        disabled={busyGroupId === group.id}
+                        className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-black transition disabled:cursor-not-allowed disabled:opacity-60 ${
+                          group.isMember
+                            ? 'border border-white/10 text-white/65 hover:bg-white/10 hover:text-white'
+                            : 'bg-white text-slate-950 hover:bg-amber-100'
+                        }`}
+                      >
+                        {group.isMember ? (
+                          <LogOut className="h-3.5 w-3.5" aria-hidden="true" />
+                        ) : (
+                          <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
+                        )}
+                        {group.isMember ? 'Salir' : 'Unirme'}
+                      </button>
+                      {group.contact_url ? (
+                        <a
+                          href={group.contact_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-xs font-black text-emerald-100 transition hover:bg-emerald-300/15"
+                        >
+                          Contacto
+                        </a>
+                      ) : null}
+                    </div>
                   </article>
                 ))}
               </div>
@@ -451,9 +562,117 @@ export function WorldMapPage() {
                 </button>
               ))}
             </div>
+
+            {selectedGroup ? (
+              <article className="mt-6 rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/10 p-5">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-200">
+                      Comunidad seleccionada
+                    </p>
+                    <h3 className="mt-2 text-2xl font-black">
+                      {selectedGroup.name}
+                    </h3>
+                    <p className="mt-2 text-sm text-white/65">
+                      {normalize(selectedGroup.city)}, {normalize(selectedGroup.country)}
+                    </p>
+                  </div>
+                  <span className="w-fit rounded-full border border-white/10 bg-slate-950/45 px-4 py-2 text-sm font-bold text-white/70">
+                    {selectedGroup.membersCount} miembros
+                  </span>
+                </div>
+                <p className="mt-4 leading-7 text-white/70">
+                  {selectedGroup.description ||
+                    selectedGroup.meeting_info ||
+                    'Comunidad juvenil conectada a la Red.'}
+                </p>
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+                    <p className="text-xs font-bold uppercase tracking-wide text-white/40">
+                      Reunion
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-white/70">
+                      {selectedGroup.meeting_info || 'Informacion pendiente.'}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+                    <p className="text-xs font-bold uppercase tracking-wide text-white/40">
+                      Modalidad
+                    </p>
+                    <p className="mt-2 text-sm font-bold text-white/75">
+                      {modalityLabels[selectedGroup.modality] ?? 'Presencial'}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void handleMembership(selectedGroup)}
+                    disabled={busyGroupId === selectedGroup.id}
+                    className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-white px-4 text-sm font-black text-slate-950 transition hover:bg-amber-100 disabled:opacity-60"
+                  >
+                    {selectedGroup.isMember ? 'Salir de comunidad' : 'Unirme'}
+                  </button>
+                  <Link
+                    to="/app/foros"
+                    className="inline-flex h-10 items-center justify-center rounded-full border border-white/10 px-4 text-sm font-black text-white/70 transition hover:bg-white/10 hover:text-white"
+                  >
+                    Ir a foros
+                  </Link>
+                  <Link
+                    to="/app/oracion"
+                    className="inline-flex h-10 items-center justify-center rounded-full border border-white/10 px-4 text-sm font-black text-white/70 transition hover:bg-white/10 hover:text-white"
+                  >
+                    Pedir oracion
+                  </Link>
+                </div>
+              </article>
+            ) : null}
           </article>
 
           <aside className="space-y-6">
+            <div className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <div className="flex items-center gap-3">
+                <Users className="h-6 w-6 text-emerald-200" aria-hidden="true" />
+                <h2 className="text-2xl font-black">Mis comunidades</h2>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-white/65">
+                Tus grupos conectados aparecen aqui. Puedes unirte desde el
+                directorio y salir cuando lo necesites.
+              </p>
+              <div className="mt-5 space-y-3">
+                {myCommunities.length ? (
+                  myCommunities.slice(0, 4).map((group) => (
+                    <article
+                      key={group.id}
+                      className="rounded-3xl border border-white/10 bg-slate-950/45 p-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-bold">{group.name}</h3>
+                          <p className="mt-1 text-sm text-white/50">
+                            {normalize(group.city)}, {normalize(group.country)}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedGroup(group)}
+                          className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/60 transition hover:bg-white/10 hover:text-white"
+                        >
+                          Ver
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                ) : (
+                  <div className="rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-5 text-sm text-white/55">
+                    Aun no te uniste a una comunidad. Explora el mapa y elige
+                    una para comenzar a conectar.
+                  </div>
+                )}
+              </div>
+            </div>
+
             <form
               onSubmit={(event) => void handleSuggestionSubmit(event)}
               className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur"
@@ -512,6 +731,21 @@ export function WorldMapPage() {
                   placeholder="Iglesia o comunidad"
                   className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
                 />
+                <select
+                  value={suggestion.modality}
+                  onChange={(event) =>
+                    setSuggestion((current) => ({
+                      ...current,
+                      modality: event.target.value,
+                    }))
+                  }
+                  className="h-11 rounded-2xl border border-white/10 bg-slate-950/80 px-4 text-sm font-bold text-white outline-none focus:border-amber-200/60"
+                  aria-label="Modalidad de la comunidad"
+                >
+                  <option value="presencial">Presencial</option>
+                  <option value="online">Online</option>
+                  <option value="hibrida">Hibrida</option>
+                </select>
                 <input
                   value={suggestion.contactUrl}
                   onChange={(event) =>
@@ -543,6 +777,17 @@ export function WorldMapPage() {
                     }))
                   }
                   placeholder="Descripcion breve, opcional"
+                  className="min-h-20 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+                />
+                <textarea
+                  value={suggestion.moderatorNote}
+                  onChange={(event) =>
+                    setSuggestion((current) => ({
+                      ...current,
+                      moderatorNote: event.target.value,
+                    }))
+                  }
+                  placeholder="Nota para el moderador, opcional"
                   className="min-h-20 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
                 />
               </div>
@@ -578,11 +823,36 @@ export function WorldMapPage() {
                           <p className="mt-1 text-sm text-white/50">
                             {normalize(item.city)}, {normalize(item.country)}
                           </p>
+                          <p className="mt-1 text-xs text-white/40">
+                            {modalityLabels[item.modality] ?? 'Presencial'}
+                          </p>
                         </div>
                         <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-amber-100">
                           {suggestionStatusLabels[item.status]}
                         </span>
                       </div>
+                      {item.status === 'approved' ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const approvedGroup = groups.find(
+                              (group) =>
+                                group.name === item.name &&
+                                group.country === item.country &&
+                                (group.city ?? '') === (item.city ?? ''),
+                            )
+                            if (approvedGroup) setSelectedGroup(approvedGroup)
+                          }}
+                          className="mt-3 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-100"
+                        >
+                          Ver comunidad
+                        </button>
+                      ) : null}
+                      {item.status === 'rejected' && item.internal_note ? (
+                        <p className="mt-3 text-xs leading-5 text-white/50">
+                          Nota: {item.internal_note}
+                        </p>
+                      ) : null}
                     </article>
                   ))
                 ) : (

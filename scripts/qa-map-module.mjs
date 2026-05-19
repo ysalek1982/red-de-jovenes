@@ -170,6 +170,61 @@ async function main() {
         .maybeSingle()
     : { data: null, error: groupInsert.error ?? new Error('No se creo grupo.') }
 
+  const membership = activeGroupRead.data?.id
+    ? await userA.supabase
+        .from('group_members')
+        .upsert(
+          {
+            group_id: activeGroupRead.data.id,
+            user_id: userA.user.id,
+            role: 'member',
+            status: 'active',
+          },
+          { onConflict: 'group_id,user_id' },
+        )
+        .select('id, group_id, user_id, status')
+        .single()
+    : { data: null, error: activeGroupRead.error ?? new Error('No se encontro grupo.') }
+
+  const ownMembershipRead = membership.data?.id
+    ? await userA.supabase
+        .from('group_members')
+        .select('id, group_id, user_id, status')
+        .eq('id', membership.data.id)
+        .maybeSingle()
+    : { data: null, error: membership.error ?? new Error('No se creo membresia.') }
+
+  const crossUserMembershipInsert = activeGroupRead.data?.id
+    ? await userB.supabase
+        .from('group_members')
+        .insert({
+          group_id: activeGroupRead.data.id,
+          user_id: userA.user.id,
+          role: 'member',
+          status: 'active',
+        })
+        .select('id')
+    : { data: null, error: activeGroupRead.error ?? new Error('No se encontro grupo.') }
+
+  const crossUserMembershipDelete = membership.data?.id
+    ? await userB.supabase
+        .from('group_members')
+        .delete()
+        .eq('id', membership.data.id)
+        .select('id')
+    : { data: null, error: membership.error ?? new Error('No se creo membresia.') }
+
+  const memberCounts = await userA.supabase.rpc('get_group_member_counts')
+
+  const leaveMembership = activeGroupRead.data?.id
+    ? await userA.supabase
+        .from('group_members')
+        .delete()
+        .eq('group_id', activeGroupRead.data.id)
+        .eq('user_id', userA.user.id)
+        .select('id')
+    : { data: null, error: activeGroupRead.error ?? new Error('No se encontro grupo.') }
+
   const countryFilter = await userA.supabase
     .from('groups')
     .select('id')
@@ -213,6 +268,16 @@ async function main() {
     suggestionApproval:
       suggestionApproval.data?.status === 'approved' ? 'OK' : 'FAILED',
     activeGroupCreated: activeGroupRead.data ? 'OK' : 'FAILED',
+    membershipCreate: membership.data ? 'OK' : 'FAILED',
+    ownMembershipRead: ownMembershipRead.data ? 'OK' : 'FAILED',
+    crossUserMembershipInsert: denied(crossUserMembershipInsert)
+      ? 'DENIED'
+      : 'FAILED_ALLOWED',
+    crossUserMembershipDelete: denied(crossUserMembershipDelete)
+      ? 'DENIED'
+      : 'FAILED_ALLOWED',
+    memberCounts: memberCounts.error ? 'FAILED' : 'OK',
+    leaveMembership: leaveMembership.data?.length ? 'OK' : 'FAILED',
     countryFilter: countryFilter.data?.length ? 'OK' : 'FAILED',
     cityFilter: cityFilter.data?.length ? 'OK' : 'FAILED',
     searchFilter: searchFilter.data?.length ? 'OK' : 'FAILED',
