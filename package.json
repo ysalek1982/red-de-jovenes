@@ -19,6 +19,7 @@
     "qa:games": "node scripts/qa-games-module.mjs",
     "qa:map": "node scripts/qa-map-module.mjs",
     "qa:journeys": "node scripts/qa-user-journeys.mjs",
+    "qa:seed": "node scripts/qa-seed-data.mjs",
     "smoke:build": "node scripts/smoke-production-build.mjs",
     "admin:create": "node scripts/create-admin-user.mjs"
   },
