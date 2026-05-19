@@ -43,6 +43,7 @@
     "qa:bible-importer": "node scripts/qa-bible-importer-governance.mjs",
     "qa:admin-bible": "node scripts/qa-admin-bible-panel.mjs",
     "qa:admin-bible-complete": "node scripts/qa-admin-bible-complete.mjs",
+    "qa:bible-corpus": "node scripts/qa-bible-corpus-complete.mjs",
     "qa:pilot-feedback": "node scripts/qa-pilot-feedback.mjs",
     "qa:pilot-incidents": "node scripts/qa-pilot-incidents.mjs",
     "qa:pilot-report": "node scripts/qa-pilot-report.mjs",
