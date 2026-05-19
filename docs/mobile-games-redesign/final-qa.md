@@ -19,6 +19,22 @@ Fecha: 2026-05-19
 | `npm run qa:map` | QA_MAP_OK | Mapa y sugerencias OK. |
 | `npm run qa:journeys` | QA_JOURNEYS_OK | Escenarios de usuario completos OK. |
 
+## Verificacion staging posterior al deploy
+
+URL: https://red-de-jovenes.vercel.app/
+
+Deployment Vercel:
+
+- `dpl_GHywTX6Gf1Gc7Qexq9EB9UxVYdti`
+- alias activo: `https://red-de-jovenes.vercel.app`
+
+Validaciones contra staging:
+
+| Validacion | Resultado |
+| --- | --- |
+| `$env:QA_APP_BASE_URL='https://red-de-jovenes.vercel.app'; npm run qa:functional` | QA_FUNCTIONAL_ROUTES_OK |
+| `$env:QA_APP_BASE_URL='https://red-de-jovenes.vercel.app'; npm run qa:games` | QA_GAMES_OK |
+
 ## Observaciones
 
 - `/app/seguridad` sigue respondiendo como ruta secundaria oculta, pero ya no esta en navegacion ni en el home.

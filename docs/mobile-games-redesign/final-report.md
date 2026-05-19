@@ -101,6 +101,15 @@ La migracion fue aplicada con:
 | `npm run qa:map` | QA_MAP_OK |
 | `npm run qa:journeys` | QA_JOURNEYS_OK |
 
+## Staging actualizado
+
+Los cambios fueron subidos a `main` y desplegados manualmente en Vercel porque la URL seguia apuntando al deployment anterior.
+
+- URL final: https://red-de-jovenes.vercel.app/
+- Deployment: `dpl_GHywTX6Gf1Gc7Qexq9EB9UxVYdti`
+- `qa:functional` contra staging: QA_FUNCTIONAL_ROUTES_OK
+- `qa:games` contra staging: QA_GAMES_OK
+
 ## Pendientes reales
 
 - Probar visualmente el nuevo bottom nav en dispositivo movil fisico.
