@@ -1,0 +1,32 @@
+{
+  "status": "EBIBLE_RVR1909_CONVERSION_OK",
+  "source": {
+    "input": "C:/Users/DELL/OneDrive/Documentos/Proyectos 2026/RED DE JOVENES/supabase/seed/bible/ebible-rvr1909/spaRV1909_vpl.zip",
+    "source_id": "spaRV1909",
+    "source_name": "eBible RVR1909 / spaRV1909",
+    "source_url": "https://ebible.org/bible/details.php?id=spaRV1909",
+    "download_url": "https://ebible.org/Scriptures/spaRV1909_vpl.zip",
+    "format": "VPL ZIP",
+    "license": "public domain",
+    "is_public_domain": true,
+    "checksum_sha256": "B331BC607A569F8EE0FFC0A93DB7D4FF6342FC93E5C5AFE0C8D0AF3221BED5AD"
+  },
+  "counts": {
+    "books": 66,
+    "chapters": 1189,
+    "expectedChapters": 1189,
+    "verses": 31084,
+    "blankVerseMarkers": 18,
+    "duplicateKeys": 0,
+    "errors": 0
+  },
+  "validation": {
+    "hasGenesis1": true,
+    "hasPsalms23": true,
+    "hasJohn3": true,
+    "hasRevelation22": true
+  },
+  "errors": [],
+  "generated_at": "2026-05-19T19:13:13.495Z",
+  "output": "C:/Users/DELL/OneDrive/Documentos/Proyectos 2026/RED DE JOVENES/supabase/seed/bible/ebible-rvr1909/rvr1909-normalized.json"
+}

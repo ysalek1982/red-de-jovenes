@@ -50,7 +50,8 @@
     "qa:seed": "node scripts/qa-seed-data.mjs",
     "smoke:build": "node scripts/smoke-production-build.mjs",
     "admin:create": "node scripts/create-admin-user.mjs",
-    "admin:import-bible": "node scripts/import-bible-verses.mjs"
+    "admin:import-bible": "node scripts/import-bible-verses.mjs",
+    "admin:convert-ebible-rvr1909": "node scripts/convert-ebible-rvr1909.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",
