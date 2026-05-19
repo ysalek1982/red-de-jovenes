@@ -30,6 +30,10 @@ import {
   type AdminSuggestionPreview,
 } from '../features/admin/adminService'
 import {
+  getPilotMetrics,
+  type PilotMetrics,
+} from '../features/admin/pilotMetricsService'
+import {
   activateAiPromptTemplate,
   createAiPromptTemplate,
   disableAiProvider,
@@ -107,6 +111,26 @@ const initialLatest: AdminLatestItems = {
   devotionals: [],
 }
 
+const initialPilotMetrics: PilotMetrics = {
+  adoption: { users: 0, profileCompletionBase: 0 },
+  community: {
+    posts: 0,
+    comments: 0,
+    reactions: 0,
+    prayers: 0,
+    prayerSupports: 0,
+    groupSuggestions: 0,
+    approvedGroups: 0,
+    groupMembers: 0,
+  },
+  bible: { savedVerses: 0, bibleReads: 0 },
+  games: { gameScores: 0 },
+  events: { events: 0, rsvps: 0 },
+  messages: { conversations: 0, messages: 0, messageReports: 0 },
+  ai: { aiActions: 0, aiCostEvents: 0 },
+  moderation: { reportsPending: 0, reportsResolved: 0 },
+}
+
 function formatDate(value: string | null) {
   if (!value) return 'Fecha pendiente'
   return new Intl.DateTimeFormat('es', {
@@ -122,6 +146,8 @@ export function AdminHome() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [overview, setOverview] = useState<AdminOverview>(initialOverview)
   const [latest, setLatest] = useState<AdminLatestItems>(initialLatest)
+  const [pilotMetrics, setPilotMetrics] =
+    useState<PilotMetrics>(initialPilotMetrics)
   const [message, setMessage] = useState('')
   const [isSavingDevotional, setIsSavingDevotional] = useState(false)
   const [editingDevotionalId, setEditingDevotionalId] = useState<string | null>(
@@ -180,6 +206,7 @@ export function AdminHome() {
       aiUsageData,
       aiTemplatesData,
       bibleStatusData,
+      pilotMetricsData,
     ] = await Promise.all([
       getAdminOverview(),
       getAdminLatestItems(),
@@ -197,6 +224,7 @@ export function AdminHome() {
         versesCount: 0,
         recentDailyVerses: [],
       })),
+      getPilotMetrics().catch(() => initialPilotMetrics),
     ])
     setOverview(overviewData)
     setLatest(latestData)
@@ -212,6 +240,7 @@ export function AdminHome() {
       versesCount: bibleStatusData?.versesCount ?? 0,
       recentDailyVerses: bibleStatusData?.recentDailyVerses ?? [],
     })
+    setPilotMetrics(pilotMetricsData)
   }, [])
 
   useEffect(() => {
@@ -578,6 +607,61 @@ export function AdminHome() {
                 </p>
               </article>
             ))}
+          </div>
+          <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/35 p-5">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <h3 className="text-xl font-black">Estado del piloto</h3>
+                <p className="mt-1 text-sm text-white/55">
+                  Metricas reales acumuladas para revisar adopcion, comunidad y cuidado.
+                </p>
+              </div>
+              <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/60">
+                Sin datos ficticios
+              </span>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <PilotMetricCard
+                title="Adopcion"
+                value={pilotMetrics.adoption.users}
+                detail="usuarios registrados"
+              />
+              <PilotMetricCard
+                title="Comunidad"
+                value={pilotMetrics.community.posts + pilotMetrics.community.comments}
+                detail={`${pilotMetrics.community.posts} posts · ${pilotMetrics.community.comments} comentarios`}
+              />
+              <PilotMetricCard
+                title="Oracion"
+                value={pilotMetrics.community.prayers}
+                detail={`${pilotMetrics.community.prayerSupports} apoyos de oracion`}
+              />
+              <PilotMetricCard
+                title="Biblia"
+                value={pilotMetrics.bible.savedVerses}
+                detail={`${pilotMetrics.bible.bibleReads} lecturas registradas`}
+              />
+              <PilotMetricCard
+                title="Juegos"
+                value={pilotMetrics.games.gameScores}
+                detail="puntajes guardados"
+              />
+              <PilotMetricCard
+                title="Eventos"
+                value={pilotMetrics.events.events}
+                detail={`${pilotMetrics.events.rsvps} confirmaciones`}
+              />
+              <PilotMetricCard
+                title="Mensajes"
+                value={pilotMetrics.messages.messages}
+                detail={`${pilotMetrics.messages.conversations} conversaciones`}
+              />
+              <PilotMetricCard
+                title="IA y cuidado"
+                value={pilotMetrics.ai.aiActions}
+                detail={`${pilotMetrics.moderation.reportsPending} reportes pendientes`}
+              />
+            </div>
           </div>
         </div>
 
@@ -1126,5 +1210,23 @@ function AdminListItem({
       </div>
       {action}
     </div>
+  )
+}
+
+function PilotMetricCard({
+  title,
+  value,
+  detail,
+}: {
+  title: string
+  value: number
+  detail: string
+}) {
+  return (
+    <article className="rounded-3xl border border-white/10 bg-white/[0.05] p-4">
+      <p className="text-2xl font-black">{value}</p>
+      <h4 className="mt-1 text-sm font-black text-white">{title}</h4>
+      <p className="mt-1 text-xs leading-5 text-white/50">{detail}</p>
+    </article>
   )
 }
