@@ -121,7 +121,12 @@ export function AppShell() {
       <Outlet />
 
       {isMoreOpen ? (
-        <div className="fixed inset-x-3 bottom-[5.8rem] z-50 rounded-[1.5rem] border border-white/10 bg-slate-950/95 p-3 text-white shadow-2xl shadow-black/40 backdrop-blur-xl lg:hidden">
+        <div
+          className="fixed inset-x-3 z-50 rounded-[1.5rem] border border-white/10 bg-slate-950/95 p-3 text-white shadow-2xl shadow-black/40 backdrop-blur-xl lg:hidden"
+          style={{
+            bottom: 'calc(max(0.75rem, env(safe-area-inset-bottom)) + 5.35rem)',
+          }}
+        >
           <div className="mb-3 flex items-center justify-between px-2">
             <p className="text-sm font-black text-white">Mas de tu Red</p>
             <button
@@ -168,8 +173,11 @@ export function AppShell() {
       ) : null}
 
       <nav
-        className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-6xl overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/90 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl lg:hidden"
-        style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
+        className="fixed inset-x-3 z-50 mx-auto max-w-6xl overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/90 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl lg:hidden"
+        style={{
+          bottom: 'max(0.75rem, env(safe-area-inset-bottom))',
+          paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
+        }}
         aria-label="Navegacion movil privada"
       >
         <div className="grid grid-cols-6 gap-1">
