@@ -13,16 +13,18 @@ import {
 import { Link } from 'react-router-dom'
 import { getRecentPosts, type PostWithAuthor } from '../features/community/communityService'
 import { getTodayDevotional } from '../features/devotionals/devotionalService'
+import { getActiveGroups, type GroupWithMembership } from '../features/map/worldMapService'
 import {
   getPublicPrayerRequests,
   type PrayerRequestWithAuthor,
 } from '../features/prayer/prayerService'
+import { getProfile } from '../features/profile/profileService'
 import {
   getMyFaithProgress,
   type FaithProgressSummary,
 } from '../features/progress/progressService'
 import { useAuth } from '../features/auth/useAuth'
-import type { Devotional } from '../types/database'
+import type { Devotional, Profile } from '../types/database'
 
 const quickActions = [
   {
@@ -103,12 +105,26 @@ function ProgressStat({
   )
 }
 
+function formatRelative(value: string | null) {
+  if (!value) return 'hoy'
+  const date = new Date(value)
+  const diffMs = Date.now() - date.getTime()
+  const diffHours = Math.floor(diffMs / 3_600_000)
+  if (diffHours < 1) return 'hace unos minutos'
+  if (diffHours < 24) return `hace ${diffHours} h`
+  const diffDays = Math.floor(diffHours / 24)
+  if (diffDays === 1) return 'ayer'
+  return `hace ${diffDays} dias`
+}
+
 export function AppHome() {
   const { user } = useAuth()
   const userId = user?.id
   const [devotional, setDevotional] = useState<Devotional | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
   const [prayers, setPrayers] = useState<PrayerRequestWithAuthor[]>([])
   const [posts, setPosts] = useState<PostWithAuthor[]>([])
+  const [communities, setCommunities] = useState<GroupWithMembership[]>([])
   const [progress, setProgress] = useState<FaithProgressSummary | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
@@ -125,15 +141,26 @@ export function AppHome() {
     setIsLoading(true)
     setError('')
     try {
-      const [devotionalData, prayerData, postData, progressData] = await Promise.all([
+      const [
+        devotionalData,
+        prayerData,
+        postData,
+        progressData,
+        groupData,
+        profileData,
+      ] = await Promise.all([
         getTodayDevotional(),
         getPublicPrayerRequests(),
         getRecentPosts(userId),
         userId ? getMyFaithProgress(userId) : Promise.resolve(null),
+        getActiveGroups(userId),
+        userId ? getProfile(userId) : Promise.resolve(null),
       ])
       setDevotional(devotionalData)
+      setProfile(profileData)
       setPrayers(prayerData.slice(0, 4))
       setPosts(postData.slice(0, 4))
+      setCommunities(groupData)
       setProgress(progressData)
     } catch {
       setError('No pudimos cargar tu Red. Revisa la conexión o intenta más tarde.')
@@ -141,6 +168,52 @@ export function AppHome() {
       setIsLoading(false)
     }
   }, [userId])
+
+  const myCommunities = communities.filter((community) => community.isMember)
+  const highlightedCommunity =
+    myCommunities[0] ?? communities.find((community) => community.membersCount > 0) ?? communities[0]
+  const profileIncomplete =
+    !profile?.city || !profile.country || !profile.bio || !profile.church_name
+  const communityPulse = [
+    ...posts.slice(0, 2).map((post) => ({
+      title: 'Nueva reflexion en foros',
+      text: post.body,
+      to: '/app/foros',
+      when: formatRelative(post.created_at),
+    })),
+    ...prayers.slice(0, 2).map((prayer) => ({
+      title: prayer.is_answered ? 'Oracion respondida' : 'Peticion de oracion',
+      text: prayer.title,
+      to: '/app/oracion',
+      when: formatRelative(prayer.created_at),
+    })),
+    ...(devotional
+      ? [
+          {
+            title: 'Devocional de hoy',
+            text: devotional.title,
+            to: '/app/devocional',
+            when: 'disponible',
+          },
+        ]
+      : []),
+    ...(progress?.lastGame
+      ? [
+          {
+            title: 'Ultimo juego completado',
+            text: `${progress.lastGame.title}: ${progress.lastGame.score}/${progress.lastGame.total}`,
+            to: '/app/juegos',
+            when: 'tu progreso',
+          },
+        ]
+      : []),
+    ...myCommunities.slice(0, 1).map((group) => ({
+      title: 'Tu comunidad',
+      text: group.name,
+      to: '/app/mapa',
+      when: `${group.membersCount} miembros`,
+    })),
+  ].slice(0, 6)
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -164,12 +237,12 @@ export function AppHome() {
               Hola, {displayName}.
             </h1>
             <p className="mt-4 max-w-2xl text-white/65">
-              Tu espacio privado para oración, foros con la Palabra, devocional,
-              juegos de fe y comunidad cristiana.
+              Hoy tu red está activa: oración, foros con la Palabra,
+              devocional, juegos de fe y comunidades conectadas.
             </p>
             <p className="mt-3 max-w-2xl text-sm font-semibold text-amber-100/80">
-              Si es tu primera vez, empieza por tu perfil, una oración y un
-              primer aporte en comunidad.
+              Participa con un paso sencillo: ora, comparte, juega o encuentra
+              una comunidad cercana.
             </p>
           </div>
           <Link
@@ -290,6 +363,118 @@ export function AppHome() {
                     ? `Ultimo juego: ${progress.lastGame.title} (${progress.lastGame.score}/${progress.lastGame.total}).`
                     : 'Completa tu primer juego para iniciar tu historial.'}
                 </p>
+              </article>
+            ) : null}
+
+            <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+              <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-amber-200">
+                      Pulso de la comunidad
+                    </p>
+                    <h2 className="mt-2 text-2xl font-black">
+                      Lo que está pasando en la Red
+                    </h2>
+                  </div>
+                  <span className="rounded-full border border-white/10 bg-slate-950/45 px-4 py-2 text-sm font-bold text-white/60">
+                    {communityPulse.length} señales reales
+                  </span>
+                </div>
+                <div className="mt-5 grid gap-3">
+                  {communityPulse.length ? (
+                    communityPulse.map((item) => (
+                      <Link
+                        key={`${item.title}-${item.text}`}
+                        to={item.to}
+                        className="rounded-3xl border border-white/10 bg-slate-950/45 p-4 transition hover:bg-white/10"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-sm font-black text-white">
+                              {item.title}
+                            </p>
+                            <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/60">
+                              {item.text}
+                            </p>
+                          </div>
+                          <span className="flex-none rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-amber-100">
+                            {item.when}
+                          </span>
+                        </div>
+                      </Link>
+                    ))
+                  ) : (
+                    <div className="rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-6 text-sm leading-6 text-white/60">
+                      Aún estamos empezando. Sé de los primeros en compartir,
+                      orar o sugerir una comunidad.
+                    </div>
+                  )}
+                </div>
+              </article>
+
+              <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+                <p className="text-sm font-semibold text-emerald-200">
+                  Comunidad destacada
+                </p>
+                {highlightedCommunity ? (
+                  <div className="mt-4">
+                    <h2 className="text-2xl font-black">
+                      {highlightedCommunity.name}
+                    </h2>
+                    <p className="mt-2 text-sm text-white/55">
+                      {highlightedCommunity.city ?? 'Sin ciudad'},{' '}
+                      {highlightedCommunity.country ?? 'Sin país'}
+                    </p>
+                    <p className="mt-4 line-clamp-4 text-sm leading-6 text-white/65">
+                      {highlightedCommunity.description ||
+                        highlightedCommunity.meeting_info ||
+                        'Comunidad juvenil conectada a Red de Jóvenes.'}
+                    </p>
+                    <div className="mt-5 flex flex-wrap gap-2">
+                      <span className="rounded-full border border-white/10 bg-slate-950/45 px-3 py-1 text-xs font-bold text-white/65">
+                        {highlightedCommunity.membersCount} miembros
+                      </span>
+                      {highlightedCommunity.isMember ? (
+                        <span className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-bold text-emerald-100">
+                          Ya eres parte
+                        </span>
+                      ) : null}
+                    </div>
+                    <Link
+                      to="/app/mapa"
+                      className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-black text-slate-950 transition hover:bg-amber-100"
+                    >
+                      Ver en mapa
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="mt-4 rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-6 text-sm leading-6 text-white/60">
+                    Todavía no hay comunidades activas. Sugiere la primera
+                    desde el mapa.
+                  </div>
+                )}
+              </article>
+            </div>
+
+            {profileIncomplete ? (
+              <article className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+                <p className="text-sm font-semibold text-amber-100">
+                  Perfil incompleto
+                </p>
+                <h2 className="mt-2 text-2xl font-black">
+                  Ayuda a otros jóvenes a conectar contigo.
+                </h2>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
+                  Agrega ciudad, país, iglesia y una bio breve. Así la Red se
+                  siente más cercana y segura.
+                </p>
+                <Link
+                  to="/app/perfil"
+                  className="mt-5 inline-flex h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-black text-slate-950 transition hover:bg-amber-100"
+                >
+                  Completar perfil
+                </Link>
               </article>
             ) : null}
 
