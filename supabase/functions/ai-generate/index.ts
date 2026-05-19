@@ -1,9 +1,13 @@
 import {
   callGemini,
+  checkAiUsageLimit,
   corsHeaders,
   decryptSecret,
+  estimateTokens,
+  getActivePromptTemplate,
   getGeminiSettings,
   jsonResponse,
+  recordAiUsage,
   requireUser,
   summarize,
 } from '../_shared/ai-helpers.ts'
@@ -33,8 +37,47 @@ Deno.serve(async (req) => {
     if (!allowedActions.has(actionType)) return jsonResponse({ error: 'INVALID_ACTION' }, 400)
     if (!prompt || prompt.length > 4000) return jsonResponse({ error: 'INVALID_PROMPT' }, 400)
 
+    const estimatedInputTokens = estimateTokens(prompt)
+    const limitCheck = await checkAiUsageLimit({
+      supabase,
+      userId: user.id,
+      actionType,
+      tokensEstimated: estimatedInputTokens,
+    })
+    if (!limitCheck.allowed) {
+      await supabase.from('ai_action_logs').insert({
+        user_id: user.id,
+        action_type: actionType,
+        provider: 'gemini',
+        prompt_summary: summarize(prompt),
+        input_ref_type: body.targetType || null,
+        input_ref_id: body.targetId || null,
+        output_summary: 'Solicitud bloqueada por limite diario.',
+        status: 'rate_limited',
+        tokens_estimated: estimatedInputTokens,
+      })
+      return jsonResponse(
+        {
+          status: 'AI_DAILY_LIMIT_REACHED',
+          message:
+            'Alcanzaste el limite diario de IA. Intenta manana o pide apoyo a un lider.',
+        },
+        429,
+      )
+    }
+
     const settings = await getGeminiSettings(supabase)
     if (!settings?.is_enabled || !settings.encrypted_api_key) {
+      await recordAiUsage({
+        supabase,
+        userId: user.id,
+        actionType,
+        model: settings?.model ?? 'gemini-2.0-flash',
+        inputChars: prompt.length,
+        outputChars: 0,
+        tokensEstimated: estimatedInputTokens,
+        status: 'provider_not_configured',
+      })
       const { data: queue, error: queueError } = await supabase
         .from('ai_action_queue')
         .insert({
@@ -54,12 +97,19 @@ Deno.serve(async (req) => {
     }
 
     const apiKey = await decryptSecret(settings.encrypted_api_key)
-    const finalPrompt = `${pastoralPrefix}\n\nAccion: ${actionType}\nSolicitud: ${prompt}`
+    const template = await getActivePromptTemplate(supabase, actionType)
+    const systemPrompt = template?.system_prompt || pastoralPrefix
+    const userPrompt = (template?.user_prompt_template || 'Solicitud: {{prompt}}').replace(
+      '{{prompt}}',
+      prompt,
+    )
+    const finalPrompt = `${pastoralPrefix}\n\n${systemPrompt}\n\nAccion: ${actionType}\n${userPrompt}\n\nEtiqueta la salida como sugerencia revisable cuando corresponda.`
     const result = await callGemini({
       apiKey,
       model: settings.model || 'gemini-2.0-flash',
       prompt: finalPrompt,
     })
+    const tokensEstimated = estimateTokens(finalPrompt, result.text)
 
     await supabase.from('ai_action_logs').insert({
       user_id: user.id,
@@ -71,12 +121,28 @@ Deno.serve(async (req) => {
       input_ref_id: body.targetId || null,
       output_summary: summarize(result.text),
       status: 'completed',
-      tokens_estimated: Math.ceil((prompt.length + result.text.length) / 4),
+      tokens_estimated: tokensEstimated,
     })
 
-    return jsonResponse({ status: 'AI_GENERATION_OK', text: result.text })
+    await recordAiUsage({
+      supabase,
+      userId: user.id,
+      actionType,
+      model: settings.model,
+      inputChars: finalPrompt.length,
+      outputChars: result.text.length,
+      tokensEstimated,
+      status: 'ok',
+    })
+
+    return jsonResponse({
+      status: 'AI_GENERATION_OK',
+      text: `Sugerido por IA · revisalo antes de publicar.\n\n${result.text}`,
+    })
   } catch (error) {
     const message = error instanceof Error ? error.message : 'UNKNOWN_ERROR'
-    return jsonResponse({ error: message }, message === 'UNAUTHENTICATED' ? 401 : 500)
+    const status =
+      message === 'UNAUTHENTICATED' ? 401 : message === 'AI_DAILY_LIMIT_REACHED' ? 429 : 500
+    return jsonResponse({ error: message }, status)
   }
 })

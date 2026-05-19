@@ -57,6 +57,14 @@ export type AiProviderSetting =
 export type AiActionLog = Database['public']['Tables']['ai_action_logs']['Row']
 export type AiActionQueue =
   Database['public']['Tables']['ai_action_queue']['Row']
+export type AiUsageDaily =
+  Database['public']['Tables']['ai_usage_daily']['Row']
+export type AiUsageLimit =
+  Database['public']['Tables']['ai_usage_limits']['Row']
+export type AiCostEvent =
+  Database['public']['Tables']['ai_cost_events']['Row']
+export type AiPromptTemplate =
+  Database['public']['Tables']['ai_prompt_templates']['Row']
 export type ContentReport =
   Database['public']['Tables']['content_reports']['Row']
 export type NotificationPreference =

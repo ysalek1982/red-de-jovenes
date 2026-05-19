@@ -1,0 +1,27 @@
+{
+  "metadata": {
+    "translation_code": "RVR1909_SAMPLE",
+    "translation_name": "Reina-Valera 1909 - muestra autorizada",
+    "license": "Dominio publico; muestra de importacion para QA.",
+    "source_name": "Proyecto Red de Jovenes QA",
+    "source_url": "https://red-de-jovenes.vercel.app/",
+    "is_public_domain": true,
+    "license_confirmed": true
+  },
+  "verses": [
+    {
+      "translation_code": "RVR1909_SAMPLE",
+      "book_code": "JHN",
+      "chapter": 3,
+      "verse": 16,
+      "verse_text": "Porque de tal manera amo Dios al mundo, que ha dado a su Hijo unigenito."
+    },
+    {
+      "translation_code": "RVR1909_SAMPLE",
+      "book_code": "PSA",
+      "chapter": 23,
+      "verse": 1,
+      "verse_text": "Jehova es mi pastor; nada me faltara."
+    }
+  ]
+}

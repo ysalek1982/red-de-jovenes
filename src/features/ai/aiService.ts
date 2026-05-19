@@ -1,5 +1,13 @@
 import { supabase } from '../../lib/supabase'
-import type { AiActionQueue } from '../../types/database'
+import type {
+  AiActionQueue,
+  AiPromptTemplate,
+  AiUsageLimit,
+  AiUsageDaily,
+  AiCostEvent,
+  BibleDailyVerse,
+  BibleTranslation,
+} from '../../types/database'
 import type { AiActionType } from './aiGuardrails'
 
 export interface AiProviderStatus {
@@ -49,6 +57,106 @@ export async function testAiProviderKey() {
 export async function disableAiProvider() {
   return invokeAiFunction<{ status: string }>('admin-ai-settings', {
     action: 'disable_provider',
+  })
+}
+
+export async function getAiUsageSummary() {
+  return invokeAiFunction<{
+    status: string
+    today: string
+    usage: AiUsageDaily[]
+    limits: AiUsageLimit[]
+    costs: AiCostEvent[]
+  }>('admin-ai-settings', { action: 'get_usage_summary' })
+}
+
+export async function saveAiUsageLimit(input: {
+  actionType: AiActionType
+  dailyRequestLimit: number
+  dailyTokenLimit: number
+  isEnabled: boolean
+}) {
+  return invokeAiFunction<{ status: string; limit: AiUsageLimit }>(
+    'admin-ai-settings',
+    {
+      action: 'set_usage_limit',
+      actionType: input.actionType,
+      dailyRequestLimit: input.dailyRequestLimit,
+      dailyTokenLimit: input.dailyTokenLimit,
+      isEnabled: input.isEnabled,
+    },
+  )
+}
+
+export async function getAiPromptTemplates() {
+  return invokeAiFunction<{ status: string; templates: AiPromptTemplate[] }>(
+    'admin-ai-settings',
+    { action: 'get_prompt_templates' },
+  )
+}
+
+export async function createAiPromptTemplate(input: {
+  actionType: AiActionType
+  title: string
+  systemPrompt: string
+  userPromptTemplate: string
+  safetyNotes?: string
+}) {
+  return invokeAiFunction<{ status: string; template: AiPromptTemplate }>(
+    'admin-ai-settings',
+    {
+      action: 'create_prompt_template',
+      actionType: input.actionType,
+      title: input.title,
+      systemPrompt: input.systemPrompt,
+      userPromptTemplate: input.userPromptTemplate,
+      safetyNotes: input.safetyNotes ?? '',
+    },
+  )
+}
+
+export async function activateAiPromptTemplate(templateId: string) {
+  return invokeAiFunction<{ status: string; template: AiPromptTemplate }>(
+    'admin-ai-settings',
+    { action: 'activate_prompt_template', templateId },
+  )
+}
+
+export async function getAdminBibleStatus() {
+  return invokeAiFunction<{
+    status: string
+    translations: BibleTranslation[]
+    booksCount: number
+    versesCount: number
+    recentDailyVerses: BibleDailyVerse[]
+  }>('admin-ai-settings', { action: 'get_bible_admin_status' })
+}
+
+export async function saveDailyBibleVerse(input: {
+  translationCode: string
+  bookCode: string
+  chapter: number
+  verse: number
+  activeDate: string
+  devotionalHint?: string
+}) {
+  return invokeAiFunction<{ status: string; dailyVerse: BibleDailyVerse }>(
+    'admin-ai-settings',
+    {
+      action: 'set_daily_bible_verse',
+      translationCode: input.translationCode,
+      bookCode: input.bookCode,
+      chapter: input.chapter,
+      verse: input.verse,
+      activeDate: input.activeDate,
+      devotionalHint: input.devotionalHint ?? '',
+    },
+  )
+}
+
+export async function testRandomBibleVerseFromAdmin() {
+  return invokeAiFunction<{ status: string; verse: unknown }>('admin-ai-settings', {
+    action: 'test_random_bible_verse',
   })
 }
 

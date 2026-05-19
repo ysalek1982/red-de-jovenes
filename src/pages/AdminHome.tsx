@@ -30,16 +30,32 @@ import {
   type AdminSuggestionPreview,
 } from '../features/admin/adminService'
 import {
+  activateAiPromptTemplate,
+  createAiPromptTemplate,
   disableAiProvider,
   generateAiContent,
+  getAdminBibleStatus,
   getAiProviderStatus,
+  getAiPromptTemplates,
+  getAiUsageSummary,
   getPendingAiActions,
   saveAiProviderKey,
+  saveAiUsageLimit,
+  saveDailyBibleVerse,
   testAiProviderKey,
+  testRandomBibleVerseFromAdmin,
   type AiProviderStatus,
 } from '../features/ai/aiService'
 import { validateAiPrompt, type AiActionType } from '../features/ai/aiGuardrails'
-import type { AiActionQueue } from '../types/database'
+import type {
+  AiActionQueue,
+  AiCostEvent,
+  AiPromptTemplate,
+  AiUsageDaily,
+  AiUsageLimit,
+  BibleDailyVerse,
+  BibleTranslation,
+} from '../types/database'
 
 interface AdminOverview {
   profiles: number
@@ -130,18 +146,72 @@ export function AdminHome() {
   const [aiActionType, setAiActionType] =
     useState<AiActionType>('explain_bible_verse')
   const [aiOutput, setAiOutput] = useState('')
+  const [aiUsage, setAiUsage] = useState<AiUsageDaily[]>([])
+  const [aiLimits, setAiLimits] = useState<AiUsageLimit[]>([])
+  const [aiCosts, setAiCosts] = useState<AiCostEvent[]>([])
+  const [aiTemplates, setAiTemplates] = useState<AiPromptTemplate[]>([])
+  const [templateDraft, setTemplateDraft] = useState({
+    title: '',
+    systemPrompt: '',
+    userPromptTemplate: '',
+    safetyNotes: '',
+  })
+  const [bibleAdmin, setBibleAdmin] = useState<{
+    translations: BibleTranslation[]
+    booksCount: number
+    versesCount: number
+    recentDailyVerses: BibleDailyVerse[]
+  }>({ translations: [], booksCount: 0, versesCount: 0, recentDailyVerses: [] })
+  const [dailyVerseForm, setDailyVerseForm] = useState({
+    translationCode: 'RVR1909',
+    bookCode: 'JHN',
+    chapter: '3',
+    verse: '16',
+    activeDate: new Date().toISOString().slice(0, 10),
+    devotionalHint: '',
+  })
 
   const loadAdminData = useCallback(async () => {
-    const [overviewData, latestData, aiStatusData, aiQueueData] = await Promise.all([
+    const [
+      overviewData,
+      latestData,
+      aiStatusData,
+      aiQueueData,
+      aiUsageData,
+      aiTemplatesData,
+      bibleStatusData,
+    ] = await Promise.all([
       getAdminOverview(),
       getAdminLatestItems(),
       getAiProviderStatus().catch(() => ({ provider: null })),
       getPendingAiActions().catch(() => []),
+      getAiUsageSummary().catch(() => ({
+        usage: [],
+        limits: [],
+        costs: [],
+      })),
+      getAiPromptTemplates().catch(() => ({ templates: [] })),
+      getAdminBibleStatus().catch(() => ({
+        translations: [],
+        booksCount: 0,
+        versesCount: 0,
+        recentDailyVerses: [],
+      })),
     ])
     setOverview(overviewData)
     setLatest(latestData)
     setAiStatus(aiStatusData?.provider ?? null)
     setAiQueue(aiQueueData)
+    setAiUsage(aiUsageData?.usage ?? [])
+    setAiLimits(aiUsageData?.limits ?? [])
+    setAiCosts(aiUsageData?.costs ?? [])
+    setAiTemplates(aiTemplatesData?.templates ?? [])
+    setBibleAdmin({
+      translations: bibleStatusData?.translations ?? [],
+      booksCount: bibleStatusData?.booksCount ?? 0,
+      versesCount: bibleStatusData?.versesCount ?? 0,
+      recentDailyVerses: bibleStatusData?.recentDailyVerses ?? [],
+    })
   }, [])
 
   useEffect(() => {
@@ -253,6 +323,71 @@ export function AdminHome() {
         : 'Respuesta IA generada para revision humana.',
     )
     await loadAdminData()
+  }
+
+  async function handleSaveDefaultAiLimit() {
+    await saveAiUsageLimit({
+      actionType: aiActionType,
+      dailyRequestLimit: 20,
+      dailyTokenLimit: 20000,
+      isEnabled: true,
+    })
+    setMessage('Limite IA global guardado para esta accion.')
+    await loadAdminData()
+  }
+
+  async function handleCreatePromptTemplate() {
+    if (
+      !templateDraft.title.trim() ||
+      !templateDraft.systemPrompt.trim() ||
+      !templateDraft.userPromptTemplate.trim()
+    ) {
+      setMessage('Completa titulo, prompt de sistema y plantilla de usuario.')
+      return
+    }
+    await createAiPromptTemplate({
+      actionType: aiActionType,
+      title: templateDraft.title,
+      systemPrompt: templateDraft.systemPrompt,
+      userPromptTemplate: templateDraft.userPromptTemplate,
+      safetyNotes: templateDraft.safetyNotes,
+    })
+    setTemplateDraft({
+      title: '',
+      systemPrompt: '',
+      userPromptTemplate: '',
+      safetyNotes: '',
+    })
+    setMessage('Nueva version de prompt pastoral activada.')
+    await loadAdminData()
+  }
+
+  async function handleActivatePromptTemplate(templateId: string) {
+    await activateAiPromptTemplate(templateId)
+    setMessage('Version de prompt activada.')
+    await loadAdminData()
+  }
+
+  async function handleSaveDailyBibleVerse() {
+    await saveDailyBibleVerse({
+      translationCode: dailyVerseForm.translationCode,
+      bookCode: dailyVerseForm.bookCode,
+      chapter: Number(dailyVerseForm.chapter),
+      verse: Number(dailyVerseForm.verse),
+      activeDate: dailyVerseForm.activeDate,
+      devotionalHint: dailyVerseForm.devotionalHint,
+    })
+    setMessage('Versiculo diario guardado.')
+    await loadAdminData()
+  }
+
+  async function handleTestBibleRandom() {
+    const result = await testRandomBibleVerseFromAdmin()
+    setMessage(
+      result?.status === 'BIBLE_RANDOM_OK'
+        ? 'Versiculo aleatorio disponible.'
+        : 'No hay versiculos disponibles para la prueba.',
+    )
   }
 
   function handleEditDevotional(devotional: AdminDevotionalPreview) {
@@ -614,6 +749,77 @@ export function AdminHome() {
                 </button>
               </div>
             </div>
+            <div className="mt-5 grid gap-3 rounded-3xl border border-white/10 bg-slate-950/45 p-4 text-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="font-black">Uso y limites</h3>
+                  <p className="mt-1 text-xs text-white/50">
+                    {aiUsage.reduce((sum, item) => sum + item.requests_count, 0)} solicitudes hoy · {aiCosts.reduce((sum, item) => sum + item.tokens_estimated, 0)} tokens estimados
+                  </p>
+                </div>
+                <button type="button" onClick={() => void handleSaveDefaultAiLimit()} className="rounded-full border border-white/10 px-3 py-2 text-xs font-black text-white/70">
+                  Guardar limite
+                </button>
+              </div>
+              <div className="grid gap-2 sm:grid-cols-2">
+                {aiLimits.slice(0, 4).map((limit) => (
+                  <div key={limit.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
+                    <p className="truncate font-bold">{limit.action_type}</p>
+                    <p className="mt-1 text-xs text-white/50">
+                      {limit.daily_request_limit} req/dia · {limit.daily_token_limit} tokens · {limit.is_enabled ? 'activo' : 'pausado'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+              <h3 className="font-black">Prompts IA</h3>
+              <p className="mt-1 text-xs text-white/50">
+                {aiTemplates.filter((template) => template.is_active).length} plantillas activas versionadas.
+              </p>
+              <div className="mt-3 grid gap-2">
+                <input
+                  value={templateDraft.title}
+                  onChange={(event) => setTemplateDraft((current) => ({ ...current, title: event.target.value }))}
+                  placeholder="Titulo de nueva version"
+                  className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none placeholder:text-white/35"
+                />
+                <textarea
+                  value={templateDraft.systemPrompt}
+                  onChange={(event) => setTemplateDraft((current) => ({ ...current, systemPrompt: event.target.value }))}
+                  rows={2}
+                  placeholder="Prompt de sistema pastoral"
+                  className="rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs text-white outline-none placeholder:text-white/35"
+                />
+                <textarea
+                  value={templateDraft.userPromptTemplate}
+                  onChange={(event) => setTemplateDraft((current) => ({ ...current, userPromptTemplate: event.target.value }))}
+                  rows={2}
+                  placeholder="Plantilla de usuario con {{prompt}}"
+                  className="rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs text-white outline-none placeholder:text-white/35"
+                />
+                <button type="button" onClick={() => void handleCreatePromptTemplate()} className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 text-xs font-black text-emerald-100">
+                  Crear nueva version activa
+                </button>
+              </div>
+              <div className="mt-3 max-h-40 space-y-2 overflow-auto pr-1">
+                {aiTemplates.slice(0, 6).map((template) => (
+                  <div key={template.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="truncate font-bold">{template.action_type} v{template.version}</p>
+                      {template.is_active ? (
+                        <span className="rounded-full bg-emerald-300/15 px-2 py-1 text-[0.65rem] font-black text-emerald-100">Activa</span>
+                      ) : (
+                        <button type="button" onClick={() => void handleActivatePromptTemplate(template.id)} className="rounded-full border border-white/10 px-2 py-1 font-black text-white/60">
+                          Activar
+                        </button>
+                      )}
+                    </div>
+                    <p className="mt-1 line-clamp-1 text-white/45">{template.title}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
             <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/45 p-4">
               <h3 className="font-black">Acciones asistidas</h3>
               <select value={aiActionType} onChange={(event) => setAiActionType(event.target.value as AiActionType)} className="mt-3 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white">
@@ -647,6 +853,71 @@ export function AdminHome() {
                     <p className="mt-1 line-clamp-2 text-white/55">{item.prompt}</p>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] border border-sky-300/20 bg-sky-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur xl:col-span-2">
+            <div className="flex items-center gap-3">
+              <BookOpen className="h-6 w-6 text-sky-200" aria-hidden="true" />
+              <h2 className="text-2xl font-black">Biblia</h2>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-white/65">
+              Solo cargar traducciones autorizadas o de dominio publico verificado.
+            </p>
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
+              <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <p className="text-3xl font-black">{bibleAdmin.translations.length}</p>
+                <p className="mt-1 text-xs font-bold text-white/55">Traducciones</p>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <p className="text-3xl font-black">{bibleAdmin.booksCount}</p>
+                <p className="mt-1 text-xs font-bold text-white/55">Libros</p>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <p className="text-3xl font-black">{bibleAdmin.versesCount}</p>
+                <p className="mt-1 text-xs font-bold text-white/55">Versiculos cargados</p>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-3 lg:grid-cols-2">
+              <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <h3 className="font-black">Traducciones</h3>
+                <div className="mt-3 space-y-2">
+                  {bibleAdmin.translations.map((translation) => (
+                    <div key={translation.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-sm">
+                      <p className="font-bold">{translation.code} · {translation.name}</p>
+                      <p className="mt-1 text-xs text-white/50">
+                        {translation.is_public_domain ? 'Dominio publico' : 'Licencia requerida'} · {translation.license ?? 'sin nota de licencia'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <h3 className="font-black">Versiculo diario</h3>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <input value={dailyVerseForm.translationCode} onChange={(event) => setDailyVerseForm((current) => ({ ...current, translationCode: event.target.value }))} className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none" />
+                  <input value={dailyVerseForm.bookCode} onChange={(event) => setDailyVerseForm((current) => ({ ...current, bookCode: event.target.value.toUpperCase() }))} className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none" />
+                  <input value={dailyVerseForm.chapter} onChange={(event) => setDailyVerseForm((current) => ({ ...current, chapter: event.target.value }))} className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none" />
+                  <input value={dailyVerseForm.verse} onChange={(event) => setDailyVerseForm((current) => ({ ...current, verse: event.target.value }))} className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none" />
+                  <input type="date" value={dailyVerseForm.activeDate} onChange={(event) => setDailyVerseForm((current) => ({ ...current, activeDate: event.target.value }))} className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none" />
+                  <input value={dailyVerseForm.devotionalHint} onChange={(event) => setDailyVerseForm((current) => ({ ...current, devotionalHint: event.target.value }))} placeholder="Hint devocional" className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none placeholder:text-white/35" />
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button type="button" onClick={() => void handleSaveDailyBibleVerse()} className="rounded-full bg-white px-4 py-2 text-xs font-black text-slate-950">
+                    Guardar versiculo diario
+                  </button>
+                  <button type="button" onClick={() => void handleTestBibleRandom()} className="rounded-full border border-white/10 px-4 py-2 text-xs font-black text-white/70">
+                    Probar aleatorio
+                  </button>
+                </div>
+                <div className="mt-3 space-y-2">
+                  {bibleAdmin.recentDailyVerses.slice(0, 3).map((daily) => (
+                    <p key={daily.id} className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white/55">
+                      {daily.active_date} · {daily.book_code} {daily.chapter}:{daily.verse}
+                    </p>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

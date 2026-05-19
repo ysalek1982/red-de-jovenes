@@ -25,6 +25,10 @@ function getArg(name) {
   return index === -1 ? '' : process.argv[index + 1] || ''
 }
 
+function hasFlag(name) {
+  return process.argv.includes(`--${name}`)
+}
+
 function parseCsv(content) {
   const [headerLine, ...lines] = content.split(/\r?\n/).filter(Boolean)
   const headers = headerLine.split(',').map((item) => item.trim())
@@ -66,11 +70,115 @@ function normalizeRow(row, index) {
   }
 }
 
+function normalizePayload(raw, extension) {
+  const parsed = extension === '.csv' ? parseCsv(raw) : JSON.parse(raw)
+  if (Array.isArray(parsed)) {
+    return {
+      metadata: {
+        translation_code: getArg('translation-code') || parsed[0]?.translation_code,
+        translation_name: getArg('translation-name') || parsed[0]?.translation_name,
+        license: getArg('license') || parsed[0]?.license,
+        source_name: getArg('source-name') || parsed[0]?.source_name,
+        source_url: getArg('source-url') || parsed[0]?.source_url,
+        is_public_domain:
+          getArg('is-public-domain') === 'true' ||
+          parsed[0]?.is_public_domain === true,
+        license_confirmed:
+          hasFlag('confirm-license') || parsed[0]?.license_confirmed === true,
+      },
+      rows: parsed,
+    }
+  }
+
+  if (!Array.isArray(parsed.verses)) {
+    throw new Error('El JSON debe ser un arreglo o un objeto con metadata y verses.')
+  }
+
+  return {
+    metadata: parsed.metadata ?? {},
+    rows: parsed.verses,
+  }
+}
+
+function validateMetadata(metadata) {
+  const normalized = {
+    translation_code: String(metadata.translation_code || '').trim(),
+    translation_name: String(metadata.translation_name || metadata.name || '').trim(),
+    license: String(metadata.license || '').trim(),
+    source_name: String(metadata.source_name || '').trim(),
+    source_url: String(metadata.source_url || '').trim(),
+    is_public_domain: metadata.is_public_domain === true,
+    license_confirmed: metadata.license_confirmed === true || hasFlag('confirm-license'),
+  }
+  const errors = []
+  if (!normalized.translation_code) errors.push('translation_code requerido')
+  if (!normalized.translation_name) errors.push('translation_name requerido')
+  if (!normalized.license) errors.push('license requerido')
+  if (!normalized.source_name) errors.push('source_name requerido')
+  if (!normalized.source_url) errors.push('source_url requerido')
+  if (!normalized.is_public_domain && !normalized.license_confirmed) {
+    errors.push('is_public_domain o license_confirmed requerido')
+  }
+  return { metadata: normalized, errors }
+}
+
 async function main() {
   loadLocalEnv()
   const file = getArg('file')
+  const dryRun = hasFlag('dry-run')
+  const confirmLicense = hasFlag('confirm-license')
   if (!file || !existsSync(file)) {
     console.log(JSON.stringify({ status: 'BLOCKED_MISSING_BIBLE_FILE' }, null, 2))
+    return
+  }
+
+  const raw = readFileSync(file, 'utf8')
+  const extension = extname(file).toLowerCase()
+  const { metadata, rows } = normalizePayload(raw, extension)
+  const metadataValidation = validateMetadata(metadata)
+  if (metadataValidation.errors.length) {
+    console.log(
+      JSON.stringify(
+        {
+          status: 'BLOCKED_MISSING_LICENSE_METADATA',
+          errors: metadataValidation.errors,
+        },
+        null,
+        2,
+      ),
+    )
+    return
+  }
+  if (!dryRun && !confirmLicense) {
+    console.log(JSON.stringify({ status: 'BLOCKED_LICENSE_CONFIRMATION_REQUIRED' }, null, 2))
+    return
+  }
+
+  const normalized = rows.map(normalizeRow)
+  const validRows = normalized.filter((item) => item.ok).map((item) => item.value)
+  const invalidRows = normalized.filter((item) => !item.ok)
+  const uniqueBooks = new Set(validRows.map((row) => row.book_code))
+  const uniqueChapters = new Set(
+    validRows.map((row) => `${row.book_code}-${row.chapter}`),
+  )
+
+  if (dryRun) {
+    console.log(
+      JSON.stringify(
+        {
+          status: 'BIBLE_IMPORT_DRY_RUN_OK',
+          translation: metadataValidation.metadata.translation_code,
+          read: rows.length,
+          valid: validRows.length,
+          omitted: invalidRows.length,
+          books: uniqueBooks.size,
+          chapters: uniqueChapters.size,
+          errors: invalidRows.slice(0, 20),
+        },
+        null,
+        2,
+      ),
+    )
     return
   }
 
@@ -81,17 +189,24 @@ async function main() {
     return
   }
 
-  const raw = readFileSync(file, 'utf8')
-  const extension = extname(file).toLowerCase()
-  const rows = extension === '.csv' ? parseCsv(raw) : JSON.parse(raw)
-  if (!Array.isArray(rows)) throw new Error('El archivo debe contener un arreglo.')
-
-  const normalized = rows.map(normalizeRow)
-  const validRows = normalized.filter((item) => item.ok).map((item) => item.value)
-  const invalidRows = normalized.filter((item) => !item.ok)
   const supabase = createClient(supabaseUrl, serviceKey, {
     auth: { persistSession: false },
   })
+
+  const { error: translationError } = await supabase.from('bible_translations').upsert(
+    {
+      code: metadataValidation.metadata.translation_code,
+      name: metadataValidation.metadata.translation_name,
+      language: 'es',
+      license: metadataValidation.metadata.license,
+      source_name: metadataValidation.metadata.source_name,
+      source_url: metadataValidation.metadata.source_url,
+      is_public_domain: metadataValidation.metadata.is_public_domain,
+      is_active: true,
+    },
+    { onConflict: 'code' },
+  )
+  if (translationError) throw translationError
 
   let upserted = 0
   for (let index = 0; index < validRows.length; index += BATCH_SIZE) {
@@ -109,9 +224,12 @@ async function main() {
     JSON.stringify(
       {
         status: 'BIBLE_IMPORT_READY',
+        translation: metadataValidation.metadata.translation_code,
         read: rows.length,
         upserted,
         omitted: invalidRows.length,
+        books: uniqueBooks.size,
+        chapters: uniqueChapters.size,
         errors: invalidRows.slice(0, 20),
       },
       null,

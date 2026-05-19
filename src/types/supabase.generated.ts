@@ -136,6 +136,103 @@ export type Database = {
           },
         ]
       }
+      ai_cost_events: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          input_chars: number
+          model: string | null
+          output_chars: number
+          provider: string
+          status: string
+          tokens_estimated: number
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          input_chars?: number
+          model?: string | null
+          output_chars?: number
+          provider?: string
+          status?: string
+          tokens_estimated?: number
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          input_chars?: number
+          model?: string | null
+          output_chars?: number
+          provider?: string
+          status?: string
+          tokens_estimated?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_cost_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_prompt_templates: {
+        Row: {
+          action_type: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          safety_notes: string | null
+          system_prompt: string
+          title: string
+          updated_at: string
+          user_prompt_template: string
+          version: number
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          safety_notes?: string | null
+          system_prompt: string
+          title: string
+          updated_at?: string
+          user_prompt_template: string
+          version?: number
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          safety_notes?: string | null
+          system_prompt?: string
+          title?: string
+          updated_at?: string
+          user_prompt_template?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_prompt_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_provider_settings: {
         Row: {
           configured_at: string | null
@@ -183,6 +280,94 @@ export type Database = {
           {
             foreignKeyName: "ai_provider_settings_configured_by_fkey"
             columns: ["configured_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_usage_daily: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          requests_count: number
+          tokens_estimated: number
+          updated_at: string
+          usage_date: string
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          requests_count?: number
+          tokens_estimated?: number
+          updated_at?: string
+          usage_date?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          requests_count?: number
+          tokens_estimated?: number
+          updated_at?: string
+          usage_date?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_daily_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_usage_limits: {
+        Row: {
+          action_type: string
+          created_at: string
+          daily_request_limit: number
+          daily_token_limit: number
+          id: string
+          is_enabled: boolean
+          role: string | null
+          scope: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          daily_request_limit?: number
+          daily_token_limit?: number
+          id?: string
+          is_enabled?: boolean
+          role?: string | null
+          scope: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          daily_request_limit?: number
+          daily_token_limit?: number
+          id?: string
+          is_enabled?: boolean
+          role?: string | null
+          scope?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_usage_limits_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

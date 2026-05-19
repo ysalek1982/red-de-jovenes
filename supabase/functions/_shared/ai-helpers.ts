@@ -96,6 +96,11 @@ export function summarize(value: string, max = 240) {
   return value.length <= max ? value : `${value.slice(0, max - 3)}...`
 }
 
+export function estimateTokens(...values: string[]) {
+  const totalChars = values.reduce((sum, value) => sum + value.length, 0)
+  return Math.max(1, Math.ceil(totalChars / 4))
+}
+
 export async function getGeminiSettings(supabase: ReturnType<typeof getAdminClient>) {
   const { data, error } = await supabase
     .from('ai_provider_settings')
@@ -104,6 +109,118 @@ export async function getGeminiSettings(supabase: ReturnType<typeof getAdminClie
     .single()
   if (error) throw error
   return data
+}
+
+export async function getActivePromptTemplate(
+  supabase: ReturnType<typeof getAdminClient>,
+  actionType: string,
+) {
+  const { data, error } = await supabase
+    .from('ai_prompt_templates')
+    .select('action_type, version, system_prompt, user_prompt_template, safety_notes')
+    .eq('action_type', actionType)
+    .eq('is_active', true)
+    .maybeSingle()
+  if (error) throw error
+  return data
+}
+
+export async function checkAiUsageLimit(input: {
+  supabase: ReturnType<typeof getAdminClient>
+  userId: string
+  actionType: string
+  tokensEstimated: number
+}) {
+  const today = new Date().toISOString().slice(0, 10)
+  const { data: limits, error: limitsError } = await input.supabase
+    .from('ai_usage_limits')
+    .select('*')
+    .eq('action_type', input.actionType)
+    .eq('is_enabled', true)
+    .order('created_at', { ascending: false })
+  if (limitsError) throw limitsError
+
+  const userLimit = (limits ?? []).find((limit) => limit.scope === 'user' && limit.user_id === input.userId)
+  const globalLimit = (limits ?? []).find((limit) => limit.scope === 'global')
+  const limit = userLimit ?? globalLimit
+  if (!limit) return { allowed: true, today }
+
+  const { data: usage, error: usageError } = await input.supabase
+    .from('ai_usage_daily')
+    .select('requests_count, tokens_estimated')
+    .eq('user_id', input.userId)
+    .eq('usage_date', today)
+    .eq('action_type', input.actionType)
+    .maybeSingle()
+  if (usageError) throw usageError
+
+  const nextRequests = (usage?.requests_count ?? 0) + 1
+  const nextTokens = (usage?.tokens_estimated ?? 0) + input.tokensEstimated
+  const allowed =
+    nextRequests <= limit.daily_request_limit && nextTokens <= limit.daily_token_limit
+
+  return {
+    allowed,
+    today,
+    limit,
+    currentRequests: usage?.requests_count ?? 0,
+    currentTokens: usage?.tokens_estimated ?? 0,
+    nextRequests,
+    nextTokens,
+  }
+}
+
+export async function recordAiUsage(input: {
+  supabase: ReturnType<typeof getAdminClient>
+  userId: string
+  actionType: string
+  model?: string | null
+  inputChars: number
+  outputChars: number
+  tokensEstimated: number
+  status: string
+}) {
+  const today = new Date().toISOString().slice(0, 10)
+  const { data: existing, error: readError } = await input.supabase
+    .from('ai_usage_daily')
+    .select('id, requests_count, tokens_estimated')
+    .eq('user_id', input.userId)
+    .eq('usage_date', today)
+    .eq('action_type', input.actionType)
+    .maybeSingle()
+  if (readError) throw readError
+
+  if (existing) {
+    const { error } = await input.supabase
+      .from('ai_usage_daily')
+      .update({
+        requests_count: existing.requests_count + 1,
+        tokens_estimated: existing.tokens_estimated + input.tokensEstimated,
+      })
+      .eq('id', existing.id)
+    if (error) throw error
+  } else {
+    const { error } = await input.supabase.from('ai_usage_daily').insert({
+      user_id: input.userId,
+      usage_date: today,
+      action_type: input.actionType,
+      requests_count: 1,
+      tokens_estimated: input.tokensEstimated,
+    })
+    if (error) throw error
+  }
+
+  const { error: costError } = await input.supabase.from('ai_cost_events').insert({
+    user_id: input.userId,
+    action_type: input.actionType,
+    provider: 'gemini',
+    model: input.model ?? null,
+    input_chars: input.inputChars,
+    output_chars: input.outputChars,
+    tokens_estimated: input.tokensEstimated,
+    status: input.status,
+  })
+  if (costError) throw costError
 }
 
 export async function callGemini(input: {
