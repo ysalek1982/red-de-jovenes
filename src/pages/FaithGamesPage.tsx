@@ -8,19 +8,46 @@ import {
   XCircle,
   Zap,
 } from 'lucide-react'
-import {
-  faithGames,
-  upcomingFaithGames,
-  type FaithGameDefinition,
-} from '../data/faithGamesData'
+import { faithGames, type FaithGameDefinition } from '../data/faithGamesData'
 import { useAuth } from '../features/auth/useAuth'
 import { getMyGameScores, saveGameScore } from '../features/games/gameService'
 import type { GameScore } from '../types/database'
+
+interface MemoryCard {
+  id: string
+  pairId: string
+  value: string
+  explanation: string
+}
 
 function getFeedbackColor(isCorrect: boolean) {
   return isCorrect
     ? 'border-emerald-300/30 bg-emerald-300/15 text-emerald-100'
     : 'border-rose-300/30 bg-rose-300/15 text-rose-100'
+}
+
+function getGameTotal(game: FaithGameDefinition) {
+  return game.mode === 'memory' ? game.pairs?.length ?? 0 : game.questions.length
+}
+
+function createMemoryCards(game: FaithGameDefinition) {
+  const pairs = game.pairs ?? []
+  return pairs
+    .flatMap<MemoryCard>((pair) => [
+      {
+        id: `${pair.id}-left`,
+        pairId: pair.id,
+        value: pair.left,
+        explanation: pair.explanation,
+      },
+      {
+        id: `${pair.id}-right`,
+        pairId: pair.id,
+        value: pair.right,
+        explanation: pair.explanation,
+      },
+    ])
+    .sort(() => Math.random() - 0.5)
 }
 
 export function FaithGamesPage() {
@@ -33,6 +60,12 @@ export function FaithGamesPage() {
   const [isScoreSaved, setIsScoreSaved] = useState(false)
   const [scoreMessage, setScoreMessage] = useState('')
   const [scoreHistory, setScoreHistory] = useState<GameScore[]>([])
+  const [memoryCards, setMemoryCards] = useState<MemoryCard[]>(() =>
+    createMemoryCards(faithGames[0]),
+  )
+  const [flippedCardIds, setFlippedCardIds] = useState<string[]>([])
+  const [matchedPairIds, setMatchedPairIds] = useState<string[]>([])
+  const [memoryAttempts, setMemoryAttempts] = useState(0)
 
   const activeGame = useMemo<FaithGameDefinition>(
     () =>
@@ -40,26 +73,62 @@ export function FaithGamesPage() {
     [activeGameKey],
   )
 
-  const currentQuestion = activeGame.questions[questionIndex]
-  const isCorrect = selectedAnswer === currentQuestion.correctAnswer
-  const progress = Math.round(
-    ((questionIndex + (selectedAnswer || isFinished ? 1 : 0)) /
-      activeGame.questions.length) *
-      100,
+  const activeTotal = getGameTotal(activeGame)
+  const currentQuestion =
+    activeGame.mode === 'quiz' ? activeGame.questions[questionIndex] : null
+  const isCorrect = Boolean(
+    selectedAnswer && currentQuestion?.correctAnswer === selectedAnswer,
+  )
+  const progress =
+    activeGame.mode === 'memory'
+      ? Math.round((matchedPairIds.length / Math.max(activeTotal, 1)) * 100)
+      : Math.round(
+          ((questionIndex + (selectedAnswer || isFinished ? 1 : 0)) /
+            Math.max(activeTotal, 1)) *
+            100,
+        )
+
+  const scoreByGame = useMemo(() => {
+    return faithGames.map((game) => {
+      const scores = scoreHistory.filter((item) => item.game_key === game.key)
+      const best = scores.reduce<GameScore | null>((currentBest, item) => {
+        if (!currentBest) return item
+        return item.score / item.total > currentBest.score / currentBest.total
+          ? item
+          : currentBest
+      }, null)
+
+      return {
+        game,
+        plays: scores.length,
+        best,
+      }
+    })
+  }, [scoreHistory])
+
+  const totalPoints = useMemo(
+    () => scoreHistory.reduce((total, item) => total + item.score, 0),
+    [scoreHistory],
   )
 
   function resetGame(nextGameKey = activeGameKey) {
-    setActiveGameKey(nextGameKey)
+    const nextGame =
+      faithGames.find((game) => game.key === nextGameKey) ?? faithGames[0]
+    setActiveGameKey(nextGame.key)
     setQuestionIndex(0)
     setSelectedAnswer('')
     setScore(0)
     setIsFinished(false)
     setIsScoreSaved(false)
     setScoreMessage('')
+    setFlippedCardIds([])
+    setMatchedPairIds([])
+    setMemoryAttempts(0)
+    setMemoryCards(nextGame.mode === 'memory' ? createMemoryCards(nextGame) : [])
   }
 
   function handleSelectAnswer(answer: string) {
-    if (selectedAnswer || isFinished) return
+    if (!currentQuestion || selectedAnswer || isFinished) return
 
     setSelectedAnswer(answer)
     if (answer === currentQuestion.correctAnswer) {
@@ -77,6 +146,46 @@ export function FaithGamesPage() {
     setSelectedAnswer('')
   }
 
+  function handleMemoryCardClick(card: MemoryCard) {
+    if (
+      isFinished ||
+      matchedPairIds.includes(card.pairId) ||
+      flippedCardIds.includes(card.id) ||
+      flippedCardIds.length >= 2
+    ) {
+      return
+    }
+
+    const nextFlipped = [...flippedCardIds, card.id]
+    setFlippedCardIds(nextFlipped)
+
+    if (nextFlipped.length !== 2) return
+
+    setMemoryAttempts((current) => current + 1)
+    const [firstCard, secondCard] = nextFlipped
+      .map((cardId) => memoryCards.find((item) => item.id === cardId))
+      .filter((item): item is MemoryCard => Boolean(item))
+
+    if (firstCard?.pairId && firstCard.pairId === secondCard?.pairId) {
+      const nextMatchedCount = matchedPairIds.includes(firstCard.pairId)
+        ? matchedPairIds.length
+        : matchedPairIds.length + 1
+
+      setMatchedPairIds((current) =>
+        current.includes(firstCard.pairId)
+          ? current
+          : [...current, firstCard.pairId],
+      )
+
+      if (nextMatchedCount === activeTotal) {
+        setScore(activeTotal)
+        window.setTimeout(() => setIsFinished(true), 700)
+      }
+    }
+
+    window.setTimeout(() => setFlippedCardIds([]), 700)
+  }
+
   useEffect(() => {
     if (!user?.id) return
 
@@ -86,24 +195,24 @@ export function FaithGamesPage() {
   }, [user?.id])
 
   useEffect(() => {
-    if (!user?.id || !isFinished || isScoreSaved) return
+    if (!user?.id || !isFinished || isScoreSaved || !activeTotal) return
 
     saveGameScore({
       userId: user.id,
       gameKey: activeGame.key,
       score,
-      total: activeGame.questions.length,
+      total: activeTotal,
     })
       .then((savedScore) => {
-        setScoreHistory((current) => [savedScore, ...current].slice(0, 12))
+        setScoreHistory((current) => [savedScore, ...current].slice(0, 30))
         setIsScoreSaved(true)
         setScoreMessage('Puntaje guardado en tu progreso.')
       })
       .catch(() => setScoreMessage('No pudimos guardar tu puntaje.'))
-  }, [activeGame.key, activeGame.questions.length, isFinished, isScoreSaved, score, user?.id])
+  }, [activeGame.key, activeTotal, isFinished, isScoreSaved, score, user?.id])
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-24 pt-32 text-white">
+    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-32 pt-32 text-white">
       <div className="pointer-events-none fixed left-0 top-24 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
       <div className="pointer-events-none fixed bottom-20 right-0 h-96 w-96 rounded-full bg-emerald-300/10 blur-3xl" />
 
@@ -118,8 +227,8 @@ export function FaithGamesPage() {
               Aprende, compite y crece en la fe.
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/65">
-              Juegos rápidos para aprender la Palabra, memorizar versículos y
-              compartir desafíos sanos con tu comunidad.
+              Juegos rapidos para aprender la Palabra, memorizar versiculos y
+              practicar decisiones sanas con tu comunidad.
             </p>
           </div>
 
@@ -127,11 +236,16 @@ export function FaithGamesPage() {
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-amber-100">
-                  Puntaje actual
+                  {isFinished ? 'Resultado' : 'Puntaje actual'}
                 </p>
                 <p className="mt-2 text-5xl font-black">
-                  {score}/{activeGame.questions.length}
+                  {score}/{activeTotal}
                 </p>
+                {activeGame.mode === 'memory' ? (
+                  <p className="mt-2 text-sm text-white/60">
+                    {memoryAttempts} intentos en Memory Match
+                  </p>
+                ) : null}
               </div>
               <Trophy className="h-16 w-16 text-amber-200" aria-hidden="true" />
             </div>
@@ -144,7 +258,7 @@ export function FaithGamesPage() {
           </div>
         </div>
 
-        <div className="mt-10 grid gap-5 lg:grid-cols-[0.75fr_1.25fr]">
+        <div className="mt-10 grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
           <aside className="space-y-4">
             {faithGames.map((game) => {
               const isActive = game.key === activeGameKey
@@ -167,49 +281,34 @@ export function FaithGamesPage() {
                   <p className="mt-2 text-sm leading-6 text-white/62">
                     {game.description}
                   </p>
+                  <p className="mt-3 text-xs font-bold uppercase tracking-wide text-emerald-200">
+                    Jugable ahora
+                  </p>
                 </button>
               )
             })}
 
-            {upcomingFaithGames.map((game) => (
-              <article
-                key={game.title}
-                className="rounded-[1.5rem] border border-white/10 bg-white/[0.04] p-5 text-white/65 shadow-2xl shadow-black/20 backdrop-blur"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="font-black text-white">{game.title}</h2>
-                  <span className="rounded-full border border-white/10 bg-slate-950/45 px-3 py-1 text-xs font-bold text-white/50">
-                    {game.status}
-                  </span>
-                </div>
-                <p className="mt-3 text-sm leading-6">{game.description}</p>
-              </article>
-            ))}
-
             <article className="rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/20 backdrop-blur">
-              <h2 className="font-black text-white">Mi progreso</h2>
+              <h2 className="font-black text-white">Tu progreso</h2>
+              <p className="mt-2 text-sm text-white/60">
+                {totalPoints} puntos guardados en {scoreHistory.length} partidas.
+              </p>
               <div className="mt-4 space-y-3">
-                {scoreHistory.length ? (
-                  scoreHistory.slice(0, 5).map((item) => (
-                    <div
-                      key={item.id}
-                      className="rounded-2xl border border-white/10 bg-slate-950/45 p-3"
-                    >
-                      <p className="text-sm font-bold text-white">
-                        {item.game_key === 'versiculo-rapido'
-                          ? 'Versiculo Rapido'
-                          : 'Trivia Biblica'}
-                      </p>
-                      <p className="mt-1 text-xs text-white/55">
-                        {item.score}/{item.total} puntos
-                      </p>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm leading-6 text-white/60">
-                    Completa un juego para guardar tu primer puntaje.
-                  </p>
-                )}
+                {scoreByGame.map(({ game, plays, best }) => (
+                  <div
+                    key={game.key}
+                    className="rounded-2xl border border-white/10 bg-slate-950/45 p-3"
+                  >
+                    <p className="text-sm font-bold text-white">{game.title}</p>
+                    <p className="mt-1 text-xs text-white/55">
+                      {best
+                        ? `Mejor: ${best.score}/${best.total} - ${plays} partida${
+                            plays === 1 ? '' : 's'
+                          }`
+                        : 'Sin partidas todavia'}
+                    </p>
+                  </div>
+                ))}
               </div>
             </article>
           </aside>
@@ -224,11 +323,11 @@ export function FaithGamesPage() {
                   Resultado final
                 </p>
                 <h2 className="mt-3 text-4xl font-black md:text-5xl">
-                  {score}/{activeGame.questions.length} respuestas correctas
+                  {score}/{activeTotal} puntos
                 </h2>
                 <p className="mt-4 max-w-xl text-white/65">
-                  Cada respuesta es una oportunidad para conocer más la Palabra.
-                  Repite el juego o prueba otra categoría.
+                  Cada respuesta es una oportunidad para conocer mas la Palabra.
+                  Repite el juego o prueba otro desafio.
                 </p>
                 {scoreMessage ? (
                   <p className="mt-4 text-sm font-semibold text-emerald-200">
@@ -244,7 +343,56 @@ export function FaithGamesPage() {
                   Jugar otra vez
                 </button>
               </div>
-            ) : (
+            ) : activeGame.mode === 'memory' ? (
+              <div>
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                  <div>
+                    <p className="text-sm font-bold uppercase tracking-wide text-amber-200">
+                      {activeGame.title}
+                    </p>
+                    <h2 className="mt-2 text-3xl font-black md:text-4xl">
+                      Encuentra todos los pares
+                    </h2>
+                  </div>
+                  <span className="w-fit rounded-full border border-white/10 bg-slate-950/45 px-4 py-2 text-sm font-bold text-white/55">
+                    {matchedPairIds.length}/{activeTotal} pares
+                  </span>
+                </div>
+
+                <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+                  {memoryCards.map((card) => {
+                    const isVisible =
+                      flippedCardIds.includes(card.id) ||
+                      matchedPairIds.includes(card.pairId)
+                    return (
+                      <button
+                        key={card.id}
+                        type="button"
+                        onClick={() => handleMemoryCardClick(card)}
+                        disabled={isVisible && matchedPairIds.includes(card.pairId)}
+                        className={`min-h-28 rounded-[1.25rem] border p-3 text-center text-sm font-black transition ${
+                          isVisible
+                            ? 'border-emerald-300/30 bg-emerald-300/15 text-emerald-100'
+                            : 'border-white/10 bg-slate-950/55 text-white/55 hover:bg-white/10'
+                        }`}
+                      >
+                        {isVisible ? card.value : 'Red de Jovenes'}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <div className="mt-6 rounded-[1.5rem] border border-amber-300/20 bg-amber-300/10 p-5">
+                  <p className="font-black text-amber-100">
+                    Intentos: {memoryAttempts}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-white/70">
+                    Toca dos cartas. Si forman un par, quedaran visibles. Al
+                    completar todos los pares se guardara tu puntaje.
+                  </p>
+                </div>
+              </div>
+            ) : currentQuestion ? (
               <>
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div>
@@ -252,7 +400,7 @@ export function FaithGamesPage() {
                       {activeGame.title}
                     </p>
                     <h2 className="mt-2 text-3xl font-black md:text-4xl">
-                      Pregunta {questionIndex + 1} de {activeGame.questions.length}
+                      Pregunta {questionIndex + 1} de {activeTotal}
                     </h2>
                   </div>
                   <span className="w-fit rounded-full border border-white/10 bg-slate-950/45 px-4 py-2 text-sm font-bold text-white/55">
@@ -322,13 +470,17 @@ export function FaithGamesPage() {
                       className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-amber-100"
                     >
                       <Sparkles className="h-4 w-4" aria-hidden="true" />
-                      {questionIndex === activeGame.questions.length - 1
+                      {questionIndex === activeTotal - 1
                         ? 'Ver resultado'
                         : 'Siguiente pregunta'}
                     </button>
                   </div>
                 ) : null}
               </>
+            ) : (
+              <div className="rounded-[1.5rem] border border-amber-300/20 bg-amber-300/10 p-5 text-amber-100">
+                Este juego necesita preguntas antes de iniciar.
+              </div>
             )}
           </article>
         </div>
