@@ -9,7 +9,7 @@ URL staging: https://red-de-jovenes.vercel.app/
 | Campo | Resultado |
 | --- | --- |
 | Target | Production/Staging Vercel |
-| Deployment | `https://red-de-jovenes-oyn0wz2um-ysaleks-projects.vercel.app` |
+| Deployment | `https://red-de-jovenes-j7kq4vc7m-ysaleks-projects.vercel.app` |
 | Alias | `https://red-de-jovenes.vercel.app` |
 | Estado | READY / Aliased |
 
@@ -24,7 +24,7 @@ $env:QA_APP_BASE_URL="https://red-de-jovenes.vercel.app"
 | Validacion | Resultado | Observacion |
 | --- | --- | --- |
 | `npm run qa:functional` | `QA_FUNCTIONAL_ROUTES_OK` | `/app/biblia` y rutas principales responden 200 |
-| `npm run qa:bible-random` | `QA_BIBLE_RANDOM_OK` | Random devolvio Genesis 20:16 y Romanos 8:1 |
+| `npm run qa:bible-random` | `QA_BIBLE_RANDOM_OK` | Random devolvio 1 Corintios 14:31 y Juan 19:24 |
 | `npm run qa:bible-search` | `QA_BIBLE_SEARCH_OK` | Busqueda por `Juan 3:16` y palabra OK |
 | `npm run qa:bible-reader` | `QA_BIBLE_READER_OK` | Lectura por capitulo y progreso OK |
 | `npm run qa:bible-plans` | `QA_BIBLE_PLANS_OK` | Planes activos y progreso propio OK |
