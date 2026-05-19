@@ -44,6 +44,9 @@ const AppProfile = lazy(() =>
     default: module.AppProfile,
   })),
 )
+const BiblePage = lazy(() =>
+  import('../pages/BiblePage').then((module) => ({ default: module.BiblePage })),
+)
 const PrayerRoomPage = lazy(() =>
   import('../pages/PrayerRoomPage').then((module) => ({
     default: module.PrayerRoomPage,
@@ -72,6 +75,24 @@ const FaithGamesPage = lazy(() =>
 const WorldMapPage = lazy(() =>
   import('../pages/WorldMapPage').then((module) => ({
     default: module.WorldMapPage,
+  })),
+)
+const EventsPage = lazy(() =>
+  import('../pages/EventsPage').then((module) => ({ default: module.EventsPage })),
+)
+const DiscipleshipPage = lazy(() =>
+  import('../pages/DiscipleshipPage').then((module) => ({
+    default: module.DiscipleshipPage,
+  })),
+)
+const MessagesPage = lazy(() =>
+  import('../pages/MessagesPage').then((module) => ({
+    default: module.MessagesPage,
+  })),
+)
+const BuildNetworkPage = lazy(() =>
+  import('../pages/BuildNetworkPage').then((module) => ({
+    default: module.BuildNetworkPage,
   })),
 )
 const SafetyPage = lazy(() =>
@@ -142,13 +163,18 @@ export function AppRoutes() {
         >
           <Route index element={withSuspense(<AppHome />)} />
           <Route path="perfil" element={withSuspense(<AppProfile />)} />
+          <Route path="biblia" element={withSuspense(<BiblePage />)} />
           <Route path="oracion" element={withSuspense(<PrayerRoomPage />)} />
           <Route path="orar" element={<Navigate to="/app/oracion" replace />} />
-          <Route path="comunidad" element={<Navigate to="/app/foros" replace />} />
+          <Route path="comunidad" element={<Navigate to="/app/mapa" replace />} />
           <Route path="foros" element={withSuspense(<CommunityFeedPage />)} />
           <Route path="devocional" element={withSuspense(<DevotionalPage />)} />
           <Route path="juegos" element={withSuspense(<FaithGamesPage />)} />
           <Route path="mapa" element={withSuspense(<WorldMapPage />)} />
+          <Route path="eventos" element={withSuspense(<EventsPage />)} />
+          <Route path="discipulado" element={withSuspense(<DiscipleshipPage />)} />
+          <Route path="mensajes" element={withSuspense(<MessagesPage />)} />
+          <Route path="construir" element={withSuspense(<BuildNetworkPage />)} />
           <Route path="seguridad" element={withSuspense(<SafetyPage />)} />
           <Route path="admin" element={withSuspense(<AdminHome />)} />
         </Route>

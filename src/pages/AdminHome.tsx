@@ -9,6 +9,7 @@ import {
   Send,
   ShieldCheck,
   Users,
+  CalendarDays,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { hasRole } from '../features/auth/roleService'
@@ -37,6 +38,11 @@ interface AdminOverview {
   reports: number
   groupSuggestions: number
   testimonies: number
+  events: number
+  discipleshipTracks: number
+  feedbackSuggestions: number
+  messageReports: number
+  notifications: number
 }
 
 interface AdminLatestItems {
@@ -57,6 +63,11 @@ const initialOverview: AdminOverview = {
   reports: 0,
   groupSuggestions: 0,
   testimonies: 0,
+  events: 0,
+  discipleshipTracks: 0,
+  feedbackSuggestions: 0,
+  messageReports: 0,
+  notifications: 0,
 }
 
 const initialLatest: AdminLatestItems = {
@@ -263,7 +274,19 @@ export function AdminHome() {
     { title: 'Publicaciones', value: overview.posts, icon: MessageCircle },
     { title: 'Comentarios', value: overview.comments, icon: FileText },
     { title: 'Devocionales', value: overview.devotionals, icon: BookOpen },
+    { title: 'Eventos', value: overview.events, icon: CalendarDays },
+    { title: 'Discipulado', value: overview.discipleshipTracks, icon: BookOpen },
     { title: 'Reportes pendientes', value: overview.reports, icon: ShieldCheck },
+    {
+      title: 'Feedback pendiente',
+      value: overview.feedbackSuggestions,
+      icon: FileText,
+    },
+    {
+      title: 'Reportes mensajes',
+      value: overview.messageReports,
+      icon: MessageCircle,
+    },
     {
       title: 'Sugerencias pendientes',
       value: overview.groupSuggestions,

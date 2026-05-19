@@ -23,11 +23,16 @@ const publicRoutes = [
 
 const privateRoutes = [
   '/app',
+  '/app/biblia',
   '/app/oracion',
   '/app/foros',
   '/app/devocional',
   '/app/juegos',
   '/app/mapa',
+  '/app/eventos',
+  '/app/discipulado',
+  '/app/mensajes',
+  '/app/construir',
   '/app/seguridad',
   '/app/perfil',
   '/app/admin',

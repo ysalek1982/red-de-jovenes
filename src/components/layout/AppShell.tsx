@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
 import {
   BookOpen,
+  BookOpenCheck,
+  CalendarDays,
   Gamepad2,
+  GraduationCap,
   Globe2,
+  Hammer,
   Heart,
   Home,
   LogOut,
   Menu,
   MessageCircle,
+  Search,
   ShieldCheck,
   Sparkles,
   type LucideIcon,
@@ -18,7 +23,9 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { hasRole } from '../../features/auth/roleService'
 import { useAuth } from '../../features/auth/useAuth'
 import { cn } from '../../lib/utils'
+import { NotificationBell } from '../notifications/NotificationBell'
 import { InstallPrompt } from '../pwa/InstallPrompt'
+import { GlobalSearch } from '../search/GlobalSearch'
 
 interface NavigationItem {
   label: string
@@ -29,15 +36,20 @@ interface NavigationItem {
 
 const primaryMobileNavigation: NavigationItem[] = [
   { label: 'Inicio', to: '/app', icon: Home, end: true },
-  { label: 'Oracion', to: '/app/oracion', icon: Heart },
+  { label: 'Biblia', to: '/app/biblia', icon: BookOpen },
+  { label: 'Orar', to: '/app/oracion', icon: Heart },
   { label: 'Foros', to: '/app/foros', icon: MessageCircle },
   { label: 'Juegos', to: '/app/juegos', icon: Gamepad2 },
-  { label: 'Mapa', to: '/app/mapa', icon: Globe2 },
 ]
 
 const secondaryNavigation: NavigationItem[] = [
-  { label: 'Devocional', to: '/app/devocional', icon: BookOpen },
+  { label: 'Devocional', to: '/app/devocional', icon: BookOpenCheck },
+  { label: 'Comunidad', to: '/app/mapa', icon: Globe2 },
+  { label: 'Eventos', to: '/app/eventos', icon: CalendarDays },
+  { label: 'Discipulado', to: '/app/discipulado', icon: GraduationCap },
+  { label: 'Mensajes', to: '/app/mensajes', icon: MessageCircle },
   { label: 'Perfil', to: '/app/perfil', icon: UserRound },
+  { label: 'Construir', to: '/app/construir', icon: Hammer },
 ]
 
 function navigationItemClass(isActive: boolean) {
@@ -107,13 +119,17 @@ export function AppShell() {
           </button>
 
           <div className="ml-auto hidden min-h-11 w-full max-w-md items-center rounded-full border border-white/10 bg-white/[0.06] px-4 text-sm font-semibold text-white/45 lg:flex">
-            Todo lo puedo en Cristo - Fil 4:13
+            <GlobalSearch />
           </div>
 
           <div className="ml-auto flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-amber-200 lg:ml-0">
             <Sparkles className="h-4 w-4" aria-hidden="true" />
             <span className="hidden sm:inline">Mi red</span>
           </div>
+          <div className="lg:hidden">
+            <GlobalSearch />
+          </div>
+          <NotificationBell />
           <InstallPrompt />
         </div>
       </header>
@@ -160,6 +176,12 @@ export function AppShell() {
                 </NavLink>
               )
             })}
+            <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-2">
+              <div className="flex items-center gap-2 px-2 py-1 text-xs font-bold text-white/45">
+                <Search className="h-3 w-3" aria-hidden="true" />
+                Busca personas, eventos y versiculos desde la lupa superior.
+              </div>
+            </div>
             <button
               type="button"
               onClick={() => void handleSignOut()}

@@ -2,8 +2,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   ArrowRight,
   BookOpen,
+  CalendarDays,
   Gamepad2,
+  GraduationCap,
   Globe2,
+  Hammer,
   Heart,
   Loader2,
   MessageCircle,
@@ -11,8 +14,14 @@ import {
   UserRound,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { getRecentPosts, type PostWithAuthor } from '../features/community/communityService'
+import {
+  createPost,
+  getRecentPosts,
+  type PostWithAuthor,
+} from '../features/community/communityService'
+import { verseOfTheMoment } from '../features/bible/bibleService'
 import { getTodayDevotional } from '../features/devotionals/devotionalService'
+import { getUpcomingEvents, type EventWithRsvps } from '../features/events/eventService'
 import { getActiveGroups, type GroupWithMembership } from '../features/map/worldMapService'
 import {
   getPublicPrayerRequests,
@@ -27,6 +36,12 @@ import { useAuth } from '../features/auth/useAuth'
 import type { Devotional, Profile } from '../types/database'
 
 const quickActions = [
+  {
+    title: 'Biblia',
+    text: 'Guarda versiculos, marca lecturas y comparte la Palabra.',
+    to: '/app/biblia',
+    icon: BookOpen,
+  },
   {
     title: 'Sala de oración global',
     text: 'Comparte peticiones y ora con jóvenes de la Red.',
@@ -56,6 +71,24 @@ const quickActions = [
     text: 'Explora iglesias y grupos juveniles conectados.',
     to: '/app/mapa',
     icon: Globe2,
+  },
+  {
+    title: 'Eventos',
+    text: 'Encuentra encuentros, estudios y oraciones de la Red.',
+    to: '/app/eventos',
+    icon: CalendarDays,
+  },
+  {
+    title: 'Discipulado',
+    text: 'Camina planes cortos para crecer con proposito.',
+    to: '/app/discipulado',
+    icon: GraduationCap,
+  },
+  {
+    title: 'Construir la Red',
+    text: 'Invita, sugiere comunidades y comparte mejoras.',
+    to: '/app/construir',
+    icon: Hammer,
   },
   {
     title: 'Perfil',
@@ -125,7 +158,10 @@ export function AppHome() {
   const [prayers, setPrayers] = useState<PrayerRequestWithAuthor[]>([])
   const [posts, setPosts] = useState<PostWithAuthor[]>([])
   const [communities, setCommunities] = useState<GroupWithMembership[]>([])
+  const [events, setEvents] = useState<EventWithRsvps[]>([])
   const [progress, setProgress] = useState<FaithProgressSummary | null>(null)
+  const [quickPost, setQuickPost] = useState('')
+  const [quickStatus, setQuickStatus] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -148,6 +184,7 @@ export function AppHome() {
         progressData,
         groupData,
         profileData,
+        eventData,
       ] = await Promise.all([
         getTodayDevotional(),
         getPublicPrayerRequests(),
@@ -155,6 +192,7 @@ export function AppHome() {
         userId ? getMyFaithProgress(userId) : Promise.resolve(null),
         getActiveGroups(userId),
         userId ? getProfile(userId) : Promise.resolve(null),
+        getUpcomingEvents(userId),
       ])
       setDevotional(devotionalData)
       setProfile(profileData)
@@ -162,6 +200,7 @@ export function AppHome() {
       setPosts(postData.slice(0, 4))
       setCommunities(groupData)
       setProgress(progressData)
+      setEvents(eventData.slice(0, 3))
     } catch {
       setError('No pudimos cargar tu Red. Revisa la conexión o intenta más tarde.')
     } finally {
@@ -213,7 +252,21 @@ export function AppHome() {
       to: '/app/mapa',
       when: `${group.membersCount} miembros`,
     })),
+    ...events.slice(0, 2).map((event) => ({
+      title: 'Evento proximo',
+      text: event.title,
+      to: '/app/eventos',
+      when: formatRelative(event.starts_at),
+    })),
   ].slice(0, 6)
+
+  async function handleQuickPost() {
+    if (!userId || !quickPost.trim()) return
+    await createPost({ userId, body: quickPost.trim() })
+    setQuickPost('')
+    setQuickStatus('Tu publicacion quedo en Foros con la Palabra.')
+    await loadData()
+  }
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -267,6 +320,64 @@ export function AppHome() {
           </div>
         ) : (
           <div className="mt-10 space-y-6">
+            <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+              <article className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+                <p className="text-sm font-semibold text-amber-100">
+                  Versiculo del momento
+                </p>
+                <p className="mt-4 text-2xl leading-10 text-white">
+                  "{verseOfTheMoment.text}"
+                </p>
+                <p className="mt-3 font-bold text-amber-200">
+                  {verseOfTheMoment.reference}
+                </p>
+                <div className="mt-5 flex flex-wrap gap-2">
+                  <Link
+                    to="/app/biblia"
+                    className="inline-flex h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-black text-slate-950"
+                  >
+                    Guardar en Biblia
+                  </Link>
+                  <Link
+                    to="/app/foros"
+                    className="inline-flex h-11 items-center justify-center rounded-full border border-white/10 px-5 text-sm font-bold text-white"
+                  >
+                    Compartir reflexion
+                  </Link>
+                </div>
+              </article>
+
+              <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+                <p className="text-sm font-semibold text-emerald-200">
+                  Comparte con la Red
+                </p>
+                <h2 className="mt-2 text-2xl font-black">
+                  Que esta haciendo Dios hoy?
+                </h2>
+                <textarea
+                  value={quickPost}
+                  onChange={(event) => setQuickPost(event.target.value)}
+                  rows={3}
+                  placeholder="Escribe una reflexion, testimonio o pregunta..."
+                  className="mt-4 w-full rounded-3xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-amber-200"
+                />
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => void handleQuickPost()}
+                    className="h-11 rounded-full bg-emerald-200 px-5 text-sm font-black text-slate-950"
+                  >
+                    Publicar en Foros
+                  </button>
+                  {quickStatus ? (
+                    <p className="text-sm font-semibold text-emerald-200">
+                      {quickStatus}
+                    </p>
+                  ) : null}
+                </div>
+              </article>
+            </div>
+
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {quickActions.map((action) => {
                 const Icon = action.icon

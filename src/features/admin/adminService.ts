@@ -17,6 +17,11 @@ type CountableTable =
   | 'content_reports'
   | 'group_suggestions'
   | 'testimonies'
+  | 'events'
+  | 'discipleship_tracks'
+  | 'feedback_suggestions'
+  | 'message_reports'
+  | 'notifications'
 
 async function getCount(table: CountableTable) {
   const { count, error } = await supabase
@@ -84,6 +89,11 @@ export async function getAdminOverview() {
     reports,
     groupSuggestions,
     testimonies,
+    events,
+    discipleshipTracks,
+    feedbackSuggestions,
+    messageReports,
+    notifications,
   ] = await Promise.all([
     getCount('profiles'),
     getCount('prayer_requests'),
@@ -93,6 +103,11 @@ export async function getAdminOverview() {
     getFilteredCount('content_reports', 'status', 'pending'),
     getFilteredCount('group_suggestions', 'status', 'pending'),
     getCount('testimonies'),
+    getCount('events'),
+    getCount('discipleship_tracks'),
+    getFilteredCount('feedback_suggestions', 'status', 'pending'),
+    getFilteredCount('message_reports', 'status', 'pending'),
+    getCount('notifications'),
   ])
 
   return {
@@ -104,6 +119,11 @@ export async function getAdminOverview() {
     reports,
     groupSuggestions,
     testimonies,
+    events,
+    discipleshipTracks,
+    feedbackSuggestions,
+    messageReports,
+    notifications,
   }
 }
 

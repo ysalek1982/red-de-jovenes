@@ -22,6 +22,30 @@ export type Group = Database['public']['Tables']['groups']['Row']
 export type GroupSuggestion =
   Database['public']['Tables']['group_suggestions']['Row']
 export type GroupMember = Database['public']['Tables']['group_members']['Row']
+export type BibleSavedVerse =
+  Database['public']['Tables']['bible_saved_verses']['Row']
+export type BibleReadingProgress =
+  Database['public']['Tables']['bible_reading_progress']['Row']
+export type BibleHighlight =
+  Database['public']['Tables']['bible_highlights']['Row']
+export type Event = Database['public']['Tables']['events']['Row']
+export type EventRsvp = Database['public']['Tables']['event_rsvps']['Row']
+export type DiscipleshipTrack =
+  Database['public']['Tables']['discipleship_tracks']['Row']
+export type DiscipleshipStep =
+  Database['public']['Tables']['discipleship_steps']['Row']
+export type DiscipleshipProgress =
+  Database['public']['Tables']['discipleship_progress']['Row']
+export type Conversation = Database['public']['Tables']['conversations']['Row']
+export type ConversationMember =
+  Database['public']['Tables']['conversation_members']['Row']
+export type Message = Database['public']['Tables']['messages']['Row']
+export type MessageReport =
+  Database['public']['Tables']['message_reports']['Row']
+export type UserFollow = Database['public']['Tables']['user_follows']['Row']
+export type FeedbackSuggestion =
+  Database['public']['Tables']['feedback_suggestions']['Row']
+export type Notification = Database['public']['Tables']['notifications']['Row']
 export type ContentReport =
   Database['public']['Tables']['content_reports']['Row']
 export type NotificationPreference =
