@@ -6,7 +6,7 @@
 
 ## Deploy
 
-- Deployment Vercel: `https://red-de-jovenes-frp8ct0x0-ysaleks-projects.vercel.app`
+- Deployment Vercel final: `https://red-de-jovenes-j3l8bn2im-ysaleks-projects.vercel.app`
 - Alias principal: `https://red-de-jovenes.vercel.app`
 
 ## Resultado general
@@ -25,6 +25,7 @@
 
 ## Observaciones
 
+- Tras el commit de reporte final se hizo un despliegue final y se revalidaron `qa:functional`, `qa:pilot-feedback`, `qa:pilot-incidents` y `qa:pilot-report` contra el alias principal.
 - Feedback piloto crea, lee propio y bloquea lectura cruzada.
 - Incidentes piloto quedan restringidos a admin.
 - Reporte de cierre genera resumen operativo con datos reales.
