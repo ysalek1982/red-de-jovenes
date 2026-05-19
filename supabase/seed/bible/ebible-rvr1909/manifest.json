@@ -1,0 +1,14 @@
+﻿{
+    "translation_code":  "RVR1909",
+    "source_id":  "spaRV1909",
+    "source_name":  "eBible RVR1909 / spaRV1909",
+    "source_url":  "https://ebible.org/bible/details.php?id=spaRV1909",
+    "download_url":  "https://ebible.org/Scriptures/spaRV1909_vpl.zip",
+    "format":  "VPL ZIP (BibleWorks import + SQL)",
+    "license":  "public domain",
+    "is_public_domain":  true,
+    "downloaded_at":  "2026-05-19T19:10:13.4198464Z",
+    "checksum_sha256":  "B331BC607A569F8EE0FFC0A93DB7D4FF6342FC93E5C5AFE0C8D0AF3221BED5AD",
+    "size_bytes":  4402787,
+    "notes":  "Descargado desde eBible all formats. La ficha oficial declara public domain / Dominio Publico. No se uso scraping."
+}
