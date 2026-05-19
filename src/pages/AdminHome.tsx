@@ -691,6 +691,13 @@ export function AdminHome() {
       icon: FileText,
     },
   ]
+  const rvr1909Stats = bibleAdmin.translationStats.find(
+    (item) => item.code === 'RVR1909',
+  )
+  const rvr1909Complete =
+    (rvr1909Stats?.books_with_verses ?? 0) === 66 &&
+    (rvr1909Stats?.chapters_with_verses ?? 0) === 1189 &&
+    (rvr1909Stats?.verses_count ?? 0) > 30000
 
   const pilotChecks = [
     {
@@ -1172,6 +1179,19 @@ export function AdminHome() {
             <p className="mt-3 text-sm leading-6 text-white/65">
               Solo cargar traducciones autorizadas o de dominio publico verificado.
             </p>
+            <div className="mt-4 rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4">
+              <p className="text-sm font-black text-emerald-100">
+                {rvr1909Complete
+                  ? 'Corpus importado - RVR1909 completa'
+                  : 'Corpus pendiente o incompleto'}
+              </p>
+              <p className="mt-1 text-xs leading-5 text-white/60">
+                Fuente: eBible RVR1909 / spaRV1909 - licencia public domain.
+                {rvr1909Stats
+                  ? ` ${rvr1909Stats.verses_count ?? 0} versiculos, ${rvr1909Stats.chapters_with_verses ?? 0} capitulos y ${rvr1909Stats.books_with_verses ?? 0} libros.`
+                  : ' Aun no hay estadisticas RVR1909 disponibles.'}
+              </p>
+            </div>
             <div className="mt-5 grid gap-3 md:grid-cols-3">
               <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
                 <p className="text-3xl font-black">{bibleAdmin.translations.length}</p>
@@ -1243,6 +1263,11 @@ export function AdminHome() {
                       <p className="mt-1">
                         {item.verses_count ?? 0} versiculos - {item.books_with_verses ?? 0} libros - {item.estimated_completion_percent ?? 0}% estimado
                       </p>
+                      {item.code === 'RVR1909' && rvr1909Complete ? (
+                        <p className="mt-2 inline-flex rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[11px] font-black text-emerald-100">
+                          COMPLETA
+                        </p>
+                      ) : null}
                     </div>
                   ))}
                   {bibleAdmin.translationStats.length ? null : (
