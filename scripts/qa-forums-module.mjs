@@ -110,12 +110,12 @@ let createdMembership = false
 if (!membership.data && !membership.error) {
   membership = await userA.supabase
     .from('group_members')
-    .upsert({
+    .insert({
       group_id: activeGroup.data.id,
       user_id: userA.user.id,
       role: 'member',
       status: 'active',
-    }, { onConflict: 'group_id,user_id' })
+    })
     .select('id')
     .single()
   createdMembership = !membership.error
