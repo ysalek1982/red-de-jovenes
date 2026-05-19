@@ -8,6 +8,7 @@ import {
   Send,
   Sparkles,
   Trash2,
+  Users,
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
@@ -25,6 +26,7 @@ import {
   updateOwnPostComment,
   type PostWithAuthor,
 } from '../features/community/communityService'
+import { getActiveGroups, type GroupWithMembership } from '../features/map/worldMapService'
 import { createContentReport } from '../features/safety/safetyService'
 
 function formatDate(value: string | null) {
@@ -47,13 +49,15 @@ export function CommunityFeedPage() {
   const [body, setBody] = useState('')
   const [verseReference, setVerseReference] = useState('')
   const [verseText, setVerseText] = useState('')
+  const [groupId, setGroupId] = useState('')
+  const [groups, setGroups] = useState<GroupWithMembership[]>([])
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({})
   const [commentEdits, setCommentEdits] = useState<Record<string, string>>({})
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
-  const [postFilter, setPostFilter] = useState<'recent' | 'verse' | 'commented'>(
-    'recent',
-  )
+  const [postFilter, setPostFilter] = useState<
+    'recent' | 'verse' | 'commented' | 'myCommunity'
+  >('recent')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [busyPostId, setBusyPostId] = useState<string | null>(null)
@@ -64,8 +68,12 @@ export function CommunityFeedPage() {
     if (showLoading) setIsLoading(true)
     setError('')
     try {
-      const postData = await getRecentPosts(userId)
+      const [postData, groupData] = await Promise.all([
+        getRecentPosts(userId),
+        userId ? getActiveGroups(userId) : Promise.resolve([]),
+      ])
       setPosts(postData)
+      setGroups(groupData.filter((group) => group.isMember))
     } catch {
       setError('No pudimos cargar la comunidad.')
     } finally {
@@ -94,10 +102,12 @@ export function CommunityFeedPage() {
         body: body.trim(),
         verseReference: verseReference.trim() || undefined,
         verseText: verseText.trim() || undefined,
+        groupId: groupId || null,
       })
       setBody('')
       setVerseReference('')
       setVerseText('')
+      setGroupId('')
       await loadPosts(false)
       setActionMessage('Post publicado en los foros.')
     } catch {
@@ -128,6 +138,11 @@ export function CommunityFeedPage() {
     setBody(post.body)
     setVerseReference(post.verse_reference ?? '')
     setVerseText(post.verse_text ?? '')
+    setGroupId(
+      post.group_id && groups.some((group) => group.id === post.group_id)
+        ? post.group_id
+        : '',
+    )
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -145,11 +160,13 @@ export function CommunityFeedPage() {
         body: body.trim(),
         verseReference: verseReference.trim() || undefined,
         verseText: verseText.trim() || undefined,
+        groupId: groupId || null,
       })
       setEditingPostId(null)
       setBody('')
       setVerseReference('')
       setVerseText('')
+      setGroupId('')
       await loadPosts(false)
       setActionMessage('Post actualizado.')
     } catch {
@@ -290,6 +307,11 @@ export function CommunityFeedPage() {
   const visiblePosts = [...posts]
     .filter((post) => {
       if (postFilter === 'verse') return Boolean(post.verse_reference || post.verse_text)
+      if (postFilter === 'myCommunity') {
+        return Boolean(
+          post.group_id && groups.some((group) => group.id === post.group_id),
+        )
+      }
       return true
     })
     .sort((firstPost, secondPost) => {
@@ -369,6 +391,29 @@ export function CommunityFeedPage() {
                   className="mt-2 min-h-24"
                 />
               </div>
+              <div>
+                <label className="text-sm font-semibold" htmlFor="postGroup">
+                  Comunidad, opcional
+                </label>
+                <select
+                  id="postGroup"
+                  value={groupId}
+                  onChange={(event) => setGroupId(event.target.value)}
+                  className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+                >
+                  <option value="">Foro general de la Red</option>
+                  {groups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+                {!groups.length ? (
+                  <p className="mt-2 text-xs leading-5 text-white/45">
+                    Únete a una comunidad en el mapa para publicar dentro de ella.
+                  </p>
+                ) : null}
+              </div>
               <Button
                 type="submit"
                 variant="accent"
@@ -391,6 +436,7 @@ export function CommunityFeedPage() {
                     setBody('')
                     setVerseReference('')
                     setVerseText('')
+                    setGroupId('')
                   }}
                   className="w-full rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-white/65 transition hover:bg-white/10 hover:text-white"
                 >
@@ -418,12 +464,15 @@ export function CommunityFeedPage() {
                 ['recent', 'Recientes'],
                 ['verse', 'Con versiculo'],
                 ['commented', 'Mas comentadas'],
+                ['myCommunity', 'Mi comunidad'],
               ].map(([value, label]) => (
                 <button
                   key={value}
                   type="button"
                   onClick={() =>
-                    setPostFilter(value as 'recent' | 'verse' | 'commented')
+                    setPostFilter(
+                      value as 'recent' | 'verse' | 'commented' | 'myCommunity',
+                    )
                   }
                   className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
                     postFilter === value
@@ -495,11 +544,44 @@ export function CommunityFeedPage() {
                       className="rounded-[1.5rem] border border-white/10 bg-slate-950/45 p-5"
                     >
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-wide text-white/45">
-                            {getAuthor(post)} · {formatDate(post.created_at)}
-                          </p>
-                          <p className="mt-3 leading-7 text-white/75">{post.body}</p>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start gap-3">
+                            {post.profiles?.avatar_url ? (
+                              <img
+                                src={post.profiles.avatar_url}
+                                alt=""
+                                className="h-11 w-11 rounded-2xl border border-white/10 object-cover"
+                              />
+                            ) : (
+                              <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-300 to-amber-300 text-sm font-black text-slate-950">
+                                {getAuthor(post).slice(0, 1).toUpperCase()}
+                              </span>
+                            )}
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-black text-white">
+                                {getAuthor(post)}
+                              </p>
+                              <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-white/45">
+                                {formatDate(post.created_at)}
+                                {post.profiles?.city || post.profiles?.country
+                                  ? ` · ${post.profiles.city ?? 'Sin ciudad'}, ${
+                                      post.profiles.country ?? 'Sin pais'
+                                    }`
+                                  : ''}
+                              </p>
+                              {post.groups ? (
+                                <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-bold text-emerald-100">
+                                  <Users className="h-3.5 w-3.5" aria-hidden="true" />
+                                  {post.groups.name}
+                                </span>
+                              ) : post.profiles?.church_name ? (
+                                <span className="mt-2 inline-flex rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-bold text-white/55">
+                                  {post.profiles.church_name}
+                                </span>
+                              ) : null}
+                            </div>
+                          </div>
+                          <p className="mt-4 leading-7 text-white/75">{post.body}</p>
                         </div>
                         {isOwner ? (
                           <div className="flex flex-wrap gap-2">

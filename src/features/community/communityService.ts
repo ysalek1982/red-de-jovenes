@@ -6,17 +6,28 @@ export interface CreatePostInput {
   body: string
   verseReference?: string
   verseText?: string
+  groupId?: string | null
 }
 
 export interface PostAuthor {
   full_name: string
   username: string | null
+  avatar_url: string | null
+  city: string | null
+  country: string | null
+  church_name: string | null
+}
+
+export interface PostGroup {
+  id: string
+  name: string
   city: string | null
   country: string | null
 }
 
 export type PostWithAuthor = Post & {
   profiles: PostAuthor | null
+  groups: PostGroup | null
   post_comments?: PostCommentWithAuthor[]
   post_reactions?: PostReaction[]
   commentsCount: number
@@ -31,6 +42,7 @@ export type PostCommentWithAuthor = PostComment & {
 function mapPost(
   post: Post & {
     profiles: PostAuthor | null
+    groups: PostGroup | null
     post_comments?: PostCommentWithAuthor[]
     post_reactions?: PostReaction[]
   },
@@ -56,7 +68,7 @@ export async function getRecentPosts(userId?: string) {
   const { data, error } = await supabase
     .from('posts')
     .select(
-      '*, profiles:user_id(full_name, username, city, country), post_comments(id, post_id, user_id, body, created_at, profiles:user_id(full_name, username)), post_reactions(id, post_id, user_id, reaction, created_at)',
+      '*, profiles:user_id(full_name, username, avatar_url, city, country, church_name), groups:group_id(id, name, city, country), post_comments(id, post_id, user_id, body, created_at, profiles:user_id(full_name, username)), post_reactions(id, post_id, user_id, reaction, created_at)',
     )
     .order('created_at', { ascending: false })
     .limit(20)
@@ -65,6 +77,7 @@ export async function getRecentPosts(userId?: string) {
   return ((data ?? []) as Array<
     Post & {
       profiles: PostAuthor | null
+      groups: PostGroup | null
       post_comments?: PostCommentWithAuthor[]
       post_reactions?: PostReaction[]
     }
@@ -79,6 +92,7 @@ export async function createPost(input: CreatePostInput) {
       body: input.body,
       verse_reference: input.verseReference || null,
       verse_text: input.verseText || null,
+      group_id: input.groupId || null,
     })
     .select()
     .single()
@@ -103,6 +117,7 @@ export async function updateOwnPost(input: {
   body: string
   verseReference?: string
   verseText?: string
+  groupId?: string | null
 }) {
   const { data, error } = await supabase
     .from('posts')
@@ -110,6 +125,7 @@ export async function updateOwnPost(input: {
       body: input.body,
       verse_reference: input.verseReference || null,
       verse_text: input.verseText || null,
+      group_id: input.groupId || null,
     })
     .eq('id', input.postId)
     .eq('user_id', input.userId)

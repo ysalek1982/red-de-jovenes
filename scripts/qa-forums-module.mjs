@@ -63,6 +63,10 @@ function okNoRows(response) {
   return !response.error && (!response.data || response.data.length === 0)
 }
 
+function denied(response) {
+  return Boolean(response.error) || !response.data || response.data.length === 0
+}
+
 loadLocalEnv()
 
 const missing = REQUIRED_KEYS.filter((key) => !process.env[key])
@@ -84,6 +88,35 @@ const userB = await signIn(
 const suffix = Date.now()
 const warnings = []
 
+const activeGroup = await userA.supabase
+  .from('groups')
+  .select('id,name')
+  .eq('is_active', true)
+  .limit(1)
+  .maybeSingle()
+
+if (activeGroup.error || !activeGroup.data) {
+  fail('FAILED_FORUM_GROUP_READ', { error: activeGroup.error?.message })
+}
+
+const membership = await userA.supabase
+  .from('group_members')
+  .upsert(
+    {
+      group_id: activeGroup.data.id,
+      user_id: userA.user.id,
+      role: 'member',
+      status: 'active',
+    },
+    { onConflict: 'group_id,user_id' },
+  )
+  .select('id')
+  .single()
+
+if (membership.error || !membership.data) {
+  fail('FAILED_FORUM_GROUP_MEMBERSHIP', { error: membership.error?.message })
+}
+
 const post = await userA.supabase
   .from('posts')
   .insert({
@@ -91,8 +124,9 @@ const post = await userA.supabase
     body: `QA foro con la Palabra ${suffix}`,
     verse_reference: 'Mateo 5:14',
     verse_text: 'Vosotros sois la luz del mundo.',
+    group_id: activeGroup.data.id,
   })
-  .select('id,user_id')
+  .select('id,user_id,group_id')
   .single()
 
 if (post.error || !post.data) {
@@ -187,14 +221,25 @@ const crossUserCommentDelete = await userB.supabase
   .eq('id', comment.data.id)
   .select('id')
 
+const crossUserGroupPost = await userB.supabase
+  .from('posts')
+  .insert({
+    user_id: userB.user.id,
+    body: `Intento QA comunidad ajena ${suffix}`,
+    group_id: activeGroup.data.id,
+  })
+  .select('id')
+
 const readBack = await userA.supabase
   .from('posts')
-  .select('id,post_comments(id),post_reactions(id,reaction)')
+  .select('id,group_id,groups:group_id(id,name),post_comments(id),post_reactions(id,reaction)')
   .eq('id', post.data.id)
   .single()
 
 if (
   readBack.error ||
+  readBack.data?.group_id !== activeGroup.data.id ||
+  !readBack.data?.groups ||
   readBack.data?.post_comments?.length !== 1 ||
   readBack.data?.post_reactions?.length !== 1
 ) {
@@ -209,17 +254,32 @@ const deleted = await userA.supabase
 
 if (deleted.error) warnings.push('No se pudo limpiar post QA.')
 
+const cleanupMembership = await userA.supabase
+  .from('group_members')
+  .delete()
+  .eq('id', membership.data.id)
+
+if (cleanupMembership.error) warnings.push('No se pudo limpiar membresia QA.')
+
 const crossUserPostDenied = okNoRows(crossUserPostUpdate)
 const crossUserCommentDenied = okNoRows(crossUserCommentDelete)
+const crossUserGroupPostDenied = denied(crossUserGroupPost)
 
-if (!duplicateDenied || !crossUserPostDenied || !crossUserCommentDenied) {
+if (
+  !duplicateDenied ||
+  !crossUserPostDenied ||
+  !crossUserCommentDenied ||
+  !crossUserGroupPostDenied
+) {
   fail('FAILED_FORUM_RLS_EXPECTATION', {
     duplicateDenied,
     crossUserPostDenied,
     crossUserCommentDenied,
+    crossUserGroupPostDenied,
     duplicateError: duplicateReaction.error?.code,
     postUpdateError: crossUserPostUpdate.error?.message,
     commentDeleteError: crossUserCommentDelete.error?.message,
+    groupPostError: crossUserGroupPost.error?.message,
   })
 }
 
@@ -232,10 +292,12 @@ console.log(
       createReaction: 'OK',
       updatePost: 'OK',
       updateComment: 'OK',
+      groupContext: 'OK',
       duplicateReaction: 'DENIED',
       reportComment: 'OK',
       crossUserPostUpdate: 'DENIED',
       crossUserCommentDelete: 'DENIED',
+      crossUserGroupPost: 'DENIED',
       cleanupWarnings: warnings,
     },
     null,
