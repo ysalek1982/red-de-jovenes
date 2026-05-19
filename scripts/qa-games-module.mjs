@@ -10,6 +10,13 @@ const REQUIRED_KEYS = [
   'QA_USER_B_EMAIL',
   'QA_USER_B_PASSWORD',
 ]
+const GAME_KEYS = [
+  'versiculo-rapido',
+  'trivia-biblica',
+  'adivina-historia',
+  'memory-match',
+  'desafio-fe',
+]
 
 function loadLocalEnv() {
   for (const file of LOCAL_ENV_FILES) {
@@ -60,22 +67,30 @@ async function main() {
     process.env.QA_USER_B_PASSWORD,
   )
 
-  const ownScore = await userA.supabase
-    .from('game_scores')
-    .insert({
-      user_id: userA.user.id,
-      game_key: 'versiculo-rapido',
-      score: 2,
-      total: 4,
-    })
-    .select('id')
-    .single()
+  const insertedIds = []
+  const gameResults = {}
 
-  const ownRead = await userA.supabase
+  for (const [index, gameKey] of GAME_KEYS.entries()) {
+    const score = await userA.supabase
+      .from('game_scores')
+      .insert({
+        user_id: userA.user.id,
+        game_key: gameKey,
+        score: index + 1,
+        total: GAME_KEYS.length,
+      })
+      .select('id, game_key')
+      .single()
+
+    if (score.data?.id) insertedIds.push(score.data.id)
+    gameResults[gameKey] = score.data?.game_key === gameKey ? 'OK' : 'FAILED'
+  }
+
+  const ownHistory = await userA.supabase
     .from('game_scores')
-    .select('id')
+    .select('id, game_key')
     .eq('user_id', userA.user.id)
-    .limit(1)
+    .in('game_key', GAME_KEYS)
 
   const crossInsert = await userB.supabase.from('game_scores').insert({
     user_id: userA.user.id,
@@ -84,17 +99,43 @@ async function main() {
     total: 4,
   })
 
-  if (ownScore.data?.id) {
-    await userA.supabase.from('game_scores').delete().eq('id', ownScore.data.id)
+  const invalidScore = await userA.supabase.from('game_scores').insert({
+    user_id: userA.user.id,
+    game_key: 'versiculo-rapido',
+    score: 9,
+    total: 4,
+  })
+
+  const invalidGameKey = await userA.supabase.from('game_scores').insert({
+    user_id: userA.user.id,
+    game_key: 'juego-inexistente',
+    score: 1,
+    total: 4,
+  })
+
+  if (insertedIds.length) {
+    await userA.supabase.from('game_scores').delete().in('id', insertedIds)
   }
 
   await userA.supabase.auth.signOut()
   await userB.supabase.auth.signOut()
 
+  const allGameKeysOk = Object.values(gameResults).every((result) => result === 'OK')
+  const ownHistoryOk =
+    !ownHistory.error &&
+    GAME_KEYS.every((gameKey) =>
+      (ownHistory.data ?? []).some((row) => row.game_key === gameKey),
+    )
+  const crossUserDenied = crossInsert.error?.code === '42501'
+  const invalidScoreDenied = invalidScore.error?.code === '23514'
+  const invalidGameKeyDenied = invalidGameKey.error?.code === '23514'
+
   const status =
-    ownScore.data &&
-    !ownRead.error &&
-    crossInsert.error?.code === '42501'
+    allGameKeysOk &&
+    ownHistoryOk &&
+    crossUserDenied &&
+    invalidScoreDenied &&
+    invalidGameKeyDenied
       ? 'QA_GAMES_OK'
       : 'QA_GAMES_FAILED'
 
@@ -104,9 +145,11 @@ async function main() {
     JSON.stringify(
       {
         status,
-        ownScore: ownScore.data ? 'OK' : 'FAILED',
-        ownRead: ownRead.error ? 'FAILED' : 'OK',
-        crossUserScore: crossInsert.error ? 'DENIED' : 'FAILED',
+        gameScores: gameResults,
+        ownHistory: ownHistoryOk ? 'OK' : 'FAILED',
+        crossUserScore: crossUserDenied ? 'DENIED' : 'FAILED',
+        invalidScore: invalidScoreDenied ? 'DENIED' : 'FAILED',
+        invalidGameKey: invalidGameKeyDenied ? 'DENIED' : 'FAILED',
       },
       null,
       2,
