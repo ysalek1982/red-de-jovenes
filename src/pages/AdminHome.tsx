@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Users,
   CalendarDays,
+  Sparkles,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { hasRole } from '../features/auth/roleService'
@@ -28,6 +29,17 @@ import {
   type AdminReportPreview,
   type AdminSuggestionPreview,
 } from '../features/admin/adminService'
+import {
+  disableAiProvider,
+  generateAiContent,
+  getAiProviderStatus,
+  getPendingAiActions,
+  saveAiProviderKey,
+  testAiProviderKey,
+  type AiProviderStatus,
+} from '../features/ai/aiService'
+import { validateAiPrompt, type AiActionType } from '../features/ai/aiGuardrails'
+import type { AiActionQueue } from '../types/database'
 
 interface AdminOverview {
   profiles: number
@@ -110,14 +122,26 @@ export function AdminHome() {
   })
   const [reportNotes, setReportNotes] = useState<Record<string, string>>({})
   const [suggestionNotes, setSuggestionNotes] = useState<Record<string, string>>({})
+  const [aiStatus, setAiStatus] = useState<AiProviderStatus | null>(null)
+  const [aiQueue, setAiQueue] = useState<AiActionQueue[]>([])
+  const [aiKey, setAiKey] = useState('')
+  const [aiModel, setAiModel] = useState('gemini-2.0-flash')
+  const [aiPrompt, setAiPrompt] = useState('')
+  const [aiActionType, setAiActionType] =
+    useState<AiActionType>('explain_bible_verse')
+  const [aiOutput, setAiOutput] = useState('')
 
   const loadAdminData = useCallback(async () => {
-    const [overviewData, latestData] = await Promise.all([
+    const [overviewData, latestData, aiStatusData, aiQueueData] = await Promise.all([
       getAdminOverview(),
       getAdminLatestItems(),
+      getAiProviderStatus().catch(() => ({ provider: null })),
+      getPendingAiActions().catch(() => []),
     ])
     setOverview(overviewData)
     setLatest(latestData)
+    setAiStatus(aiStatusData.provider)
+    setAiQueue(aiQueueData)
   }, [])
 
   useEffect(() => {
@@ -187,6 +211,48 @@ export function AdminHome() {
     } finally {
       setIsSavingDevotional(false)
     }
+  }
+
+  async function handleSaveAiSettings() {
+    if (!aiKey.trim()) {
+      setMessage('Pega una API key valida para guardar Gemini.')
+      return
+    }
+    const result = await saveAiProviderKey({ apiKey: aiKey.trim(), model: aiModel })
+    setAiKey('')
+    setMessage(`Gemini configurado. Key terminada en ****${result.key_last4}`)
+    await loadData()
+  }
+
+  async function handleTestAiSettings() {
+    const result = await testAiProviderKey()
+    setMessage(result.status === 'GEMINI_TEST_OK' ? 'Gemini respondio correctamente.' : 'Gemini no esta configurado.')
+    await loadData()
+  }
+
+  async function handleDisableAi() {
+    await disableAiProvider()
+    setMessage('Gemini fue desactivado.')
+    await loadData()
+  }
+
+  async function handleGenerateAi() {
+    const validation = validateAiPrompt(aiPrompt)
+    if (validation) {
+      setMessage(validation)
+      return
+    }
+    const result = await generateAiContent({
+      actionType: aiActionType,
+      prompt: aiPrompt,
+    })
+    if (result.text) setAiOutput(result.text)
+    setMessage(
+      result.status === 'AI_PROVIDER_NOT_CONFIGURED'
+        ? 'Gemini no esta configurado. La solicitud quedo en cola para revision.'
+        : 'Respuesta IA generada para revision humana.',
+    )
+    await loadData()
   }
 
   function handleEditDevotional(devotional: AdminDevotionalPreview) {
@@ -501,6 +567,89 @@ export function AdminHome() {
               {isSavingDevotional ? 'Guardando...' : 'Guardar devocional'}
             </button>
           </form>
+
+          <div className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+            <div className="flex items-center gap-3">
+              <Sparkles className="h-6 w-6 text-emerald-200" aria-hidden="true" />
+              <h2 className="text-2xl font-black">Inteligencia Artificial</h2>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-white/65">
+              La IA asiste, no reemplaza el criterio pastoral. Las acciones sensibles requieren aprobacion humana.
+            </p>
+            <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/45 p-4 text-sm">
+              <p className="font-black text-white">
+                Gemini: {aiStatus?.is_enabled ? 'Activo' : 'No configurado'}
+              </p>
+              <p className="mt-1 text-white/55">
+                Modelo: {aiStatus?.model ?? aiModel} · Key: {aiStatus?.key_last4 ? `****${aiStatus.key_last4}` : 'sin key'}
+              </p>
+              <p className="mt-1 text-white/55">
+                Ultimo test: {aiStatus?.last_test_status ?? 'pendiente'}
+              </p>
+            </div>
+            <div className="mt-4 grid gap-3">
+              <input
+                value={aiKey}
+                onChange={(event) => setAiKey(event.target.value)}
+                type="password"
+                autoComplete="off"
+                placeholder="Nueva Gemini API key"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-emerald-200/60"
+              />
+              <input
+                value={aiModel}
+                onChange={(event) => setAiModel(event.target.value)}
+                placeholder="Modelo Gemini"
+                className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-emerald-200/60"
+              />
+              <div className="flex flex-wrap gap-2">
+                <button type="button" onClick={() => void handleSaveAiSettings()} className="rounded-full bg-white px-4 py-2 text-xs font-black text-slate-950">
+                  Guardar / rotar
+                </button>
+                <button type="button" onClick={() => void handleTestAiSettings()} className="rounded-full border border-white/10 px-4 py-2 text-xs font-black text-white/70">
+                  Probar
+                </button>
+                <button type="button" onClick={() => void handleDisableAi()} className="rounded-full border border-white/10 px-4 py-2 text-xs font-black text-white/70">
+                  Desactivar
+                </button>
+              </div>
+            </div>
+            <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+              <h3 className="font-black">Acciones asistidas</h3>
+              <select value={aiActionType} onChange={(event) => setAiActionType(event.target.value as AiActionType)} className="mt-3 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white">
+                <option value="generate_devotional_draft">Generar borrador devocional</option>
+                <option value="suggest_forum_reply">Sugerir respuesta en foros</option>
+                <option value="summarize_report">Resumir reporte</option>
+                <option value="classify_content_report">Clasificar reporte</option>
+                <option value="suggest_prayer_response">Sugerir respuesta pastoral</option>
+                <option value="explain_bible_verse">Explicar versiculo</option>
+                <option value="generate_event_description">Generar descripcion de evento</option>
+                <option value="create_discipleship_reflection">Crear reflexion de discipulado</option>
+                <option value="summarize_community_activity">Resumir actividad comunitaria</option>
+              </select>
+              <textarea value={aiPrompt} onChange={(event) => setAiPrompt(event.target.value)} rows={4} placeholder="Solicitud para la IA" className="mt-3 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35" />
+              <button type="button" onClick={() => void handleGenerateAi()} className="mt-3 rounded-full bg-emerald-200 px-4 py-2 text-xs font-black text-slate-950">
+                Generar para revisar
+              </button>
+              {aiOutput ? (
+                <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.05] p-3 text-sm leading-6 text-white/75">
+                  {aiOutput}
+                </div>
+              ) : null}
+            </div>
+            <div className="mt-5">
+              <h3 className="font-black">Cola de aprobacion</h3>
+              <div className="mt-3 space-y-2">
+                {aiQueue.length ? null : <p className="text-sm text-white/55">No hay acciones IA pendientes.</p>}
+                {aiQueue.slice(0, 5).map((item) => (
+                  <div key={item.id} className="rounded-2xl border border-white/10 bg-slate-950/45 p-3 text-sm">
+                    <p className="font-bold">{item.action_type}</p>
+                    <p className="mt-1 line-clamp-2 text-white/55">{item.prompt}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
             <AdminList title="Últimos usuarios">
