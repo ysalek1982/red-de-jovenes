@@ -24,6 +24,7 @@ import { hasRole } from '../../features/auth/roleService'
 import { useAuth } from '../../features/auth/useAuth'
 import { cn } from '../../lib/utils'
 import { NotificationBell } from '../notifications/NotificationBell'
+import { PilotFeedbackDialog } from '../pilot/PilotFeedbackDialog'
 import { InstallPrompt } from '../pwa/InstallPrompt'
 import { GlobalSearch } from '../search/GlobalSearch'
 
@@ -182,6 +183,9 @@ export function AppShell() {
                 Busca personas, eventos y versiculos desde la lupa superior.
               </div>
             </div>
+            <PilotFeedbackDialog
+              triggerClassName="flex min-h-12 items-center gap-3 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 text-sm font-bold text-emerald-100 transition hover:bg-emerald-300/15"
+            />
             <button
               type="button"
               onClick={() => void handleSignOut()}

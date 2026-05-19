@@ -67,6 +67,10 @@ export type AiPromptTemplate =
   Database['public']['Tables']['ai_prompt_templates']['Row']
 export type ContentReport =
   Database['public']['Tables']['content_reports']['Row']
+export type PilotFeedback =
+  Database['public']['Tables']['pilot_feedback']['Row']
+export type PilotIncident =
+  Database['public']['Tables']['pilot_incidents']['Row']
 export type NotificationPreference =
   Database['public']['Tables']['notification_preferences']['Row']
 export type GameScore = Database['public']['Tables']['game_scores']['Row']

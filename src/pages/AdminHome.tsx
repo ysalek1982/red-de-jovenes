@@ -33,6 +33,7 @@ import {
   getPilotMetrics,
   type PilotMetrics,
 } from '../features/admin/pilotMetricsService'
+import { generatePilotReport } from '../features/admin/pilotReportService'
 import {
   activateAiPromptTemplate,
   createAiPromptTemplate,
@@ -51,6 +52,20 @@ import {
   type AiProviderStatus,
 } from '../features/ai/aiService'
 import { validateAiPrompt, type AiActionType } from '../features/ai/aiGuardrails'
+import {
+  createPilotIncident,
+  getAdminPilotIncidents,
+  summarizePilotIncidents,
+  updatePilotIncident,
+  type PilotIncidentSeverity,
+  type PilotIncidentStatus,
+} from '../features/pilot/pilotIncidentService'
+import {
+  getAdminPilotFeedback,
+  summarizePilotFeedback,
+  updatePilotFeedbackStatus,
+  type PilotFeedbackStatus,
+} from '../features/pilot/pilotFeedbackService'
 import type {
   AiActionQueue,
   AiCostEvent,
@@ -59,6 +74,8 @@ import type {
   AiUsageLimit,
   BibleDailyVerse,
   BibleTranslation,
+  PilotFeedback,
+  PilotIncident,
 } from '../types/database'
 
 interface AdminOverview {
@@ -129,6 +146,26 @@ const initialPilotMetrics: PilotMetrics = {
   messages: { conversations: 0, messages: 0, messageReports: 0 },
   ai: { aiActions: 0, aiCostEvents: 0 },
   moderation: { reportsPending: 0, reportsResolved: 0 },
+  pilot: { feedbackNew: 0, feedbackTotal: 0, incidentsOpen: 0, incidentsCritical: 0 },
+  daily: {
+    activeUsersToday: 0,
+    newRegistrations: 0,
+    incompleteProfiles: 0,
+    postsToday: 0,
+    commentsToday: 0,
+    prayersToday: 0,
+    prayerSupportsToday: 0,
+    gamesToday: 0,
+    messagesToday: 0,
+    eventsRsvpsToday: 0,
+    groupMembersToday: 0,
+    feedbackNew: 0,
+    incidentsOpen: 0,
+    reportsPending: 0,
+    aiUsageToday: 0,
+    aiErrorsToday: 0,
+    aiLimitReachedToday: 0,
+  },
 }
 
 function formatDate(value: string | null) {
@@ -140,6 +177,15 @@ function formatDate(value: string | null) {
   }).format(new Date(value))
 }
 
+function getDefaultReportRange() {
+  return {
+    from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+      .toISOString()
+      .slice(0, 10),
+    to: new Date().toISOString().slice(0, 10),
+  }
+}
+
 export function AdminHome() {
   const { user } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
@@ -148,6 +194,20 @@ export function AdminHome() {
   const [latest, setLatest] = useState<AdminLatestItems>(initialLatest)
   const [pilotMetrics, setPilotMetrics] =
     useState<PilotMetrics>(initialPilotMetrics)
+  const [pilotFeedback, setPilotFeedback] = useState<PilotFeedback[]>([])
+  const [pilotIncidents, setPilotIncidents] = useState<PilotIncident[]>([])
+  const [incidentForm, setIncidentForm] = useState({
+    severity: 'medium' as PilotIncidentSeverity,
+    module: 'General',
+    title: '',
+    description: '',
+  })
+  const [incidentResolutions, setIncidentResolutions] = useState<
+    Record<string, string>
+  >({})
+  const [feedbackNotes, setFeedbackNotes] = useState<Record<string, string>>({})
+  const [reportRange, setReportRange] = useState(getDefaultReportRange)
+  const [pilotReport, setPilotReport] = useState('')
   const [message, setMessage] = useState('')
   const [isSavingDevotional, setIsSavingDevotional] = useState(false)
   const [editingDevotionalId, setEditingDevotionalId] = useState<string | null>(
@@ -207,6 +267,8 @@ export function AdminHome() {
       aiTemplatesData,
       bibleStatusData,
       pilotMetricsData,
+      pilotFeedbackData,
+      pilotIncidentsData,
     ] = await Promise.all([
       getAdminOverview(),
       getAdminLatestItems(),
@@ -225,6 +287,8 @@ export function AdminHome() {
         recentDailyVerses: [],
       })),
       getPilotMetrics().catch(() => initialPilotMetrics),
+      getAdminPilotFeedback().catch(() => []),
+      getAdminPilotIncidents().catch(() => []),
     ])
     setOverview(overviewData)
     setLatest(latestData)
@@ -241,6 +305,8 @@ export function AdminHome() {
       recentDailyVerses: bibleStatusData?.recentDailyVerses ?? [],
     })
     setPilotMetrics(pilotMetricsData)
+    setPilotFeedback(pilotFeedbackData)
+    setPilotIncidents(pilotIncidentsData)
   }, [])
 
   useEffect(() => {
@@ -465,6 +531,83 @@ export function AdminHome() {
     }
   }
 
+  async function handlePilotFeedbackStatus(
+    feedbackId: string,
+    status: PilotFeedbackStatus,
+  ) {
+    setMessage('')
+    try {
+      await updatePilotFeedbackStatus({
+        feedbackId,
+        status,
+        adminNote: feedbackNotes[feedbackId],
+      })
+      await loadAdminData()
+      setMessage('Feedback actualizado.')
+    } catch {
+      setMessage('No pudimos actualizar el feedback.')
+    }
+  }
+
+  async function handleCreateIncident(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    if (!user?.id) return
+    if (!incidentForm.title.trim()) {
+      setMessage('Escribe un titulo para el incidente.')
+      return
+    }
+    setMessage('')
+    try {
+      await createPilotIncident({
+        reportedBy: user.id,
+        severity: incidentForm.severity,
+        module: incidentForm.module,
+        title: incidentForm.title.trim(),
+        description: incidentForm.description.trim(),
+      })
+      setIncidentForm({
+        severity: 'medium',
+        module: 'General',
+        title: '',
+        description: '',
+      })
+      await loadAdminData()
+      setMessage('Incidente registrado.')
+    } catch {
+      setMessage('No pudimos registrar el incidente.')
+    }
+  }
+
+  async function handleIncidentStatus(
+    incidentId: string,
+    status: PilotIncidentStatus,
+  ) {
+    setMessage('')
+    try {
+      await updatePilotIncident({
+        incidentId,
+        status,
+        resolution: incidentResolutions[incidentId],
+        resolvedBy: user?.id,
+      })
+      await loadAdminData()
+      setMessage('Incidente actualizado.')
+    } catch {
+      setMessage('No pudimos actualizar el incidente.')
+    }
+  }
+
+  async function handleGeneratePilotReport() {
+    setMessage('')
+    try {
+      const report = await generatePilotReport(reportRange)
+      setPilotReport(report)
+      setMessage('Reporte del piloto generado.')
+    } catch {
+      setMessage('No pudimos generar el reporte del piloto.')
+    }
+  }
+
   if (isLoading) {
     return (
       <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
@@ -498,6 +641,8 @@ export function AdminHome() {
     )
   }
 
+  const feedbackSummary = summarizePilotFeedback(pilotFeedback)
+  const incidentSummary = summarizePilotIncidents(pilotIncidents)
   const kpis = [
     { title: 'Usuarios', value: overview.profiles, icon: Users },
     { title: 'Oraciones', value: overview.prayers, icon: Heart },
@@ -661,6 +806,61 @@ export function AdminHome() {
                 value={pilotMetrics.ai.aiActions}
                 detail={`${pilotMetrics.moderation.reportsPending} reportes pendientes`}
               />
+            </div>
+            <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/35 p-5">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-black">Monitoreo diario</h3>
+                  <p className="mt-1 text-sm text-white/55">
+                    Actividad real desde el inicio del dia. Si no hay datos, se muestra cero.
+                  </p>
+                </div>
+                <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/60">
+                  Hoy
+                </span>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <PilotMetricCard
+                  title="Usuarios activos"
+                  value={pilotMetrics.daily.activeUsersToday}
+                  detail={`${pilotMetrics.daily.newRegistrations} registros nuevos`}
+                />
+                <PilotMetricCard
+                  title="Perfiles incompletos"
+                  value={pilotMetrics.daily.incompleteProfiles}
+                  detail="revisar onboarding y guia"
+                />
+                <PilotMetricCard
+                  title="Conversacion"
+                  value={pilotMetrics.daily.postsToday + pilotMetrics.daily.commentsToday}
+                  detail={`${pilotMetrics.daily.postsToday} posts · ${pilotMetrics.daily.commentsToday} comentarios`}
+                />
+                <PilotMetricCard
+                  title="Oracion hoy"
+                  value={pilotMetrics.daily.prayersToday}
+                  detail={`${pilotMetrics.daily.prayerSupportsToday} apoyos`}
+                />
+                <PilotMetricCard
+                  title="Juegos hoy"
+                  value={pilotMetrics.daily.gamesToday}
+                  detail="puntajes nuevos"
+                />
+                <PilotMetricCard
+                  title="Mensajes hoy"
+                  value={pilotMetrics.daily.messagesToday}
+                  detail="mensajes enviados"
+                />
+                <PilotMetricCard
+                  title="Feedback nuevo"
+                  value={pilotMetrics.daily.feedbackNew}
+                  detail={`${feedbackSummary.averageRating} promedio de rating`}
+                />
+                <PilotMetricCard
+                  title="Incidentes abiertos"
+                  value={pilotMetrics.daily.incidentsOpen}
+                  detail={`${pilotMetrics.daily.aiErrorsToday} errores IA hoy`}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -1004,6 +1204,253 @@ export function AdminHome() {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
+            <div className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <div className="flex items-center gap-3">
+                <MessageCircle className="h-6 w-6 text-emerald-200" aria-hidden="true" />
+                <h2 className="text-2xl font-black">Feedback del piloto</h2>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-white/65">
+                Comentarios reales enviados desde el menu Mas y Perfil.
+              </p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <PilotMetricCard
+                  title="Nuevo"
+                  value={feedbackSummary.newCount}
+                  detail="por revisar"
+                />
+                <PilotMetricCard
+                  title="Total"
+                  value={feedbackSummary.total}
+                  detail="comentarios"
+                />
+                <PilotMetricCard
+                  title="Rating"
+                  value={feedbackSummary.averageRating}
+                  detail="promedio 1 a 5"
+                />
+              </div>
+              <div className="mt-5 space-y-3">
+                {pilotFeedback.length ? null : (
+                  <p className="text-sm text-white/55">Aun no hay feedback de usuarios piloto.</p>
+                )}
+                {pilotFeedback.slice(0, 5).map((item) => (
+                  <div
+                    key={item.id}
+                    className="rounded-3xl border border-white/10 bg-slate-950/45 p-4"
+                  >
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <p className="truncate font-black">{item.title}</p>
+                        <p className="mt-1 text-xs text-white/50">
+                          {item.category} · {item.module ?? 'sin modulo'} · {item.rating ?? 0}/5
+                        </p>
+                        {item.detail ? (
+                          <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/60">
+                            {item.detail}
+                          </p>
+                        ) : null}
+                      </div>
+                      <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/60">
+                        {item.status}
+                      </span>
+                    </div>
+                    <div className="mt-3 flex flex-col gap-2">
+                      <input
+                        value={feedbackNotes[item.id] ?? ''}
+                        onChange={(event) =>
+                          setFeedbackNotes((current) => ({
+                            ...current,
+                            [item.id]: event.target.value,
+                          }))
+                        }
+                        placeholder="Nota interna"
+                        className="h-9 rounded-full border border-white/10 bg-slate-950/60 px-3 text-xs text-white outline-none placeholder:text-white/35"
+                      />
+                      <div className="flex flex-wrap gap-2">
+                        {(['reviewing', 'planned', 'resolved', 'dismissed'] as PilotFeedbackStatus[]).map((status) => (
+                          <button
+                            key={status}
+                            type="button"
+                            onClick={() => void handlePilotFeedbackStatus(item.id, status)}
+                            className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/70"
+                          >
+                            {status}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <div className="flex items-center gap-3">
+                <ShieldCheck className="h-6 w-6 text-amber-200" aria-hidden="true" />
+                <h2 className="text-2xl font-black">Incidentes del piloto</h2>
+              </div>
+              <p className="mt-3 text-sm leading-6 text-white/65">
+                Bitacora operativa para fallas, riesgos pastorales o eventos de cuidado.
+              </p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <PilotMetricCard title="Abiertos" value={incidentSummary.open} detail="open/triage" />
+                <PilotMetricCard title="Criticos" value={incidentSummary.critical} detail="requieren accion" />
+                <PilotMetricCard title="Resueltos" value={incidentSummary.resolved} detail="cerrados" />
+              </div>
+              <form
+                onSubmit={(event) => void handleCreateIncident(event)}
+                className="mt-5 rounded-3xl border border-white/10 bg-slate-950/45 p-4"
+              >
+                <h3 className="font-black">Registrar incidente</h3>
+                <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                  <select
+                    value={incidentForm.severity}
+                    onChange={(event) =>
+                      setIncidentForm((current) => ({
+                        ...current,
+                        severity: event.target.value as PilotIncidentSeverity,
+                      }))
+                    }
+                    className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none"
+                  >
+                    <option value="low">low</option>
+                    <option value="medium">medium</option>
+                    <option value="high">high</option>
+                    <option value="critical">critical</option>
+                  </select>
+                  <input
+                    value={incidentForm.module}
+                    onChange={(event) =>
+                      setIncidentForm((current) => ({
+                        ...current,
+                        module: event.target.value,
+                      }))
+                    }
+                    placeholder="Modulo"
+                    className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none placeholder:text-white/35"
+                  />
+                  <input
+                    value={incidentForm.title}
+                    onChange={(event) =>
+                      setIncidentForm((current) => ({
+                        ...current,
+                        title: event.target.value,
+                      }))
+                    }
+                    placeholder="Titulo"
+                    className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none placeholder:text-white/35 sm:col-span-2"
+                  />
+                  <textarea
+                    value={incidentForm.description}
+                    onChange={(event) =>
+                      setIncidentForm((current) => ({
+                        ...current,
+                        description: event.target.value,
+                      }))
+                    }
+                    rows={2}
+                    placeholder="Descripcion breve"
+                    className="rounded-2xl border border-white/10 bg-slate-950/70 px-3 py-2 text-xs text-white outline-none placeholder:text-white/35 sm:col-span-2"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="mt-3 rounded-full bg-white px-4 py-2 text-xs font-black text-slate-950"
+                >
+                  Registrar
+                </button>
+              </form>
+              <div className="mt-5 space-y-3">
+                {pilotIncidents.length ? null : (
+                  <p className="text-sm text-white/55">No hay incidentes registrados.</p>
+                )}
+                {pilotIncidents.slice(0, 5).map((item) => (
+                  <div key={item.id} className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <p className="truncate font-black">{item.title}</p>
+                        <p className="mt-1 text-xs text-white/50">
+                          {item.severity} · {item.module ?? 'General'} · {item.status}
+                        </p>
+                      </div>
+                      <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/60">
+                        {formatDate(item.created_at)}
+                      </span>
+                    </div>
+                    <input
+                      value={incidentResolutions[item.id] ?? ''}
+                      onChange={(event) =>
+                        setIncidentResolutions((current) => ({
+                          ...current,
+                          [item.id]: event.target.value,
+                        }))
+                      }
+                      placeholder="Resolucion o nota"
+                      className="mt-3 h-9 w-full rounded-full border border-white/10 bg-slate-950/60 px-3 text-xs text-white outline-none placeholder:text-white/35"
+                    />
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {(['triage', 'resolved', 'closed'] as PilotIncidentStatus[]).map((status) => (
+                        <button
+                          key={status}
+                          type="button"
+                          onClick={() => void handleIncidentStatus(item.id, status)}
+                          className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/70"
+                        >
+                          {status}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl shadow-black/20 backdrop-blur">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+              <div>
+                <h2 className="text-2xl font-black">Reporte de cierre del piloto</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">
+                  Genera un resumen Markdown con datos reales para la reunion de cierre.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <input
+                  type="date"
+                  value={reportRange.from}
+                  onChange={(event) =>
+                    setReportRange((current) => ({ ...current, from: event.target.value }))
+                  }
+                  className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none"
+                />
+                <input
+                  type="date"
+                  value={reportRange.to}
+                  onChange={(event) =>
+                    setReportRange((current) => ({ ...current, to: event.target.value }))
+                  }
+                  className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() => void handleGeneratePilotReport()}
+                  className="rounded-full bg-white px-4 py-2 text-xs font-black text-slate-950"
+                >
+                  Generar reporte
+                </button>
+              </div>
+            </div>
+            {pilotReport ? (
+              <textarea
+                readOnly
+                value={pilotReport}
+                rows={12}
+                className="mt-5 w-full rounded-3xl border border-white/10 bg-slate-950/70 px-4 py-3 font-mono text-xs leading-5 text-white/75 outline-none"
+              />
+            ) : null}
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">

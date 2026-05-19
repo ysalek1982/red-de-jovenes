@@ -4,6 +4,7 @@ import { Bell, Loader2, Save, UserRound } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
+import { PilotFeedbackDialog } from '../components/pilot/PilotFeedbackDialog'
 import { Textarea } from '../components/ui/textarea'
 import { useAuth } from '../features/auth/useAuth'
 import { hasRole } from '../features/auth/roleService'
@@ -275,6 +276,17 @@ export function AppProfile() {
             ) : null}
             <div className="mt-3 rounded-3xl border border-white/10 bg-slate-950/45 p-4 text-sm text-white/65">
               Rol visible: {isAdmin ? 'Administrador' : 'Miembro'}
+            </div>
+            <div className="mt-3 rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4">
+              <p className="text-sm font-black text-emerald-100">
+                Piloto cerrado
+              </p>
+              <p className="mt-2 text-sm leading-6 text-white/60">
+                Tu experiencia nos ayuda a cuidar mejor esta red.
+              </p>
+              <div className="mt-4">
+                <PilotFeedbackDialog triggerLabel="Ayudanos a mejorar" />
+              </div>
             </div>
             <div className="mt-6 rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4">
               <p className="text-sm font-black text-emerald-100">

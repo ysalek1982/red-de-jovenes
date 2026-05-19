@@ -1732,6 +1732,122 @@ export type Database = {
           },
         ]
       }
+      pilot_feedback: {
+        Row: {
+          admin_note: string | null
+          browser: string | null
+          category: string
+          created_at: string | null
+          detail: string | null
+          device: string | null
+          id: string
+          module: string | null
+          rating: number | null
+          status: string
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_note?: string | null
+          browser?: string | null
+          category: string
+          created_at?: string | null
+          detail?: string | null
+          device?: string | null
+          id?: string
+          module?: string | null
+          rating?: number | null
+          status?: string
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_note?: string | null
+          browser?: string | null
+          category?: string
+          created_at?: string | null
+          detail?: string | null
+          device?: string | null
+          id?: string
+          module?: string | null
+          rating?: number | null
+          status?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pilot_feedback_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pilot_incidents: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          module: string | null
+          reported_by: string | null
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          module?: string | null
+          reported_by?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          module?: string | null
+          reported_by?: string | null
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pilot_incidents_reported_by_fkey"
+            columns: ["reported_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pilot_incidents_resolved_by_fkey"
+            columns: ["resolved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       Post: {
         Row: {
           authorId: string
@@ -2649,4 +2765,3 @@ export const Constants = {
     },
   },
 } as const
-
