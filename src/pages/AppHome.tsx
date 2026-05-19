@@ -7,12 +7,10 @@ import {
   Heart,
   Loader2,
   MessageCircle,
-  ShieldCheck,
   Sparkles,
   UserRound,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { safePrinciples } from '../data/appDemoData'
 import { getRecentPosts, type PostWithAuthor } from '../features/community/communityService'
 import { getTodayDevotional } from '../features/devotionals/devotionalService'
 import {
@@ -52,12 +50,6 @@ const quickActions = [
     text: 'Explora iglesias y grupos juveniles conectados.',
     to: '/app/mapa',
     icon: Globe2,
-  },
-  {
-    title: 'Espacio seguro',
-    text: 'Conoce las normas y reporta contenido que necesite cuidado.',
-    to: '/app/seguridad',
-    icon: ShieldCheck,
   },
   {
     title: 'Perfil',
@@ -316,23 +308,6 @@ export function AppHome() {
                 </article>
               </div>
             </div>
-
-            <article className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
-              <div className="flex items-center gap-3">
-                <ShieldCheck className="h-6 w-6 text-emerald-200" aria-hidden="true" />
-                <h2 className="text-2xl font-bold">Espacio seguro</h2>
-              </div>
-              <div className="mt-5 grid gap-4 md:grid-cols-3">
-                {safePrinciples.map((principle) => (
-                  <div key={principle.title} className="rounded-3xl bg-slate-950/45 p-4">
-                    <h3 className="font-bold">{principle.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-white/60">
-                      {principle.text}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </article>
           </div>
         )}
       </div>

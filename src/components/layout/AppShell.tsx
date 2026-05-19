@@ -4,7 +4,6 @@ import {
   Gamepad2,
   Globe2,
   Heart,
-  HeartHandshake,
   Home,
   LogOut,
   MessageCircle,
@@ -25,7 +24,6 @@ const privateNavigation = [
   { label: 'Devocional', to: '/app/devocional', icon: BookOpen },
   { label: 'Juegos', to: '/app/juegos', icon: Gamepad2 },
   { label: 'Mapa', to: '/app/mapa', icon: Globe2 },
-  { label: 'Seguridad', to: '/app/seguridad', icon: HeartHandshake },
   { label: 'Perfil', to: '/app/perfil', icon: UserRound },
 ]
 
