@@ -4,6 +4,13 @@ import type { PilotIncident } from '../../types/database'
 export type PilotIncidentSeverity = 'low' | 'medium' | 'high' | 'critical'
 export type PilotIncidentStatus = 'open' | 'triage' | 'resolved' | 'closed'
 
+function isQaPilotIncident(item: PilotIncident) {
+  return (
+    item.module?.trim().toUpperCase() === 'QA' ||
+    item.title.trim().toUpperCase().startsWith('QA ')
+  )
+}
+
 export async function createPilotIncident(input: {
   reportedBy: string
   severity: PilotIncidentSeverity
@@ -32,10 +39,25 @@ export async function getAdminPilotIncidents() {
     .from('pilot_incidents')
     .select('*')
     .order('created_at', { ascending: false })
-    .limit(50)
+    .limit(100)
 
   if (error) throw error
-  return (data ?? []) as PilotIncident[]
+  return ((data ?? []) as PilotIncident[])
+    .filter((item) => !isQaPilotIncident(item))
+    .slice(0, 50)
+}
+
+export async function getAdminQaPilotIncidents() {
+  const { data, error } = await supabase
+    .from('pilot_incidents')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(100)
+
+  if (error) throw error
+  return ((data ?? []) as PilotIncident[])
+    .filter(isQaPilotIncident)
+    .slice(0, 50)
 }
 
 export async function updatePilotIncident(input: {
@@ -62,14 +84,15 @@ export async function updatePilotIncident(input: {
 }
 
 export function summarizePilotIncidents(items: PilotIncident[]) {
-  const open = items.filter((item) => item.status === 'open' || item.status === 'triage')
+  const realItems = items.filter((item) => !isQaPilotIncident(item))
+  const open = realItems.filter((item) => item.status === 'open' || item.status === 'triage')
   const critical = open.filter((item) => item.severity === 'critical')
-  const resolved = items.filter(
+  const resolved = realItems.filter(
     (item) => item.status === 'resolved' || item.status === 'closed',
   )
 
   return {
-    total: items.length,
+    total: realItems.length,
     open: open.length,
     critical: critical.length,
     resolved: resolved.length,

@@ -20,10 +20,18 @@ async function getRowsInRange<T extends 'pilot_feedback' | 'pilot_incidents'>(
     .select('*')
     .gte('created_at', from)
     .lte('created_at', to)
+    .or('module.is.null,module.neq.QA')
     .order('created_at', { ascending: false })
 
   if (error) throw error
   return data ?? []
+}
+
+function isQaPilotRecord(item: PilotFeedback | PilotIncident) {
+  return (
+    item.module?.trim().toUpperCase() === 'QA' ||
+    item.title.trim().toUpperCase().startsWith('QA ')
+  )
 }
 
 function metricLine(label: string, value: number) {
@@ -41,13 +49,15 @@ export async function generatePilotReport(input: {
     getRowsInRange('pilot_feedback', fromIso, toIso) as Promise<PilotFeedback[]>,
     getRowsInRange('pilot_incidents', fromIso, toIso) as Promise<PilotIncident[]>,
   ])
+  const realFeedback = feedback.filter((item) => !isQaPilotRecord(item))
+  const realIncidents = incidents.filter((item) => !isQaPilotRecord(item))
 
   return buildPilotReportMarkdown({
     from: input.from,
     to: input.to,
     metrics,
-    feedback,
-    incidents,
+    feedback: realFeedback,
+    incidents: realIncidents,
   })
 }
 

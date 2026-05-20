@@ -21,8 +21,38 @@ type PilotMetricTable =
   | 'ai_action_logs'
   | 'ai_cost_events'
   | 'content_reports'
-  | 'pilot_feedback'
-  | 'pilot_incidents'
+
+interface PilotFeedbackMetricRow {
+  id: string
+  module: string | null
+  title: string
+  device: string | null
+  status: string
+  user_id: string | null
+}
+
+interface PilotIncidentMetricRow {
+  id: string
+  module: string | null
+  title: string
+  status: string
+  severity: string
+}
+
+function isQaPilotFeedback(row: PilotFeedbackMetricRow) {
+  return (
+    row.module?.trim().toUpperCase() === 'QA' ||
+    row.device?.trim().toUpperCase() === 'QA' ||
+    row.title.trim().toUpperCase().startsWith('QA ')
+  )
+}
+
+function isQaPilotIncident(row: PilotIncidentMetricRow) {
+  return (
+    row.module?.trim().toUpperCase() === 'QA' ||
+    row.title.trim().toUpperCase().startsWith('QA ')
+  )
+}
 
 async function countRows(table: PilotMetricTable) {
   const { count, error } = await supabase
@@ -87,6 +117,53 @@ async function getUserIdsSince(
   if (error) throw error
   return (data ?? [])
     .map((row) => (row as unknown as Record<string, string | null>)[column])
+    .filter(Boolean) as string[]
+}
+
+async function getPilotFeedbackMetricRows(since?: string) {
+  const query = supabase
+    .from('pilot_feedback')
+    .select('id, module, title, device, status, user_id')
+    .limit(5000)
+  const { data, error } = since ? await query.gte('created_at', since) : await query
+
+  if (error) throw error
+  return (data ?? []) as PilotFeedbackMetricRow[]
+}
+
+async function getPilotIncidentMetricRows() {
+  const { data, error } = await supabase
+    .from('pilot_incidents')
+    .select('id, module, title, status, severity')
+    .limit(5000)
+
+  if (error) throw error
+  return (data ?? []) as PilotIncidentMetricRow[]
+}
+
+async function countRealPilotFeedbackRows() {
+  const rows = await getPilotFeedbackMetricRows()
+  return rows.filter((row) => !isQaPilotFeedback(row)).length
+}
+
+async function countRealPilotFeedbackFiltered(column: 'status', value: string) {
+  const rows = await getPilotFeedbackMetricRows()
+  return rows.filter((row) => !isQaPilotFeedback(row) && row[column] === value).length
+}
+
+async function countRealPilotIncidentFiltered(
+  column: 'status' | 'severity',
+  value: string,
+) {
+  const rows = await getPilotIncidentMetricRows()
+  return rows.filter((row) => !isQaPilotIncident(row) && row[column] === value).length
+}
+
+async function getRealPilotFeedbackUserIdsSince(since: string) {
+  const rows = await getPilotFeedbackMetricRows(since)
+  return rows
+    .filter((row) => !isQaPilotFeedback(row))
+    .map((row) => row.user_id)
     .filter(Boolean) as string[]
 }
 
@@ -175,10 +252,10 @@ export async function getPilotMetrics() {
     countRows('ai_cost_events'),
     countFiltered('content_reports', 'status', 'pending'),
     countFiltered('content_reports', 'status', 'reviewed'),
-    countFiltered('pilot_feedback', 'status', 'new'),
-    countRows('pilot_feedback'),
-    countFiltered('pilot_incidents', 'status', 'open'),
-    countFiltered('pilot_incidents', 'severity', 'critical'),
+    countRealPilotFeedbackFiltered('status', 'new'),
+    countRealPilotFeedbackRows(),
+    countRealPilotIncidentFiltered('status', 'open'),
+    countRealPilotIncidentFiltered('severity', 'critical'),
     countRowsSince('profiles', todayIso),
     countIncompleteProfiles(),
     countRowsSince('posts', todayIso),
@@ -205,7 +282,7 @@ export async function getPilotMetrics() {
         getUserIdsSince('messages', 'sender_id', todayIso),
         getUserIdsSince('event_rsvps', 'user_id', todayIso),
         getUserIdsSince('group_members', 'user_id', todayIso),
-        getUserIdsSince('pilot_feedback', 'user_id', todayIso),
+        getRealPilotFeedbackUserIdsSince(todayIso),
       ])
     ).flat(),
   )

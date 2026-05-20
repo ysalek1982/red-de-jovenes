@@ -21,6 +21,14 @@ export type PilotFeedbackStatus =
   | 'resolved'
   | 'dismissed'
 
+function isQaPilotFeedback(item: PilotFeedback) {
+  return (
+    item.module?.trim().toUpperCase() === 'QA' ||
+    item.device?.trim().toUpperCase() === 'QA' ||
+    item.title.trim().toUpperCase().startsWith('QA ')
+  )
+}
+
 export async function createPilotFeedback(input: {
   userId: string
   category: PilotFeedbackCategory
@@ -66,10 +74,25 @@ export async function getAdminPilotFeedback() {
     .from('pilot_feedback')
     .select('*')
     .order('created_at', { ascending: false })
-    .limit(50)
+    .limit(100)
 
   if (error) throw error
-  return (data ?? []) as PilotFeedback[]
+  return ((data ?? []) as PilotFeedback[])
+    .filter((item) => !isQaPilotFeedback(item))
+    .slice(0, 50)
+}
+
+export async function getAdminQaPilotFeedback() {
+  const { data, error } = await supabase
+    .from('pilot_feedback')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(100)
+
+  if (error) throw error
+  return ((data ?? []) as PilotFeedback[])
+    .filter(isQaPilotFeedback)
+    .slice(0, 50)
 }
 
 export async function updatePilotFeedbackStatus(input: {
@@ -92,12 +115,13 @@ export async function updatePilotFeedbackStatus(input: {
 }
 
 export function summarizePilotFeedback(items: PilotFeedback[]) {
+  const realItems = items.filter((item) => !isQaPilotFeedback(item))
   const byCategory = new Map<string, number>()
   const byModule = new Map<string, number>()
   let ratingSum = 0
   let ratingCount = 0
 
-  for (const item of items) {
+  for (const item of realItems) {
     byCategory.set(item.category, (byCategory.get(item.category) ?? 0) + 1)
     if (item.module) byModule.set(item.module, (byModule.get(item.module) ?? 0) + 1)
     if (typeof item.rating === 'number') {
@@ -107,8 +131,8 @@ export function summarizePilotFeedback(items: PilotFeedback[]) {
   }
 
   return {
-    total: items.length,
-    newCount: items.filter((item) => item.status === 'new').length,
+    total: realItems.length,
+    newCount: realItems.filter((item) => item.status === 'new').length,
     averageRating: ratingCount ? Number((ratingSum / ratingCount).toFixed(1)) : 0,
     byCategory: Array.from(byCategory.entries()).map(([label, value]) => ({
       label,

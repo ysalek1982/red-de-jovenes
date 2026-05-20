@@ -55,6 +55,7 @@ import { validateAiPrompt, type AiActionType } from '../features/ai/aiGuardrails
 import {
   createPilotIncident,
   getAdminPilotIncidents,
+  getAdminQaPilotIncidents,
   summarizePilotIncidents,
   updatePilotIncident,
   type PilotIncidentSeverity,
@@ -62,6 +63,7 @@ import {
 } from '../features/pilot/pilotIncidentService'
 import {
   getAdminPilotFeedback,
+  getAdminQaPilotFeedback,
   summarizePilotFeedback,
   updatePilotFeedbackStatus,
   type PilotFeedbackStatus,
@@ -200,6 +202,8 @@ export function AdminHome() {
     useState<PilotMetrics>(initialPilotMetrics)
   const [pilotFeedback, setPilotFeedback] = useState<PilotFeedback[]>([])
   const [pilotIncidents, setPilotIncidents] = useState<PilotIncident[]>([])
+  const [qaPilotFeedback, setQaPilotFeedback] = useState<PilotFeedback[]>([])
+  const [qaPilotIncidents, setQaPilotIncidents] = useState<PilotIncident[]>([])
   const [incidentForm, setIncidentForm] = useState({
     severity: 'medium' as PilotIncidentSeverity,
     module: 'General',
@@ -286,6 +290,8 @@ export function AdminHome() {
       pilotMetricsData,
       pilotFeedbackData,
       pilotIncidentsData,
+      qaPilotFeedbackData,
+      qaPilotIncidentsData,
     ] = await Promise.all([
       getAdminOverview(),
       getAdminLatestItems(),
@@ -309,6 +315,8 @@ export function AdminHome() {
       getPilotMetrics().catch(() => initialPilotMetrics),
       getAdminPilotFeedback().catch(() => []),
       getAdminPilotIncidents().catch(() => []),
+      getAdminQaPilotFeedback().catch(() => []),
+      getAdminQaPilotIncidents().catch(() => []),
     ])
     setOverview(overviewData)
     setLatest(latestData)
@@ -330,6 +338,8 @@ export function AdminHome() {
     setPilotMetrics(pilotMetricsData)
     setPilotFeedback(pilotFeedbackData)
     setPilotIncidents(pilotIncidentsData)
+    setQaPilotFeedback(qaPilotFeedbackData)
+    setQaPilotIncidents(qaPilotIncidentsData)
   }, [])
 
   useEffect(() => {
@@ -1503,6 +1513,48 @@ export function AdminHome() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-2xl shadow-black/20 backdrop-blur">
+            <div className="flex items-center gap-3">
+              <FileText className="h-6 w-6 text-white/70" aria-hidden="true" />
+              <h2 className="text-2xl font-black">Evidencia QA</h2>
+            </div>
+            <p className="mt-3 text-sm leading-6 text-white/60">
+              Estos registros se conservan para trazabilidad tecnica y no cuentan como feedback o incidentes reales del piloto.
+            </p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+              <PilotMetricCard title="Feedback QA" value={qaPilotFeedback.length} detail="excluido de metricas reales" />
+              <PilotMetricCard title="Incidentes QA" value={qaPilotIncidents.length} detail="excluido de metricas reales" />
+            </div>
+            <div className="mt-5 grid gap-4 lg:grid-cols-2">
+              <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <h3 className="font-black">Feedback QA reciente</h3>
+                <div className="mt-3 space-y-2">
+                  {qaPilotFeedback.slice(0, 3).map((item) => (
+                    <p key={item.id} className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white/55">
+                      {item.title} - {item.status}
+                    </p>
+                  ))}
+                  {qaPilotFeedback.length ? null : (
+                    <p className="text-sm text-white/55">No hay evidencia QA de feedback.</p>
+                  )}
+                </div>
+              </div>
+              <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <h3 className="font-black">Incidentes QA recientes</h3>
+                <div className="mt-3 space-y-2">
+                  {qaPilotIncidents.slice(0, 3).map((item) => (
+                    <p key={item.id} className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white/55">
+                      {item.title} - {item.status}
+                    </p>
+                  ))}
+                  {qaPilotIncidents.length ? null : (
+                    <p className="text-sm text-white/55">No hay evidencia QA de incidentes.</p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
