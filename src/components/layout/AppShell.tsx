@@ -6,7 +6,6 @@ import {
   Gamepad2,
   GraduationCap,
   Globe2,
-  Hammer,
   Heart,
   Home,
   LogOut,
@@ -51,7 +50,6 @@ const secondaryNavigation: NavigationItem[] = [
   { label: 'Mensajes', to: '/app/mensajes', icon: MessageCircle },
   { label: 'Guia rapida', to: '/app/guia', icon: Sparkles },
   { label: 'Perfil', to: '/app/perfil', icon: UserRound },
-  { label: 'Construir', to: '/app/construir', icon: Hammer },
 ]
 
 function navigationItemClass(isActive: boolean) {

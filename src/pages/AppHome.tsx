@@ -10,7 +10,6 @@ import {
   Gamepad2,
   GraduationCap,
   Globe2,
-  Hammer,
   Heart,
   Loader2,
   MessageCircle,
@@ -95,12 +94,6 @@ const quickActions = [
     text: 'Camina planes cortos para crecer con proposito.',
     to: '/app/discipulado',
     icon: GraduationCap,
-  },
-  {
-    title: 'Construir la Red',
-    text: 'Invita, sugiere comunidades y comparte mejoras.',
-    to: '/app/construir',
-    icon: Hammer,
   },
   {
     title: 'Perfil',

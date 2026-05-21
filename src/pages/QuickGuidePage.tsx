@@ -4,7 +4,6 @@ import {
   Globe2,
   Heart,
   MessageCircle,
-  PlusCircle,
   ShieldCheck,
   Smartphone,
   Sparkles,
@@ -133,14 +132,14 @@ export function QuickGuidePage() {
             </p>
           </article>
           <article className="app-card-soft">
-            <PlusCircle className="h-6 w-6 text-sky-200" aria-hidden="true" />
-            <h2 className="mt-4 text-xl font-black">Construir la Red</h2>
+            <Globe2 className="h-6 w-6 text-sky-200" aria-hidden="true" />
+            <h2 className="mt-4 text-xl font-black">Sugerir comunidad</h2>
             <p className="mt-2 text-sm leading-6 text-white/62">
-              Puedes invitar a un amigo, sugerir una comunidad, proponer un
-              evento o enviar una mejora para el piloto.
+              Si tu ciudad o grupo juvenil no aparece, ve al mapa y envia una
+              sugerencia para que un lider la revise.
             </p>
-            <Link to="/app/construir" className="mt-4 inline-flex text-sm font-bold text-amber-200">
-              Ir a Construir
+            <Link to="/app/mapa" className="mt-4 inline-flex text-sm font-bold text-amber-200">
+              Ir al mapa
             </Link>
           </article>
         </div>
