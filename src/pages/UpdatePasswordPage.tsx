@@ -44,11 +44,10 @@ export function UpdatePasswordPage() {
   }
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-36 text-white">
-      <div className="pointer-events-none absolute left-1/2 top-24 h-80 w-80 -translate-x-1/2 rounded-full bg-amber-300/[0.12] blur-3xl" />
+    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white md:pt-36">
       <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-amber-200 backdrop-blur">
+          <p className="app-kicker">
             <ShieldCheck className="h-4 w-4" aria-hidden="true" />
             Nueva contraseña
           </p>
@@ -63,7 +62,7 @@ export function UpdatePasswordPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/30 backdrop-blur md:p-8"
+          className="app-card p-6 md:p-8"
         >
           <div className="space-y-5">
             <div>
@@ -102,14 +101,10 @@ export function UpdatePasswordPage() {
             </div>
 
             {error ? (
-              <div className="rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
-                {error}
-              </div>
+              <div className="app-alert-warning">{error}</div>
             ) : null}
             {success ? (
-              <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm text-emerald-100">
-                {success}
-              </div>
+              <div className="app-alert">{success}</div>
             ) : null}
 
             <Button

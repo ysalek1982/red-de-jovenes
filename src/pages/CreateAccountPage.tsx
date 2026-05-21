@@ -105,11 +105,10 @@ export function CreateAccountPage() {
   }
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-36 text-white">
-      <div className="pointer-events-none absolute right-0 top-20 h-96 w-96 rounded-full bg-emerald-300/10 blur-3xl" />
+    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white md:pt-36">
       <div className="mx-auto grid max-w-6xl items-start gap-10 lg:grid-cols-[0.8fr_1.2fr]">
         <div>
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-amber-200 backdrop-blur">
+          <p className="app-kicker">
             <Sparkles className="h-4 w-4" aria-hidden="true" />
             Crear cuenta
           </p>
@@ -124,7 +123,7 @@ export function CreateAccountPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/30 backdrop-blur md:p-8"
+          className="app-card p-6 md:p-8"
         >
           <div className="grid gap-5 md:grid-cols-2">
             <div className="md:col-span-2">
@@ -232,7 +231,7 @@ export function CreateAccountPage() {
                 id="ageRange"
                 value={form.ageRange}
                 onChange={(event) => updateField('ageRange', event.target.value)}
-                className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+                className="app-select mt-2"
               >
                 <option value="">Selecciona un rango</option>
                 <option value="13-17">13 a 17 años</option>
@@ -253,7 +252,7 @@ export function CreateAccountPage() {
                 className="mt-2"
               />
             </div>
-            <label className="md:col-span-2 flex gap-3 rounded-3xl border border-white/10 bg-slate-950/45 p-4 text-sm leading-6 text-white/70">
+            <label className="app-card-soft flex gap-3 text-sm leading-6 text-white/70 md:col-span-2">
               <input
                 type="checkbox"
                 checked={form.acceptedGuidelines}
@@ -270,14 +269,10 @@ export function CreateAccountPage() {
           </div>
 
           {error ? (
-            <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
-              {error}
-            </div>
+            <div className="app-alert-warning mt-5">{error}</div>
           ) : null}
           {success ? (
-            <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm text-emerald-100">
-              {success}
-            </div>
+            <div className="app-alert mt-5">{success}</div>
           ) : null}
 
           <Button type="submit" variant="accent" size="lg" disabled={isSubmitting} className="mt-6 w-full">
