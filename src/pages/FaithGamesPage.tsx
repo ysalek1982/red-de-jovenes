@@ -212,14 +212,11 @@ export function FaithGamesPage() {
   }, [activeGame.key, activeTotal, isFinished, isScoreSaved, score, user?.id])
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-32 pt-32 text-white">
-      <div className="pointer-events-none fixed left-0 top-24 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
-      <div className="pointer-events-none fixed bottom-20 right-0 h-96 w-96 rounded-full bg-emerald-300/10 blur-3xl" />
-
+    <section className="app-page overflow-hidden">
       <div className="section-shell relative">
         <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-amber-200 backdrop-blur">
+            <p className="app-kicker">
               <Gamepad2 className="h-4 w-4" aria-hidden="true" />
               Juegos de fe
             </p>
@@ -232,7 +229,7 @@ export function FaithGamesPage() {
             </p>
           </div>
 
-          <div className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+          <div className="app-card-accent">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-amber-100">
@@ -267,9 +264,9 @@ export function FaithGamesPage() {
                   key={game.key}
                   type="button"
                   onClick={() => resetGame(game.key)}
-                  className={`w-full rounded-[1.5rem] border p-5 text-left shadow-2xl shadow-black/20 backdrop-blur transition ${
+                  className={`w-full rounded-2xl border p-5 text-left shadow-2xl shadow-black/20 backdrop-blur transition ${
                     isActive
-                      ? 'border-amber-300/30 bg-amber-300/12'
+                      ? 'border-amber-300/30 bg-amber-300/10'
                       : 'border-white/10 bg-white/[0.05] hover:bg-white/[0.08]'
                   }`}
                 >
@@ -288,7 +285,7 @@ export function FaithGamesPage() {
               )
             })}
 
-            <article className="rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/20 backdrop-blur">
+            <article className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/20 backdrop-blur">
               <h2 className="font-black text-white">Tu progreso</h2>
               <p className="mt-2 text-sm text-white/60">
                 {totalPoints} puntos guardados en {scoreHistory.length} partidas.
@@ -297,7 +294,7 @@ export function FaithGamesPage() {
                 {scoreByGame.map(({ game, plays, best }) => (
                   <div
                     key={game.key}
-                    className="rounded-2xl border border-white/10 bg-slate-950/45 p-3"
+                    className="app-card-soft p-3"
                   >
                     <p className="text-sm font-bold text-white">{game.title}</p>
                     <p className="mt-1 text-xs text-white/55">
@@ -313,7 +310,7 @@ export function FaithGamesPage() {
             </article>
           </aside>
 
-          <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur md:p-8">
+          <article className="app-card md:p-8">
             {isFinished ? (
               <div className="flex min-h-[30rem] flex-col items-center justify-center text-center">
                 <span className="flex h-20 w-20 items-center justify-center rounded-[2rem] bg-gradient-to-br from-emerald-300 to-amber-300 text-slate-950 shadow-2xl shadow-amber-500/20">
@@ -337,7 +334,7 @@ export function FaithGamesPage() {
                 <button
                   type="button"
                   onClick={() => resetGame()}
-                  className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-amber-300 px-6 py-3 text-sm font-black text-slate-950 transition hover:bg-amber-200"
+                  className="app-button-primary mt-8 bg-amber-300 hover:bg-amber-200"
                 >
                   <RotateCcw className="h-4 w-4" aria-hidden="true" />
                   Jugar otra vez
@@ -370,7 +367,7 @@ export function FaithGamesPage() {
                         type="button"
                         onClick={() => handleMemoryCardClick(card)}
                         disabled={isVisible && matchedPairIds.includes(card.pairId)}
-                        className={`min-h-28 rounded-[1.25rem] border p-3 text-center text-sm font-black transition ${
+                         className={`min-h-28 rounded-2xl border p-3 text-center text-sm font-black transition ${
                           isVisible
                             ? 'border-emerald-300/30 bg-emerald-300/15 text-emerald-100'
                             : 'border-white/10 bg-slate-950/55 text-white/55 hover:bg-white/10'
@@ -382,7 +379,7 @@ export function FaithGamesPage() {
                   })}
                 </div>
 
-                <div className="mt-6 rounded-[1.5rem] border border-amber-300/20 bg-amber-300/10 p-5">
+                <div className="app-card-accent mt-6">
                   <p className="font-black text-amber-100">
                     Intentos: {memoryAttempts}
                   </p>
@@ -408,7 +405,7 @@ export function FaithGamesPage() {
                   </span>
                 </div>
 
-                <div className="mt-8 rounded-[1.75rem] border border-amber-300/20 bg-amber-300/10 p-6">
+                <div className="app-card-accent mt-8">
                   <p className="text-2xl font-semibold leading-tight md:text-3xl">
                     {currentQuestion.prompt}
                   </p>
@@ -437,7 +434,7 @@ export function FaithGamesPage() {
                         type="button"
                         onClick={() => handleSelectAnswer(option)}
                         disabled={Boolean(selectedAnswer)}
-                        className={`min-h-16 rounded-2xl border px-4 py-3 text-left text-sm font-bold transition ${resolvedClass}`}
+                    className={`min-h-16 rounded-2xl border px-4 py-3 text-left text-sm font-bold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${resolvedClass}`}
                       >
                         {option}
                       </button>
@@ -447,7 +444,7 @@ export function FaithGamesPage() {
 
                 {selectedAnswer ? (
                   <div
-                    className={`mt-6 rounded-[1.5rem] border p-5 ${getFeedbackColor(
+                    className={`mt-6 rounded-2xl border p-5 ${getFeedbackColor(
                       isCorrect,
                     )}`}
                   >
@@ -467,7 +464,7 @@ export function FaithGamesPage() {
                     <button
                       type="button"
                       onClick={handleNextQuestion}
-                      className="mt-5 inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-slate-950 transition hover:bg-amber-100"
+                      className="app-button-primary mt-5"
                     >
                       <Sparkles className="h-4 w-4" aria-hidden="true" />
                       {questionIndex === activeTotal - 1
@@ -478,7 +475,7 @@ export function FaithGamesPage() {
                 ) : null}
               </>
             ) : (
-              <div className="rounded-[1.5rem] border border-amber-300/20 bg-amber-300/10 p-5 text-amber-100">
+              <div className="app-alert-warning">
                 Este juego necesita preguntas antes de iniciar.
               </div>
             )}
