@@ -290,19 +290,18 @@ export function AppHome() {
   }, [loadData])
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
-      <div className="pointer-events-none fixed left-1/2 top-32 h-96 w-96 -translate-x-1/2 rounded-full bg-amber-300/10 blur-3xl" />
+    <section className="app-page">
       <div className="section-shell relative">
         <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-amber-200 backdrop-blur">
+            <p className="app-kicker">
               <Sparkles className="h-4 w-4" aria-hidden="true" />
               Mi red
             </p>
             <h1 className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
-              Hola, {displayName}.
+              Hola, {displayName}. Hoy tambien puedes ser luz.
             </h1>
-            <p className="mt-4 max-w-2xl text-white/65">
+            <p className="mt-4 max-w-2xl text-lg leading-8 text-white/70">
               Hoy tu red está activa: oración, foros con la Palabra,
               devocional, juegos de fe y comunidades conectadas.
             </p>
@@ -313,7 +312,7 @@ export function AppHome() {
           </div>
           <Link
             to="/app/perfil"
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-5 text-sm font-bold text-white shadow-2xl shadow-black/20 backdrop-blur transition hover:bg-white/10"
+            className="app-button-secondary"
           >
             <UserRound className="h-4 w-4" aria-hidden="true" />
             Editar perfil
@@ -321,20 +320,20 @@ export function AppHome() {
         </div>
 
         {error ? (
-          <div className="mt-8 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-5 text-sm text-amber-100">
+          <div className="app-alert-warning mt-8">
             {error}
           </div>
         ) : null}
 
         {isLoading ? (
-          <div className="mt-12 flex items-center gap-3 text-white/70">
+          <div className="app-card-soft mt-12 flex items-center gap-3 text-white/70">
             <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
             Cargando comunidad...
           </div>
         ) : (
           <div className="mt-10 space-y-6">
             <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-              <article className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <article className="app-card-accent">
                 <p className="text-sm font-semibold text-amber-100">
                   Versiculo del momento
                 </p>
@@ -347,20 +346,20 @@ export function AppHome() {
                 <div className="mt-5 flex flex-wrap gap-2">
                   <Link
                     to="/app/biblia"
-                    className="inline-flex h-11 items-center justify-center rounded-full bg-white px-5 text-sm font-black text-slate-950"
+                    className="app-button-primary"
                   >
                     Guardar en Biblia
                   </Link>
                   <Link
                     to="/app/foros"
-                    className="inline-flex h-11 items-center justify-center rounded-full border border-white/10 px-5 text-sm font-bold text-white"
+                    className="app-button-secondary"
                   >
                     Compartir reflexion
                   </Link>
                 </div>
               </article>
 
-              <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <article className="app-card">
                 <p className="text-sm font-semibold text-emerald-200">
                   Comparte con la Red
                 </p>
@@ -372,13 +371,13 @@ export function AppHome() {
                   onChange={(event) => setQuickPost(event.target.value)}
                   rows={3}
                   placeholder="Escribe una reflexion, testimonio o pregunta..."
-                  className="mt-4 w-full rounded-3xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-amber-200"
+                  className="app-input mt-4"
                 />
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <button
                     type="button"
                     onClick={() => void handleQuickPost()}
-                    className="h-11 rounded-full bg-emerald-200 px-5 text-sm font-black text-slate-950"
+                    className="app-button-primary bg-emerald-200 hover:bg-emerald-100"
                   >
                     Publicar en Foros
                   </button>
@@ -398,7 +397,7 @@ export function AppHome() {
                   <Link
                     key={action.to}
                     to={action.to}
-                    className="group rounded-[1.75rem] border border-white/10 bg-white/[0.07] p-5 shadow-2xl shadow-black/20 backdrop-blur transition hover:-translate-y-1 hover:bg-white/[0.1]"
+                    className="app-card group transition hover:-translate-y-1 hover:bg-white/[0.1]"
                   >
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-300/20 to-amber-300/20 text-amber-200 ring-1 ring-white/10">
                       <Icon className="h-5 w-5" aria-hidden="true" />
@@ -416,7 +415,7 @@ export function AppHome() {
               })}
             </div>
 
-            <article className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+            <article className="app-card-accent">
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
                   <p className="text-sm font-semibold text-amber-100">
@@ -433,7 +432,7 @@ export function AppHome() {
                   <Link
                     key={step.to}
                     to={step.to}
-                    className="rounded-3xl border border-white/10 bg-slate-950/45 p-4 transition hover:bg-white/10"
+                    className="app-card-soft transition hover:bg-white/10"
                   >
                     <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-sm font-black text-slate-950">
                       {index + 1}
@@ -448,7 +447,7 @@ export function AppHome() {
             </article>
 
             {progress ? (
-              <article className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <article className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div>
                     <p className="text-sm font-semibold text-emerald-100">
@@ -491,7 +490,7 @@ export function AppHome() {
             ) : null}
 
             <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-              <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <article className="app-card">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div>
                     <p className="text-sm font-semibold text-amber-200">
@@ -511,7 +510,7 @@ export function AppHome() {
                       <Link
                         key={`${item.title}-${item.text}`}
                         to={item.to}
-                        className="rounded-3xl border border-white/10 bg-slate-950/45 p-4 transition hover:bg-white/10"
+                        className="app-card-soft transition hover:bg-white/10"
                       >
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
@@ -529,7 +528,7 @@ export function AppHome() {
                       </Link>
                     ))
                   ) : (
-                    <div className="rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-6 text-sm leading-6 text-white/60">
+                    <div className="app-empty text-left">
                       Aún estamos empezando. Sé de los primeros en compartir,
                       orar o sugerir una comunidad.
                     </div>
@@ -537,7 +536,7 @@ export function AppHome() {
                 </div>
               </article>
 
-              <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <article className="app-card">
                 <p className="text-sm font-semibold text-emerald-200">
                   Comunidad destacada
                 </p>
@@ -573,7 +572,7 @@ export function AppHome() {
                     </Link>
                   </div>
                 ) : (
-                  <div className="mt-4 rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-6 text-sm leading-6 text-white/60">
+                    <div className="app-empty mt-4">
                     Todavía no hay comunidades activas. Sugiere la primera
                     desde el mapa.
                   </div>
@@ -582,7 +581,7 @@ export function AppHome() {
             </div>
 
             {profileIncomplete ? (
-              <article className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <article className="app-card-accent">
                 <p className="text-sm font-semibold text-amber-100">
                   Perfil incompleto
                 </p>
@@ -603,7 +602,7 @@ export function AppHome() {
             ) : null}
 
             <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-              <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+              <article className="app-card">
                 <div className="flex items-center gap-3">
                   <BookOpen className="h-6 w-6 text-amber-200" aria-hidden="true" />
                   <h2 className="text-2xl font-bold">Devocional del día</h2>
@@ -636,7 +635,7 @@ export function AppHome() {
               </article>
 
               <div className="grid gap-6 lg:grid-cols-2">
-                <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+                <article className="app-card">
                   <h2 className="flex items-center gap-2 text-xl font-bold">
                     <Heart className="h-5 w-5 text-emerald-300" aria-hidden="true" />
                     Últimas oraciones
@@ -644,7 +643,7 @@ export function AppHome() {
                   <div className="mt-5 space-y-4">
                     {prayers.length ? (
                       prayers.map((prayer) => (
-                        <div key={prayer.id} className="rounded-2xl bg-slate-950/45 p-4">
+                        <div key={prayer.id} className="app-card-soft">
                           <p className="font-semibold">{prayer.title}</p>
                           <p className="mt-2 line-clamp-3 text-sm leading-6 text-white/60">
                             {prayer.body}
@@ -660,7 +659,7 @@ export function AppHome() {
                   </div>
                 </article>
 
-                <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+                <article className="app-card">
                   <h2 className="flex items-center gap-2 text-xl font-bold">
                     <MessageCircle className="h-5 w-5 text-amber-200" aria-hidden="true" />
                     Foros recientes
@@ -668,7 +667,7 @@ export function AppHome() {
                   <div className="mt-5 space-y-4">
                     {posts.length ? (
                       posts.map((post) => (
-                        <div key={post.id} className="rounded-2xl bg-slate-950/45 p-4">
+                        <div key={post.id} className="app-card-soft">
                           <p className="line-clamp-4 text-sm leading-6 text-white/75">
                             {post.body}
                           </p>
