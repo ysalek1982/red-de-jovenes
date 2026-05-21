@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   CheckCircle2,
   Flag,
@@ -24,6 +24,15 @@ import {
 } from '../features/prayer/prayerService'
 import { getActiveGroups, type GroupWithMembership } from '../features/map/worldMapService'
 import { createContentReport } from '../features/safety/safetyService'
+import { scrollElementIntoView } from '../lib/scroll'
+
+type PrayerFilter =
+  | 'all'
+  | 'active'
+  | 'answered'
+  | 'mine'
+  | 'supporting'
+  | 'myCommunity'
 
 const prayerCategories = [
   ['familia', 'Familia'],
@@ -52,6 +61,9 @@ function getAuthor(prayer: PrayerRequestWithAuthor) {
 export function PrayerRoomPage() {
   const { user } = useAuth()
   const userId = user?.id
+  const formRef = useRef<HTMLFormElement>(null)
+  const listTopRef = useRef<HTMLDivElement>(null)
+  const prayerRefs = useRef<Record<string, HTMLElement | null>>({})
   const [prayers, setPrayers] = useState<PrayerRequestWithAuthor[]>([])
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
@@ -63,10 +75,7 @@ export function PrayerRoomPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [busyPrayerId, setBusyPrayerId] = useState<string | null>(null)
-  const [statusFilter, setStatusFilter] = useState<
-    'all' | 'active' | 'answered' | 'mine' | 'supporting'
-    | 'myCommunity'
-  >('all')
+  const [statusFilter, setStatusFilter] = useState<PrayerFilter>('all')
   const [error, setError] = useState('')
   const [actionMessage, setActionMessage] = useState('')
 
@@ -95,6 +104,17 @@ export function PrayerRoomPage() {
     return () => window.clearTimeout(timer)
   }, [loadPrayers])
 
+  function revealNode(target: HTMLElement | null, behavior: ScrollBehavior = 'auto') {
+    window.requestAnimationFrame(() => {
+      scrollElementIntoView(target, behavior)
+    })
+  }
+
+  function handleStatusFilter(value: PrayerFilter) {
+    setStatusFilter(value)
+    revealNode(listTopRef.current)
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!user || !title.trim() || !body.trim()) return
@@ -117,6 +137,7 @@ export function PrayerRoomPage() {
       setGroupId('')
       setIsAnonymous(false)
       await loadPrayers(false)
+      revealNode(listTopRef.current)
       setActionMessage('Petición publicada. La sala ya puede orar contigo.')
     } catch {
       setError('No pudimos publicar tu petición de oración.')
@@ -137,6 +158,7 @@ export function PrayerRoomPage() {
         answeredTestimony: answeredTestimony[prayerId]?.trim(),
       })
       await loadPrayers(false)
+      revealNode(prayerRefs.current[prayerId], 'smooth')
       setActionMessage('Celebramos contigo: petición marcada como respondida.')
     } catch {
       setError('Solo puedes marcar como respondidas tus propias peticiones.')
@@ -153,6 +175,7 @@ export function PrayerRoomPage() {
     try {
       await deleteOwnPrayerRequest({ prayerId, userId: user.id })
       await loadPrayers(false)
+      revealNode(listTopRef.current)
       setActionMessage('Peticion eliminada.')
     } catch {
       setError('Solo puedes eliminar tus propias peticiones.')
@@ -173,6 +196,7 @@ export function PrayerRoomPage() {
         await supportPrayer({ prayerId: prayer.id, userId: user.id })
       }
       await loadPrayers(false)
+      revealNode(prayerRefs.current[prayer.id], 'smooth')
       setActionMessage(
         prayer.supportedByMe
           ? 'Dejaste de marcar esta petición como oración activa.'
@@ -229,6 +253,7 @@ export function PrayerRoomPage() {
       <div className="section-shell relative">
         <div className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
           <form
+            ref={formRef}
             onSubmit={handleSubmit}
             className="app-card h-fit md:p-8"
           >
@@ -236,7 +261,10 @@ export function PrayerRoomPage() {
               <Heart className="h-4 w-4" aria-hidden="true" />
               Sala de oración global
             </p>
-            <h1 className="mt-5 text-4xl font-black tracking-tight md:text-5xl">
+            <h1
+              data-page-title
+              className="mt-5 text-4xl font-black tracking-tight md:text-5xl"
+            >
               Ora con otros jóvenes.
             </h1>
             <p className="mt-4 text-white/65">
@@ -350,7 +378,7 @@ export function PrayerRoomPage() {
             </div>
           </form>
 
-          <div className="app-card md:p-6">
+          <div ref={listTopRef} className="app-card md:p-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-amber-200">
@@ -375,17 +403,7 @@ export function PrayerRoomPage() {
                 <button
                   key={value}
                   type="button"
-                  onClick={() =>
-                    setStatusFilter(
-                      value as
-                        | 'all'
-                        | 'active'
-                        | 'answered'
-                        | 'mine'
-                        | 'supporting'
-                        | 'myCommunity',
-                    )
-                  }
+                  onClick={() => handleStatusFilter(value as PrayerFilter)}
                   className={`app-chip flex-none ${
                     statusFilter === value
                       ? 'app-chip-active'
@@ -432,6 +450,9 @@ export function PrayerRoomPage() {
                   return (
                     <article
                       key={prayer.id}
+                      ref={(node) => {
+                        prayerRefs.current[prayer.id] = node
+                      }}
                       className="app-card-soft"
                     >
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

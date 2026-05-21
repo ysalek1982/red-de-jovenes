@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import {
   ArrowRight,
   CheckCircle2,
@@ -25,6 +25,7 @@ import {
   suggestGroup,
   type GroupWithMembership,
 } from '../features/map/worldMapService'
+import { scrollElementIntoView } from '../lib/scroll'
 import type { GroupSuggestion } from '../types/database'
 
 const mapNodePositions = [
@@ -72,6 +73,9 @@ const modalityLabels: Record<string, string> = {
 export function WorldMapPage() {
   const { user } = useAuth()
   const userId = user?.id
+  const directoryRef = useRef<HTMLElement>(null)
+  const detailRef = useRef<HTMLElement>(null)
+  const suggestionFormRef = useRef<HTMLFormElement>(null)
   const [groups, setGroups] = useState<GroupWithMembership[]>([])
   const [selectedGroup, setSelectedGroup] = useState<GroupWithMembership | null>(
     null,
@@ -135,6 +139,17 @@ export function WorldMapPage() {
 
     return () => window.clearTimeout(timer)
   }, [loadGroups])
+
+  function revealNode(target: HTMLElement | null, behavior: ScrollBehavior = 'auto') {
+    window.requestAnimationFrame(() => {
+      scrollElementIntoView(target, behavior)
+    })
+  }
+
+  function selectGroup(group: GroupWithMembership) {
+    setSelectedGroup(group)
+    revealNode(detailRef.current, 'smooth')
+  }
 
   const countries = useMemo(
     () =>
@@ -203,11 +218,13 @@ export function WorldMapPage() {
     setCountryFilter('todos')
     setCityFilter('todos')
     setSearchTerm('')
+    revealNode(directoryRef.current)
   }
 
   function handleCountryClick(country: string) {
     setCountryFilter(country)
     setCityFilter('todos')
+    revealNode(directoryRef.current)
   }
 
   async function handleSuggestionSubmit(event: FormEvent<HTMLFormElement>) {
@@ -216,6 +233,7 @@ export function WorldMapPage() {
 
     if (!suggestion.name.trim() || !suggestion.country.trim() || !suggestion.city.trim()) {
       setFormMessage('El nombre, el pais y la ciudad son obligatorios.')
+      revealNode(suggestionFormRef.current)
       return
     }
 
@@ -224,6 +242,7 @@ export function WorldMapPage() {
       !/^https?:\/\/\S+\.\S+/.test(suggestion.contactUrl.trim())
     ) {
       setFormMessage('El link de contacto debe comenzar con http:// o https://.')
+      revealNode(suggestionFormRef.current)
       return
     }
 
@@ -260,6 +279,7 @@ export function WorldMapPage() {
       setMySuggestions(suggestions)
       setGroups(data)
       setMyCommunities(data.filter((group) => group.isMember))
+      revealNode(suggestionFormRef.current)
       setFormMessage('Tu comunidad fue sugerida para revisión.')
     } catch {
       setFormMessage('No pudimos enviar la sugerencia. Intentalo nuevamente.')
@@ -288,6 +308,7 @@ export function WorldMapPage() {
       setSelectedGroup((current) =>
         current ? data.find((item) => item.id === current.id) ?? null : null,
       )
+      revealNode(detailRef.current ?? directoryRef.current, 'smooth')
     } catch {
       setError('No pudimos actualizar tu comunidad. Intentalo nuevamente.')
     } finally {
@@ -315,7 +336,7 @@ export function WorldMapPage() {
               <Globe2 className="h-4 w-4" aria-hidden="true" />
               Mapa mundial
             </p>
-            <h1 className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
+            <h1 data-page-title className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
               Encuentra jovenes cerca de ti.
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/65">
@@ -378,7 +399,7 @@ export function WorldMapPage() {
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
-          <article className="app-card">
+          <article ref={directoryRef} className="app-card">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-amber-200">
@@ -503,7 +524,7 @@ export function WorldMapPage() {
                     <div className="mt-4 flex flex-wrap gap-2">
                       <button
                         type="button"
-                        onClick={() => setSelectedGroup(group)}
+                        onClick={() => selectGroup(group)}
                         className="app-chip min-h-9 px-4 text-xs"
                       >
                         Ver comunidad
@@ -561,7 +582,7 @@ export function WorldMapPage() {
             </div>
 
             {selectedGroup ? (
-              <article className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5">
+              <article ref={detailRef} className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-200">
@@ -653,7 +674,7 @@ export function WorldMapPage() {
                         </div>
                         <button
                           type="button"
-                          onClick={() => setSelectedGroup(group)}
+                          onClick={() => selectGroup(group)}
                           className="app-chip min-h-8 px-3 text-xs"
                         >
                           Ver
@@ -671,6 +692,7 @@ export function WorldMapPage() {
             </div>
 
             <form
+              ref={suggestionFormRef}
               onSubmit={(event) => void handleSuggestionSubmit(event)}
               className="app-card-accent"
             >
@@ -838,7 +860,7 @@ export function WorldMapPage() {
                                 group.country === item.country &&
                                 (group.city ?? '') === (item.city ?? ''),
                             )
-                            if (approvedGroup) setSelectedGroup(approvedGroup)
+                            if (approvedGroup) selectGroup(approvedGroup)
                           }}
                           className="mt-3 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-100"
                         >

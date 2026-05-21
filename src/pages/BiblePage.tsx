@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   BookMarked,
   ChevronLeft,
@@ -38,6 +38,7 @@ import {
 import { createPost } from '../features/community/communityService'
 import { generateAiContent } from '../features/ai/aiService'
 import { useAuth } from '../features/auth/useAuth'
+import { scrollElementIntoView } from '../lib/scroll'
 import type {
   BibleBook,
   BibleHighlight,
@@ -50,6 +51,11 @@ import type {
 export function BiblePage() {
   const { user } = useAuth()
   const userId = user?.id
+  const pageTopRef = useRef<HTMLElement>(null)
+  const readerRef = useRef<HTMLElement>(null)
+  const chapterListRef = useRef<HTMLDivElement>(null)
+  const searchRef = useRef<HTMLElement>(null)
+  const aiRef = useRef<HTMLDivElement>(null)
   const [translations, setTranslations] = useState<BibleTranslation[]>([])
   const [books, setBooks] = useState<BibleBook[]>([])
   const [chapterVerses, setChapterVerses] = useState<BibleVerseResult[]>([])
@@ -171,11 +177,23 @@ export function BiblePage() {
     return () => window.clearTimeout(timer)
   }, [loadData])
 
+  function revealNode(target: HTMLElement | null, behavior: ScrollBehavior = 'auto') {
+    window.requestAnimationFrame(() => {
+      scrollElementIntoView(target, behavior)
+    })
+  }
+
+  function revealReader() {
+    chapterListRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    revealNode(readerRef.current)
+  }
+
   async function handleRandomVerse() {
     setRandomVerse(
       await getRandomBibleVerse({ translationCode: selectedTranslation }),
     )
     setStatus('Versiculo actualizado.')
+    revealNode(pageTopRef.current)
   }
 
   async function handleSearch() {
@@ -191,6 +209,7 @@ export function BiblePage() {
     })
     setSearchResults(results)
     setStatus(results.length ? 'Busqueda completada.' : 'No encontramos resultados para esa busqueda.')
+    revealNode(searchRef.current)
   }
 
   async function handleSaveVerse(verse = activeVerse) {
@@ -268,6 +287,7 @@ export function BiblePage() {
         'Gemini no esta configurado todavia. La solicitud quedo registrada para revision.',
     )
     setStatus('Explicacion generada para revisar.')
+    revealNode(aiRef.current, 'smooth')
   }
 
   async function handleBibleAiAction(
@@ -287,23 +307,27 @@ export function BiblePage() {
         'La IA aun no esta configurada por el administrador.',
     )
     setStatus('Sugerencia IA generada para revisar antes de compartir.')
+    revealNode(aiRef.current, 'smooth')
   }
 
   async function handleLoadChapter() {
     await loadChapter()
     setStatus('Capitulo cargado.')
+    revealReader()
   }
 
   async function handlePreviousChapter() {
     const currentBookIndex = books.findIndex((book) => book.code === selectedBook)
     if (selectedChapter > 1) {
       setSelectedChapter((current) => current - 1)
+      revealReader()
       return
     }
     const previousBook = books[currentBookIndex - 1]
     if (previousBook) {
       setSelectedBook(previousBook.code)
       setSelectedChapter(previousBook.chapters_count)
+      revealReader()
     }
   }
 
@@ -312,12 +336,14 @@ export function BiblePage() {
     const maxChapter = selectedBookMeta?.chapters_count ?? selectedChapter
     if (selectedChapter < maxChapter) {
       setSelectedChapter((current) => current + 1)
+      revealReader()
       return
     }
     const nextBook = books[currentBookIndex + 1]
     if (nextBook) {
       setSelectedBook(nextBook.code)
       setSelectedChapter(1)
+      revealReader()
     }
   }
 
@@ -325,9 +351,9 @@ export function BiblePage() {
     <section className="app-page">
       <div className="section-shell">
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-          <article className="app-card-accent">
+          <article ref={pageTopRef} className="app-card-accent">
             <p className="app-kicker">Biblia</p>
-            <h1 className="mt-3 text-4xl font-black">Versiculo del dia</h1>
+            <h1 data-page-title className="mt-3 text-4xl font-black">Versiculo del dia</h1>
             {dailyVerse ? (
               <div className="app-card-soft mt-5">
                 <p className="text-2xl leading-10 text-white">
@@ -389,7 +415,7 @@ export function BiblePage() {
               </button>
             </div>
             {aiExplanation ? (
-              <div className="app-card-soft mt-4 text-sm leading-6 text-white/70">
+              <div ref={aiRef} className="app-card-soft mt-4 text-sm leading-6 text-white/70">
                 <p className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-200">
                   Sugerido por IA · revisa antes de compartir
                 </p>
@@ -400,25 +426,25 @@ export function BiblePage() {
             {error ? <p className="mt-4 text-sm font-semibold text-amber-100">{error}</p> : null}
           </article>
 
-          <article className="app-card">
+          <article ref={readerRef} className="app-card">
             <p className="text-sm font-semibold text-emerald-200">Leer por capitulo</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-4">
-              <select value={selectedTranslation} onChange={(event) => setSelectedTranslation(event.target.value)} className="app-select">
+              <select value={selectedTranslation} onChange={(event) => { setSelectedTranslation(event.target.value); revealReader() }} className="app-select">
                 {translations.map((translation) => (
                   <option key={translation.code} value={translation.code}>{translation.code}</option>
                 ))}
               </select>
-              <select value={selectedTestament} onChange={(event) => setSelectedTestament(event.target.value as 'all' | 'old' | 'new')} className="app-select">
+              <select value={selectedTestament} onChange={(event) => { setSelectedTestament(event.target.value as 'all' | 'old' | 'new'); revealReader() }} className="app-select">
                 <option value="all">Toda</option>
                 <option value="old">Antiguo</option>
                 <option value="new">Nuevo</option>
               </select>
-              <select value={selectedBook} onChange={(event) => setSelectedBook(event.target.value)} className="app-select">
+              <select value={selectedBook} onChange={(event) => { setSelectedBook(event.target.value); revealReader() }} className="app-select">
                 {visibleBooks.map((book) => (
                   <option key={book.code} value={book.code}>{book.name}</option>
                 ))}
               </select>
-              <input type="number" min={1} max={selectedBookMeta?.chapters_count ?? 150} value={selectedChapter} onChange={(event) => setSelectedChapter(Number(event.target.value))} className="app-input h-11 py-0 font-semibold" />
+              <input type="number" min={1} max={selectedBookMeta?.chapters_count ?? 150} value={selectedChapter} onChange={(event) => { setSelectedChapter(Number(event.target.value)); revealReader() }} className="app-input h-11 py-0 font-semibold" />
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               <button type="button" onClick={() => void handlePreviousChapter()} className="app-button-secondary">
@@ -431,7 +457,7 @@ export function BiblePage() {
                 Siguiente <ChevronRight className="h-4 w-4" />
               </button>
             </div>
-            <div className="mt-5 max-h-96 space-y-3 overflow-y-auto pr-1">
+            <div ref={chapterListRef} data-scroll-root className="mt-5 max-h-96 space-y-3 overflow-y-auto pr-1">
               {isLoading ? <p className="text-white/60">Cargando Biblia...</p> : null}
               {!isLoading && !chapterVerses.length ? (
                 <p className="app-empty text-left">
@@ -455,7 +481,7 @@ export function BiblePage() {
           </article>
         </div>
 
-        <article className="mt-6 rounded-2xl border border-sky-300/20 bg-sky-300/10 p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6">
+        <article ref={searchRef} className="mt-6 rounded-2xl border border-sky-300/20 bg-sky-300/10 p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6">
           <div className="flex items-center gap-3">
             <Search className="h-6 w-6 text-sky-200" aria-hidden="true" />
             <div>

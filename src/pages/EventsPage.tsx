@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { CalendarDays, MapPin, UsersRound } from 'lucide-react'
 import {
   cancelEventRsvp,
@@ -9,10 +9,12 @@ import {
 } from '../features/events/eventService'
 import { hasRole } from '../features/auth/roleService'
 import { useAuth } from '../features/auth/useAuth'
+import { scrollElementIntoView } from '../lib/scroll'
 
 export function EventsPage() {
   const { user } = useAuth()
   const userId = user?.id
+  const listTopRef = useRef<HTMLDivElement>(null)
   const [events, setEvents] = useState<EventWithRsvps[]>([])
   const [filter, setFilter] = useState('todos')
   const [isAdmin, setIsAdmin] = useState(false)
@@ -65,6 +67,7 @@ export function EventsPage() {
       setStatus('Confirmaste tu asistencia.')
     }
     await loadEvents()
+    window.requestAnimationFrame(() => scrollElementIntoView(listTopRef.current))
   }
 
   async function handleCreateEvent(event: FormEvent<HTMLFormElement>) {
@@ -82,6 +85,7 @@ export function EventsPage() {
     setStatus('Evento creado.')
     setForm({ title: '', description: '', modality: 'presencial', city: '', country: '', startsAt: '' })
     await loadEvents()
+    window.requestAnimationFrame(() => scrollElementIntoView(listTopRef.current))
   }
 
   return (
@@ -90,10 +94,17 @@ export function EventsPage() {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="text-sm font-semibold text-amber-200">Eventos</p>
-            <h1 className="mt-2 text-4xl font-black">Encuentros de la Red</h1>
+            <h1 data-page-title className="mt-2 text-4xl font-black">Encuentros de la Red</h1>
             <p className="mt-3 max-w-2xl text-white/62">Reuniones, estudios, juegos y momentos de oracion para crecer juntos.</p>
           </div>
-          <select value={filter} onChange={(event) => setFilter(event.target.value)} className="app-select w-fit rounded-full">
+          <select
+            value={filter}
+            onChange={(event) => {
+              setFilter(event.target.value)
+              window.requestAnimationFrame(() => scrollElementIntoView(listTopRef.current))
+            }}
+            className="app-select w-fit rounded-full"
+          >
             <option value="todos">Todos</option>
             <option value="online">Online</option>
             <option value="esta-semana">Esta semana</option>
@@ -101,7 +112,7 @@ export function EventsPage() {
           </select>
         </div>
         {status ? <p className="app-alert mt-5">{status}</p> : null}
-        <div className="mt-8 grid gap-5 lg:grid-cols-2">
+        <div ref={listTopRef} className="mt-8 grid gap-5 lg:grid-cols-2">
           {isLoading ? <p className="text-white/60">Cargando eventos...</p> : null}
           {!isLoading && !filteredEvents.length ? (
             <div className="app-empty">Aun no hay eventos para este filtro. Pronto la Red tendra mas encuentros.</div>

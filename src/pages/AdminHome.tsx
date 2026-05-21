@@ -739,7 +739,7 @@ export function AdminHome() {
             <ShieldCheck className="h-4 w-4" aria-hidden="true" />
             Administración
           </p>
-          <h1 className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
+          <h1 data-page-title className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
             Panel de administración
           </h1>
           <p className="mt-4 text-lg leading-8 text-white/70">

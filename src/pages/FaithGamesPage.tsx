@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   CheckCircle2,
   Gamepad2,
@@ -11,6 +11,7 @@ import {
 import { faithGames, type FaithGameDefinition } from '../data/faithGamesData'
 import { useAuth } from '../features/auth/useAuth'
 import { getMyGameScores, saveGameScore } from '../features/games/gameService'
+import { scrollElementIntoView } from '../lib/scroll'
 import type { GameScore } from '../types/database'
 
 interface MemoryCard {
@@ -52,6 +53,8 @@ function createMemoryCards(game: FaithGameDefinition) {
 
 export function FaithGamesPage() {
   const { user } = useAuth()
+  const gameAreaRef = useRef<HTMLElement>(null)
+  const resultRef = useRef<HTMLDivElement>(null)
   const [activeGameKey, setActiveGameKey] = useState(faithGames[0].key)
   const [questionIndex, setQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState('')
@@ -125,6 +128,9 @@ export function FaithGamesPage() {
     setMatchedPairIds([])
     setMemoryAttempts(0)
     setMemoryCards(nextGame.mode === 'memory' ? createMemoryCards(nextGame) : [])
+    window.requestAnimationFrame(() => {
+      scrollElementIntoView(gameAreaRef.current)
+    })
   }
 
   function handleSelectAnswer(answer: string) {
@@ -144,6 +150,9 @@ export function FaithGamesPage() {
 
     setQuestionIndex((currentIndex) => currentIndex + 1)
     setSelectedAnswer('')
+    window.requestAnimationFrame(() => {
+      scrollElementIntoView(gameAreaRef.current)
+    })
   }
 
   function handleMemoryCardClick(card: MemoryCard) {
@@ -211,6 +220,14 @@ export function FaithGamesPage() {
       .catch(() => setScoreMessage('No pudimos guardar tu puntaje.'))
   }, [activeGame.key, activeTotal, isFinished, isScoreSaved, score, user?.id])
 
+  useEffect(() => {
+    if (!isFinished) return
+
+    window.requestAnimationFrame(() => {
+      scrollElementIntoView(resultRef.current ?? gameAreaRef.current)
+    })
+  }, [isFinished])
+
   return (
     <section className="app-page overflow-hidden">
       <div className="section-shell relative">
@@ -220,7 +237,7 @@ export function FaithGamesPage() {
               <Gamepad2 className="h-4 w-4" aria-hidden="true" />
               Juegos de fe
             </p>
-            <h1 className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
+            <h1 data-page-title className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
               Aprende, compite y crece en la fe.
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/65">
@@ -310,9 +327,9 @@ export function FaithGamesPage() {
             </article>
           </aside>
 
-          <article className="app-card md:p-8">
+          <article ref={gameAreaRef} className="app-card md:p-8">
             {isFinished ? (
-              <div className="flex min-h-[30rem] flex-col items-center justify-center text-center">
+              <div ref={resultRef} className="flex min-h-[30rem] flex-col items-center justify-center text-center">
                 <span className="flex h-20 w-20 items-center justify-center rounded-[2rem] bg-gradient-to-br from-emerald-300 to-amber-300 text-slate-950 shadow-2xl shadow-amber-500/20">
                   <Trophy className="h-10 w-10" aria-hidden="true" />
                 </span>
