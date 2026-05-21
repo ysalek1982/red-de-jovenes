@@ -320,15 +320,19 @@ export function AppHome() {
 
   useEffect(() => {
     if (!userId) return
-    try {
-      setIsOnboardingCollapsed(
-        window.localStorage.getItem(
-          `red-jovenes:onboarding-checklist:${userId}`,
-        ) === 'true',
-      )
-    } catch {
-      setIsOnboardingCollapsed(false)
-    }
+    const timer = window.setTimeout(() => {
+      try {
+        setIsOnboardingCollapsed(
+          window.localStorage.getItem(
+            `red-jovenes:onboarding-checklist:${userId}`,
+          ) === 'true',
+        )
+      } catch {
+        setIsOnboardingCollapsed(false)
+      }
+    }, 0)
+
+    return () => window.clearTimeout(timer)
   }, [userId])
 
   return (
