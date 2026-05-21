@@ -116,7 +116,12 @@ export function MessagesPage() {
               <h2 className="font-black">Mis conversaciones</h2>
               <div className="mt-4 space-y-2">
                 {isLoading ? <p className="text-sm text-white/60">Cargando...</p> : null}
-                {!isLoading && !conversations.length ? <p className="app-empty text-left">Empieza una conversacion que edifique.</p> : null}
+                {!isLoading && !conversations.length ? (
+                  <p className="app-empty text-left">
+                    Empieza una conversacion que edifique con jovenes de tus
+                    comunidades o perfiles sugeridos.
+                  </p>
+                ) : null}
                 {conversations.map((conversation) => (
                   <button key={conversation.id} type="button" onClick={() => handleSelectConversation(conversation.id)} className={`w-full rounded-2xl border p-3 text-left text-sm font-bold ${selectedId === conversation.id ? 'border-amber-300/30 bg-amber-300/10' : 'border-white/10 bg-slate-950/45'}`}>
                     {conversation.title || `Conversacion ${conversation.conversation_type}`}

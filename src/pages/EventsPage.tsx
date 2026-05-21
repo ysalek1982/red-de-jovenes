@@ -115,7 +115,10 @@ export function EventsPage() {
         <div ref={listTopRef} className="mt-8 grid gap-5 lg:grid-cols-2">
           {isLoading ? <p className="text-white/60">Cargando eventos...</p> : null}
           {!isLoading && !filteredEvents.length ? (
-            <div className="app-empty">Aun no hay eventos para este filtro. Pronto la Red tendra mas encuentros.</div>
+            <div className="app-empty">
+              Aun no hay eventos para este filtro. Cuando aparezca un encuentro,
+              podras confirmar asistencia con un toque.
+            </div>
           ) : null}
           {filteredEvents.map((event) => (
             <article key={event.id} className="app-card">

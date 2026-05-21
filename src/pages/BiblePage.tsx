@@ -424,6 +424,17 @@ export function BiblePage() {
             ) : null}
             {status ? <p className="mt-4 text-sm font-semibold text-emerald-200">{status}</p> : null}
             {error ? <p className="mt-4 text-sm font-semibold text-amber-100">{error}</p> : null}
+            {!saved.length && !progress.length ? (
+              <div className="app-card-soft mt-5">
+                <p className="text-sm font-black text-amber-200">
+                  Primer paso en Biblia
+                </p>
+                <p className="mt-2 text-sm leading-6 text-white/65">
+                  Empieza con el versiculo del dia, Juan 3 o Salmos 23. Guarda
+                  una referencia que quieras recordar esta semana.
+                </p>
+              </div>
+            ) : null}
           </article>
 
           <article ref={readerRef} className="app-card">

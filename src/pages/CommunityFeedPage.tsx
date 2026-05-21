@@ -786,8 +786,8 @@ export function CommunityFeedPage() {
               </div>
             ) : (
               <div className="app-empty mt-8">
-                Todavía no hay posts. Comparte la primera palabra de ánimo para
-                la comunidad.
+                Todavia no hay posts. Comparte una reflexion, una pregunta o
+                una palabra de animo para iniciar la conversacion.
               </div>
             )}
           </div>

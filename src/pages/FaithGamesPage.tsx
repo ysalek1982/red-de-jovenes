@@ -307,6 +307,17 @@ export function FaithGamesPage() {
               <p className="mt-2 text-sm text-white/60">
                 {totalPoints} puntos guardados en {scoreHistory.length} partidas.
               </p>
+              {!scoreHistory.length ? (
+                <div className="app-card-soft mt-4 p-3">
+                  <p className="text-sm font-black text-amber-200">
+                    Primer paso en juegos
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-white/60">
+                    Elige una partida rapida. Al terminar, tu puntaje se guarda
+                    en tu progreso.
+                  </p>
+                </div>
+              ) : null}
               <div className="mt-4 space-y-3">
                 {scoreByGame.map(({ game, plays, best }) => (
                   <div

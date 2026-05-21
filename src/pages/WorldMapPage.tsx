@@ -354,6 +354,17 @@ export function WorldMapPage() {
                 </div>
               ))}
             </div>
+            {!myCommunities.length ? (
+              <div className="app-card-soft mt-5 max-w-2xl">
+                <p className="text-sm font-black text-amber-200">
+                  Primer paso en comunidad
+                </p>
+                <p className="mt-2 text-sm leading-6 text-white/62">
+                  Busca tu ciudad, unete a una comunidad activa o sugiere una si
+                  todavia no aparece en el mapa.
+                </p>
+              </div>
+            ) : null}
           </div>
 
           <div className="relative min-h-[22rem] overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/30 backdrop-blur md:min-h-[30rem]">

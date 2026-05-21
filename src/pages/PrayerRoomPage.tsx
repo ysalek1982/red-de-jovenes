@@ -289,6 +289,18 @@ export function PrayerRoomPage() {
               </div>
             </div>
 
+            {!prayers.length ? (
+              <div className="app-card-soft mt-5">
+                <p className="text-sm font-black text-amber-200">
+                  Primer paso en oracion
+                </p>
+                <p className="mt-2 text-sm leading-6 text-white/65">
+                  Puedes pedir oracion por algo concreto o acompanar a alguien
+                  marcando "Estoy orando".
+                </p>
+              </div>
+            ) : null}
+
             <div className="mt-7 space-y-4">
               <div>
                 <label className="text-sm font-semibold" htmlFor="prayerTitle">
