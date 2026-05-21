@@ -239,11 +239,10 @@ export function AppProfile() {
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-24 pt-32 text-white">
-      <div className="pointer-events-none fixed right-0 top-24 h-96 w-96 rounded-full bg-emerald-300/10 blur-3xl" />
+    <section className="app-page">
       <div className="section-shell relative">
         <div className="grid gap-6 lg:grid-cols-[0.78fr_1.22fr]">
-          <aside className="h-fit rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+          <aside className="app-card h-fit">
             {form.avatarUrl ? (
               <img
                 src={form.avatarUrl}
@@ -266,18 +265,18 @@ export function AppProfile() {
               perteneces. Este perfil prepara tu experiencia social en Red de
               Jóvenes.
             </p>
-            <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/45 p-4 text-sm text-white/65">
+            <div className="app-card-soft mt-6 text-sm text-white/65">
               {memberSince}
             </div>
             {profile?.community_guidelines_accepted_at ? (
-              <div className="mt-3 rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm text-emerald-100">
+              <div className="app-alert mt-3">
                 Normas de comunidad aceptadas.
               </div>
             ) : null}
-            <div className="mt-3 rounded-3xl border border-white/10 bg-slate-950/45 p-4 text-sm text-white/65">
+            <div className="app-card-soft mt-3 text-sm text-white/65">
               Rol visible: {isAdmin ? 'Administrador' : 'Miembro'}
             </div>
-            <div className="mt-3 rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4">
+            <div className="mt-3 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4">
               <p className="text-sm font-black text-emerald-100">
                 Piloto cerrado
               </p>
@@ -288,7 +287,7 @@ export function AppProfile() {
                 <PilotFeedbackDialog triggerLabel="Ayudanos a mejorar" />
               </div>
             </div>
-            <div className="mt-6 rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4">
+            <div className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4">
               <p className="text-sm font-black text-emerald-100">
                 Mis comunidades
               </p>
@@ -297,7 +296,7 @@ export function AppProfile() {
                   communities.slice(0, 3).map((community) => (
                     <div
                       key={community.id}
-                      className="rounded-2xl border border-white/10 bg-slate-950/45 p-3"
+                      className="app-card-soft p-3"
                     >
                       <p className="truncate text-sm font-bold">
                         {community.name}
@@ -315,12 +314,12 @@ export function AppProfile() {
               </div>
               <Link
                 to="/app/mapa"
-                className="mt-4 inline-flex h-9 items-center justify-center rounded-full bg-white px-4 text-xs font-black text-slate-950 transition hover:bg-amber-100"
+                className="app-button-primary mt-4 min-h-9 px-4 text-xs"
               >
                 Encontrar comunidad
               </Link>
             </div>
-            <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+            <div className="app-card-soft mt-4">
               <p className="text-sm font-black text-white">Mi actividad</p>
               <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
                 <span className="rounded-2xl border border-white/10 bg-white/[0.04] p-3">
@@ -354,7 +353,7 @@ export function AppProfile() {
           <div className="space-y-6">
             <form
               onSubmit={handleSubmit}
-              className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur md:p-8"
+              className="app-card md:p-8"
             >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
@@ -370,12 +369,12 @@ export function AppProfile() {
               </div>
 
               {error ? (
-                <div className="mt-6 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
+                <div className="app-alert-warning mt-6">
                   {error}
                 </div>
               ) : null}
               {success ? (
-                <div className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm text-emerald-100">
+                <div className="app-alert mt-6">
                   {success}
                 </div>
               ) : null}
@@ -417,7 +416,7 @@ export function AppProfile() {
                     id="profileAgeRange"
                     value={form.ageRange}
                     onChange={(event) => updateField('ageRange', event.target.value)}
-                    className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+                    className="app-select mt-2"
                     disabled={isLoading}
                   >
                     <option value="">Sin especificar</option>
@@ -506,7 +505,7 @@ export function AppProfile() {
 
             <form
               onSubmit={(event) => void handleNotificationSubmit(event)}
-              className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur md:p-8"
+              className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-8"
             >
               <div className="flex items-center gap-3">
                 <Bell className="h-6 w-6 text-emerald-200" aria-hidden="true" />
@@ -581,7 +580,7 @@ function ToggleRow({
   onChange: (checked: boolean) => void
 }) {
   return (
-    <label className="flex cursor-pointer items-center justify-between gap-4 rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+    <label className="app-card-soft flex cursor-pointer items-center justify-between gap-4">
       <span>
         <span className="block font-bold">{title}</span>
         <span className="mt-1 block text-sm leading-6 text-white/55">{text}</span>
