@@ -3,9 +3,12 @@
 .env.*.local
 .env.admin.local
 .env.qa.local
+.env*.local
 .auth/
 supabase/.temp/
+.vercel
 node_modules
 dist
 dist-ssr
 *.log
+*.local.json
