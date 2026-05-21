@@ -31,7 +31,6 @@
     "qa:discipleship": "node scripts/qa-discipleship-module.mjs",
     "qa:messages": "node scripts/qa-messages-module.mjs",
     "qa:social": "node scripts/qa-social-network-module.mjs",
-    "qa:build-network": "node scripts/qa-build-network-module.mjs",
     "qa:search": "node scripts/qa-global-search.mjs",
     "qa:notifications": "node scripts/qa-notifications-module.mjs",
     "qa:ai-settings": "node scripts/qa-ai-settings.mjs",
