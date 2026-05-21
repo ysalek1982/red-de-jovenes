@@ -307,19 +307,16 @@ export function WorldMapPage() {
   ]
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-24 pt-32 text-white">
-      <div className="pointer-events-none fixed left-1/2 top-28 h-96 w-96 -translate-x-1/2 rounded-full bg-emerald-300/10 blur-3xl" />
-      <div className="pointer-events-none fixed bottom-10 right-0 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
-
+    <section className="app-page overflow-hidden">
       <div className="section-shell relative">
         <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
           <div>
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-amber-200 backdrop-blur">
+            <p className="app-kicker">
               <Globe2 className="h-4 w-4" aria-hidden="true" />
               Mapa mundial
             </p>
             <h1 className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
-              Comunidades cristianas conectadas.
+              Encuentra jovenes cerca de ti.
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/65">
               Explora iglesias y grupos juveniles activos en la Red. Este
@@ -329,7 +326,7 @@ export function WorldMapPage() {
               {kpis.map(([value, label]) => (
                 <div
                   key={label}
-                  className="rounded-3xl border border-white/10 bg-white/[0.06] p-4 text-center shadow-2xl shadow-black/20 backdrop-blur"
+                  className="app-card-soft text-center"
                 >
                   <p className="text-3xl font-black">{value}</p>
                   <p className="mt-1 text-sm text-white/50">{label}</p>
@@ -381,7 +378,7 @@ export function WorldMapPage() {
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_0.85fr]">
-          <article className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+          <article className="app-card">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-amber-200">
@@ -392,7 +389,7 @@ export function WorldMapPage() {
               <button
                 type="button"
                 onClick={clearFilters}
-                className="w-fit rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-white/60 transition hover:bg-white/10 hover:text-white"
+                className="app-button-secondary w-fit"
               >
                 Limpiar filtros
               </button>
@@ -406,7 +403,7 @@ export function WorldMapPage() {
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
                   placeholder="Buscar nombre, iglesia, ciudad o pais"
-                  className="h-11 w-full rounded-full border border-white/10 bg-slate-950/45 pl-9 pr-4 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-amber-200/60"
+                  className="app-input h-11 rounded-full py-0 pl-9"
                 />
               </label>
               <select
@@ -415,7 +412,7 @@ export function WorldMapPage() {
                   setCountryFilter(event.target.value)
                   setCityFilter('todos')
                 }}
-                className="h-11 rounded-full border border-white/10 bg-slate-950/80 px-4 text-sm font-bold text-white outline-none transition focus:border-amber-200/60"
+                className="app-select rounded-full"
                 aria-label="Filtrar por pais"
               >
                 <option value="todos">Todos los paises</option>
@@ -428,7 +425,7 @@ export function WorldMapPage() {
               <select
                 value={cityFilter}
                 onChange={(event) => setCityFilter(event.target.value)}
-                className="h-11 rounded-full border border-white/10 bg-slate-950/80 px-4 text-sm font-bold text-white outline-none transition focus:border-amber-200/60"
+                className="app-select rounded-full"
                 aria-label="Filtrar por ciudad"
               >
                 <option value="todos">Todas las ciudades</option>
@@ -441,12 +438,12 @@ export function WorldMapPage() {
             </div>
 
             {error ? (
-              <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
+              <div className="app-alert-warning mt-5">
                 {error}
               </div>
             ) : null}
             {actionMessage ? (
-              <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm text-emerald-100">
+              <div className="app-alert mt-5">
                 {actionMessage}
               </div>
             ) : null}
@@ -461,7 +458,7 @@ export function WorldMapPage() {
                 {filteredGroups.map((group) => (
                   <article
                     key={group.id}
-                    className="rounded-3xl border border-white/10 bg-slate-950/45 p-4"
+                    className="app-card-soft"
                   >
                     <div className="flex items-start gap-4">
                       <span className="flex h-12 w-12 flex-none items-center justify-center rounded-full bg-gradient-to-br from-emerald-300 to-amber-300 font-black text-slate-950">
@@ -507,7 +504,7 @@ export function WorldMapPage() {
                       <button
                         type="button"
                         onClick={() => setSelectedGroup(group)}
-                        className="rounded-full border border-white/10 px-4 py-2 text-xs font-black text-white/65 transition hover:bg-white/10 hover:text-white"
+                        className="app-chip min-h-9 px-4 text-xs"
                       >
                         Ver comunidad
                       </button>
@@ -543,7 +540,7 @@ export function WorldMapPage() {
                 ))}
               </div>
             ) : (
-              <div className="mt-8 rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-8 text-center text-white/55">
+              <div className="app-empty mt-8">
                 {groups.length
                   ? 'No encontramos comunidades con esos filtros.'
                   : 'Aun no hay comunidades registradas. Se el primero en sugerir una.'}
@@ -556,7 +553,7 @@ export function WorldMapPage() {
                   key={item.country}
                   type="button"
                   onClick={() => handleCountryClick(item.country)}
-                  className="rounded-full border border-white/10 bg-slate-950/45 px-4 py-2 text-sm font-bold text-white/60 transition hover:bg-white/10 hover:text-white"
+                  className="app-chip"
                 >
                   {item.country} - {item.count}
                 </button>
@@ -564,7 +561,7 @@ export function WorldMapPage() {
             </div>
 
             {selectedGroup ? (
-              <article className="mt-6 rounded-[1.5rem] border border-emerald-300/20 bg-emerald-300/10 p-5">
+              <article className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-200">
@@ -609,19 +606,19 @@ export function WorldMapPage() {
                     type="button"
                     onClick={() => void handleMembership(selectedGroup)}
                     disabled={busyGroupId === selectedGroup.id}
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-white px-4 text-sm font-black text-slate-950 transition hover:bg-amber-100 disabled:opacity-60"
+                    className="app-button-primary min-h-10 px-4 disabled:opacity-60"
                   >
                     {selectedGroup.isMember ? 'Salir de comunidad' : 'Unirme'}
                   </button>
                   <Link
                     to="/app/foros"
-                    className="inline-flex h-10 items-center justify-center rounded-full border border-white/10 px-4 text-sm font-black text-white/70 transition hover:bg-white/10 hover:text-white"
+                    className="app-button-secondary min-h-10 px-4"
                   >
                     Ir a foros
                   </Link>
                   <Link
                     to="/app/oracion"
-                    className="inline-flex h-10 items-center justify-center rounded-full border border-white/10 px-4 text-sm font-black text-white/70 transition hover:bg-white/10 hover:text-white"
+                    className="app-button-secondary min-h-10 px-4"
                   >
                     Pedir oracion
                   </Link>
@@ -631,7 +628,7 @@ export function WorldMapPage() {
           </article>
 
           <aside className="space-y-6">
-            <div className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+            <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6">
               <div className="flex items-center gap-3">
                 <Users className="h-6 w-6 text-emerald-200" aria-hidden="true" />
                 <h2 className="text-2xl font-black">Mis comunidades</h2>
@@ -645,7 +642,7 @@ export function WorldMapPage() {
                   myCommunities.slice(0, 4).map((group) => (
                     <article
                       key={group.id}
-                      className="rounded-3xl border border-white/10 bg-slate-950/45 p-4"
+                      className="app-card-soft"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -657,7 +654,7 @@ export function WorldMapPage() {
                         <button
                           type="button"
                           onClick={() => setSelectedGroup(group)}
-                          className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/60 transition hover:bg-white/10 hover:text-white"
+                          className="app-chip min-h-8 px-3 text-xs"
                         >
                           Ver
                         </button>
@@ -665,7 +662,7 @@ export function WorldMapPage() {
                     </article>
                   ))
                 ) : (
-                  <div className="rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-5 text-sm text-white/55">
+                  <div className="app-empty">
                     Aun no te uniste a una comunidad. Explora el mapa y elige
                     una para comenzar a conectar.
                   </div>
@@ -675,7 +672,7 @@ export function WorldMapPage() {
 
             <form
               onSubmit={(event) => void handleSuggestionSubmit(event)}
-              className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur"
+              className="app-card-accent"
             >
               <div className="flex items-center gap-3">
                 <Plus className="h-6 w-6 text-amber-200" aria-hidden="true" />
@@ -694,7 +691,7 @@ export function WorldMapPage() {
                     }))
                   }
                   placeholder="Nombre del grupo"
-                  className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+                  className="app-input h-11 py-0"
                 />
                 <div className="grid gap-3 sm:grid-cols-2">
                   <input
@@ -706,7 +703,7 @@ export function WorldMapPage() {
                       }))
                     }
                     placeholder="Pais"
-                    className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+                    className="app-input h-11 py-0"
                   />
                   <input
                     value={suggestion.city}
@@ -717,7 +714,7 @@ export function WorldMapPage() {
                       }))
                     }
                     placeholder="Ciudad"
-                    className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+                    className="app-input h-11 py-0"
                   />
                 </div>
                 <input
@@ -729,7 +726,7 @@ export function WorldMapPage() {
                     }))
                   }
                   placeholder="Iglesia o comunidad"
-                  className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+                  className="app-input h-11 py-0"
                 />
                 <select
                   value={suggestion.modality}
@@ -739,7 +736,7 @@ export function WorldMapPage() {
                       modality: event.target.value,
                     }))
                   }
-                  className="h-11 rounded-2xl border border-white/10 bg-slate-950/80 px-4 text-sm font-bold text-white outline-none focus:border-amber-200/60"
+                  className="app-select"
                   aria-label="Modalidad de la comunidad"
                 >
                   <option value="presencial">Presencial</option>
@@ -755,7 +752,7 @@ export function WorldMapPage() {
                     }))
                   }
                   placeholder="Link de contacto, opcional"
-                  className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+                  className="app-input h-11 py-0"
                 />
                 <textarea
                   value={suggestion.meetingInfo}
@@ -766,7 +763,7 @@ export function WorldMapPage() {
                     }))
                   }
                   placeholder="Informacion de reuniones"
-                  className="min-h-24 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+                  className="app-input min-h-24"
                 />
                 <textarea
                   value={suggestion.description}
@@ -777,7 +774,7 @@ export function WorldMapPage() {
                     }))
                   }
                   placeholder="Descripcion breve, opcional"
-                  className="min-h-20 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+                  className="app-input min-h-20"
                 />
                 <textarea
                   value={suggestion.moderatorNote}
@@ -788,13 +785,13 @@ export function WorldMapPage() {
                     }))
                   }
                   placeholder="Nota para el moderador, opcional"
-                  className="min-h-20 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
+                  className="app-input min-h-20"
                 />
               </div>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-full bg-white px-5 text-sm font-black text-slate-950 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
+                className="app-button-primary mt-5 w-full"
               >
                 {isSubmitting ? 'Enviando...' : 'Enviar sugerencia'}
               </button>
@@ -805,7 +802,7 @@ export function WorldMapPage() {
               ) : null}
             </form>
 
-            <div className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+            <div className="app-card">
               <h2 className="text-2xl font-black">Mis sugerencias</h2>
               <p className="mt-2 text-sm leading-6 text-white/55">
                 Puedes seguir el estado de las comunidades que enviaste.
@@ -815,7 +812,7 @@ export function WorldMapPage() {
                   mySuggestions.slice(0, 4).map((item) => (
                     <article
                       key={item.id}
-                      className="rounded-3xl border border-white/10 bg-slate-950/45 p-4"
+                      className="app-card-soft"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
@@ -856,17 +853,17 @@ export function WorldMapPage() {
                     </article>
                   ))
                 ) : (
-                  <div className="rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-5 text-sm text-white/55">
+                  <div className="app-empty">
                     Todavia no enviaste sugerencias.
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+            <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6">
               <div className="flex items-center gap-3">
                 <ShieldCheck className="h-6 w-6 text-emerald-200" aria-hidden="true" />
-                <h2 className="text-2xl font-black">Espacio seguro</h2>
+                <h2 className="text-2xl font-black">Cuidado comunitario</h2>
               </div>
               <p className="mt-3 leading-7 text-white/65">
                 La comunidad global crece con reglas simples, acompanamiento y
@@ -876,7 +873,7 @@ export function WorldMapPage() {
                 {safePrinciples.map((principle) => (
                   <article
                     key={principle.title}
-                    className="rounded-3xl bg-slate-950/45 p-4"
+                    className="app-card-soft"
                   >
                     <h3 className="font-bold">{principle.title}</h3>
                     <p className="mt-2 text-sm leading-6 text-white/60">
