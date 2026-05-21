@@ -322,14 +322,14 @@ export function BiblePage() {
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-32 pt-32 text-white">
+    <section className="app-page">
       <div className="section-shell">
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-          <article className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
-            <p className="text-sm font-semibold text-amber-100">Biblia</p>
+          <article className="app-card-accent">
+            <p className="app-kicker">Biblia</p>
             <h1 className="mt-3 text-4xl font-black">Versiculo del dia</h1>
             {dailyVerse ? (
-              <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/45 p-5">
+              <div className="app-card-soft mt-5">
                 <p className="text-2xl leading-10 text-white">
                   "{dailyVerse.verse_text}"
                 </p>
@@ -355,41 +355,41 @@ export function BiblePage() {
               onChange={(event) => setNote(event.target.value)}
               rows={3}
               placeholder="Agrega una nota personal opcional"
-              className="mt-6 w-full rounded-3xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-amber-200"
+              className="app-input mt-6"
             />
             <div className="mt-4 flex flex-wrap gap-2">
-              <button type="button" onClick={() => void handleRandomVerse()} className="inline-flex h-11 items-center gap-2 rounded-full bg-emerald-200 px-5 text-sm font-black text-slate-950">
+              <button type="button" onClick={() => void handleRandomVerse()} className="app-button-primary bg-emerald-200 hover:bg-emerald-100">
                 <RefreshCw className="h-4 w-4" /> Otro versiculo
               </button>
-              <button type="button" onClick={() => void handleSaveVerse()} className="inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-black text-slate-950">
+              <button type="button" onClick={() => void handleSaveVerse()} className="app-button-primary">
                 <Save className="h-4 w-4" /> Guardar
               </button>
-              <button type="button" onClick={() => void handleShareInForum()} className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 px-5 text-sm font-bold text-white">
+              <button type="button" onClick={() => void handleShareInForum()} className="app-button-secondary">
                 <MessageCircle className="h-4 w-4" /> Compartir
               </button>
-              <button type="button" onClick={() => void handleCopy()} className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 px-5 text-sm font-bold text-white">
+              <button type="button" onClick={() => void handleCopy()} className="app-button-secondary">
                 <Copy className="h-4 w-4" /> Copiar
               </button>
-              <button type="button" onClick={() => void handleExplainVerse()} className="inline-flex h-11 items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-5 text-sm font-bold text-emerald-100">
+              <button type="button" onClick={() => void handleExplainVerse()} className="app-button-secondary border-emerald-300/20 bg-emerald-300/10 text-emerald-100">
                 Explicar con IA
               </button>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" onClick={() => void handleBibleAiAction('create_bible_reflection')} className="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 px-4 text-xs font-bold text-white/70">
+              <button type="button" onClick={() => void handleBibleAiAction('create_bible_reflection')} className="app-chip text-xs">
                 <Sparkles className="h-4 w-4" /> Reflexion IA
               </button>
-              <button type="button" onClick={() => void handleBibleAiAction('create_bible_group_question')} className="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 px-4 text-xs font-bold text-white/70">
+              <button type="button" onClick={() => void handleBibleAiAction('create_bible_group_question')} className="app-chip text-xs">
                 Pregunta grupo
               </button>
-              <button type="button" onClick={() => void handleBibleAiAction('create_bible_prayer')} className="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 px-4 text-xs font-bold text-white/70">
+              <button type="button" onClick={() => void handleBibleAiAction('create_bible_prayer')} className="app-chip text-xs">
                 Oracion breve
               </button>
-              <button type="button" onClick={() => void handleBibleAiAction('suggest_bible_forum_post')} className="inline-flex h-10 items-center gap-2 rounded-full border border-white/10 px-4 text-xs font-bold text-white/70">
+              <button type="button" onClick={() => void handleBibleAiAction('suggest_bible_forum_post')} className="app-chip text-xs">
                 Post sugerido
               </button>
             </div>
             {aiExplanation ? (
-              <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/45 p-4 text-sm leading-6 text-white/70">
+              <div className="app-card-soft mt-4 text-sm leading-6 text-white/70">
                 <p className="mb-2 text-xs font-black uppercase tracking-[0.18em] text-emerald-200">
                   Sugerido por IA · revisa antes de compartir
                 </p>
@@ -400,54 +400,54 @@ export function BiblePage() {
             {error ? <p className="mt-4 text-sm font-semibold text-amber-100">{error}</p> : null}
           </article>
 
-          <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+          <article className="app-card">
             <p className="text-sm font-semibold text-emerald-200">Leer por capitulo</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-4">
-              <select value={selectedTranslation} onChange={(event) => setSelectedTranslation(event.target.value)} className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white">
+              <select value={selectedTranslation} onChange={(event) => setSelectedTranslation(event.target.value)} className="app-select">
                 {translations.map((translation) => (
                   <option key={translation.code} value={translation.code}>{translation.code}</option>
                 ))}
               </select>
-              <select value={selectedTestament} onChange={(event) => setSelectedTestament(event.target.value as 'all' | 'old' | 'new')} className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white">
+              <select value={selectedTestament} onChange={(event) => setSelectedTestament(event.target.value as 'all' | 'old' | 'new')} className="app-select">
                 <option value="all">Toda</option>
                 <option value="old">Antiguo</option>
                 <option value="new">Nuevo</option>
               </select>
-              <select value={selectedBook} onChange={(event) => setSelectedBook(event.target.value)} className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white">
+              <select value={selectedBook} onChange={(event) => setSelectedBook(event.target.value)} className="app-select">
                 {visibleBooks.map((book) => (
                   <option key={book.code} value={book.code}>{book.name}</option>
                 ))}
               </select>
-              <input type="number" min={1} max={selectedBookMeta?.chapters_count ?? 150} value={selectedChapter} onChange={(event) => setSelectedChapter(Number(event.target.value))} className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white" />
+              <input type="number" min={1} max={selectedBookMeta?.chapters_count ?? 150} value={selectedChapter} onChange={(event) => setSelectedChapter(Number(event.target.value))} className="app-input h-11 py-0 font-semibold" />
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              <button type="button" onClick={() => void handlePreviousChapter()} className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 px-4 text-sm font-bold text-white">
+              <button type="button" onClick={() => void handlePreviousChapter()} className="app-button-secondary">
                 <ChevronLeft className="h-4 w-4" /> Anterior
               </button>
-              <button type="button" onClick={() => void handleLoadChapter()} className="h-11 rounded-full bg-white px-5 text-sm font-black text-slate-950">
+              <button type="button" onClick={() => void handleLoadChapter()} className="app-button-primary">
                 Cargar capitulo
               </button>
-              <button type="button" onClick={() => void handleNextChapter()} className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 px-4 text-sm font-bold text-white">
+              <button type="button" onClick={() => void handleNextChapter()} className="app-button-secondary">
                 Siguiente <ChevronRight className="h-4 w-4" />
               </button>
             </div>
             <div className="mt-5 max-h-96 space-y-3 overflow-y-auto pr-1">
               {isLoading ? <p className="text-white/60">Cargando Biblia...</p> : null}
               {!isLoading && !chapterVerses.length ? (
-                <p className="rounded-3xl border border-dashed border-white/10 bg-slate-950/45 p-5 text-sm leading-6 text-white/60">
+                <p className="app-empty text-left">
                   La Biblia completa todavia no fue importada. Ya puedes usar versiculos base y cargar una traduccion autorizada desde administracion.
                 </p>
               ) : null}
               {chapterVerses.map((verse) => (
-                <div key={verse.reference} className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <div key={verse.reference} className="app-card-soft">
                   <p className="text-xs font-bold text-amber-200">{verse.reference}</p>
                   <p className="mt-2 text-sm leading-6 text-white/75">{verse.verse_text}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => void handleSaveVerse(verse)} className="text-xs font-bold text-emerald-200">Guardar</button>
-                    <button type="button" onClick={() => void handleHighlight(verse)} className="text-xs font-bold text-amber-200">Subrayar</button>
-                    <button type="button" onClick={() => void handleCopy(verse)} className="text-xs font-bold text-white/70">Copiar</button>
-                    <button type="button" onClick={() => void handleExplainVerse(verse)} className="text-xs font-bold text-emerald-100">IA</button>
-                    <button type="button" onClick={() => void handleShareInForum(verse)} className="text-xs font-bold text-white/70">Foros</button>
+                    <button type="button" onClick={() => void handleSaveVerse(verse)} className="app-chip min-h-8 px-3 text-xs text-emerald-200">Guardar</button>
+                    <button type="button" onClick={() => void handleHighlight(verse)} className="app-chip min-h-8 px-3 text-xs text-amber-200">Subrayar</button>
+                    <button type="button" onClick={() => void handleCopy(verse)} className="app-chip min-h-8 px-3 text-xs">Copiar</button>
+                    <button type="button" onClick={() => void handleExplainVerse(verse)} className="app-chip min-h-8 px-3 text-xs text-emerald-100">IA</button>
+                    <button type="button" onClick={() => void handleShareInForum(verse)} className="app-chip min-h-8 px-3 text-xs">Foros</button>
                   </div>
                 </div>
               ))}
@@ -455,7 +455,7 @@ export function BiblePage() {
           </article>
         </div>
 
-        <article className="mt-6 rounded-[2rem] border border-sky-300/20 bg-sky-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+        <article className="mt-6 rounded-2xl border border-sky-300/20 bg-sky-300/10 p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6">
           <div className="flex items-center gap-3">
             <Search className="h-6 w-6 text-sky-200" aria-hidden="true" />
             <div>
@@ -471,33 +471,33 @@ export function BiblePage() {
                 if (event.key === 'Enter') void handleSearch()
               }}
               placeholder="Ej. amor, Juan 3:16, Salmo 23"
-              className="h-12 flex-1 rounded-2xl border border-white/10 bg-slate-950/70 px-4 text-sm text-white outline-none placeholder:text-white/35"
+              className="app-input h-12 flex-1 py-0"
             />
             <button
               type="button"
               onClick={() => void handleSearch()}
-              className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-white px-6 text-sm font-black text-slate-950"
+              className="app-button-primary h-12"
             >
               <Search className="h-4 w-4" /> Buscar
             </button>
           </div>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {searchResults.length ? null : (
-              <p className="rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-5 text-sm leading-6 text-white/60 md:col-span-2">
+              <p className="app-empty md:col-span-2">
                 Busca en los versiculos importados. Si el corpus completo aun no
                 fue cargado, los resultados se limitan a los versiculos base.
               </p>
             )}
             {searchResults.map((verse) => (
-              <div key={`${verse.reference}-${verse.rank}`} className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+              <div key={`${verse.reference}-${verse.rank}`} className="app-card-soft">
                 <p className="text-xs font-bold text-sky-200">{verse.reference}</p>
                 <p className="mt-2 text-sm leading-6 text-white/75">{verse.verse_text}</p>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => void handleSaveVerse(verse)} className="text-xs font-bold text-emerald-200">Guardar</button>
-                  <button type="button" onClick={() => void handleHighlight(verse)} className="text-xs font-bold text-amber-200">Subrayar</button>
-                  <button type="button" onClick={() => void handleCopy(verse)} className="text-xs font-bold text-white/70">Copiar</button>
-                  <button type="button" onClick={() => void handleExplainVerse(verse)} className="text-xs font-bold text-emerald-100">Explicar IA</button>
-                  <button type="button" onClick={() => void handleShareInForum(verse)} className="text-xs font-bold text-white/70">Foros</button>
+                  <button type="button" onClick={() => void handleSaveVerse(verse)} className="app-chip min-h-8 px-3 text-xs text-emerald-200">Guardar</button>
+                  <button type="button" onClick={() => void handleHighlight(verse)} className="app-chip min-h-8 px-3 text-xs text-amber-200">Subrayar</button>
+                  <button type="button" onClick={() => void handleCopy(verse)} className="app-chip min-h-8 px-3 text-xs">Copiar</button>
+                  <button type="button" onClick={() => void handleExplainVerse(verse)} className="app-chip min-h-8 px-3 text-xs text-emerald-100">Explicar IA</button>
+                  <button type="button" onClick={() => void handleShareInForum(verse)} className="app-chip min-h-8 px-3 text-xs">Foros</button>
                 </div>
               </div>
             ))}
@@ -505,7 +505,7 @@ export function BiblePage() {
         </article>
 
         <div className="mt-6 grid gap-6 lg:grid-cols-3">
-          <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+          <article className="app-card">
             <p className="text-sm font-semibold text-emerald-200">Lectura de hoy</p>
             <h2 className="mt-2 text-2xl font-black">
               {currentDbPlan?.title ?? currentPlan?.title}
@@ -517,7 +517,7 @@ export function BiblePage() {
                 const nextPlan = dbPlans.find((plan) => plan.plan_key === event.target.value)
                 setSelectedPlanDayId(nextPlan?.bible_reading_plan_days[0]?.id ?? '')
               }}
-              className="mt-5 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white"
+              className="app-select mt-5"
             >
               {(dbPlans.length ? dbPlans : bibleReadingPlans).map((plan) => (
                 <option key={'plan_key' in plan ? plan.plan_key : plan.key} value={'plan_key' in plan ? plan.plan_key : plan.key}>{plan.title}</option>
@@ -527,7 +527,7 @@ export function BiblePage() {
               <select
                 value={selectedPlanDayId}
                 onChange={(event) => setSelectedPlanDayId(event.target.value)}
-                className="mt-3 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm font-semibold text-white"
+                className="app-select mt-3"
               >
                 {currentDbPlan.bible_reading_plan_days.map((day) => (
                   <option key={day.id} value={day.id}>
@@ -536,7 +536,7 @@ export function BiblePage() {
                 ))}
               </select>
             ) : null}
-            <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/45 p-5">
+            <div className="app-card-soft mt-5">
               <p className="text-sm font-bold text-amber-200">
                 {currentDbDay?.reading_reference ?? sample.reference}
               </p>
@@ -553,14 +553,14 @@ export function BiblePage() {
                 onChange={(event) => setPlanNote(event.target.value)}
                 rows={3}
                 placeholder="Reflexion personal opcional"
-                className="mt-4 w-full rounded-3xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35"
+                className="app-input mt-4"
               />
             ) : null}
             <div className="mt-4 flex flex-wrap gap-2">
-              <button type="button" onClick={() => currentDbDay ? void handleCompleteDbPlanDay() : void handleCompleteDay()} className="inline-flex h-11 items-center gap-2 rounded-full bg-emerald-200 px-5 text-sm font-black text-slate-950">
+              <button type="button" onClick={() => currentDbDay ? void handleCompleteDbPlanDay() : void handleCompleteDay()} className="app-button-primary bg-emerald-200 hover:bg-emerald-100">
                 <CheckCircle2 className="h-4 w-4" /> Marcar leido
               </button>
-              <button type="button" onClick={() => void handleHighlight()} className="inline-flex h-11 items-center gap-2 rounded-full border border-white/10 px-5 text-sm font-bold text-white">
+              <button type="button" onClick={() => void handleHighlight()} className="app-button-secondary">
                 <BookMarked className="h-4 w-4" /> Subrayar
               </button>
             </div>
@@ -575,12 +575,12 @@ export function BiblePage() {
             </p>
           </article>
 
-          <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+          <article className="app-card">
             <h2 className="text-2xl font-black">Versiculos guardados</h2>
             <div className="mt-5 space-y-3">
               {!saved.length ? <p className="text-sm text-white/60">Guarda tu primer versiculo para volver a el durante la semana.</p> : null}
               {saved.slice(0, 8).map((item) => (
-                <div key={item.id} className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <div key={item.id} className="app-card-soft">
                   <p className="font-bold text-amber-200">{item.reference}</p>
                   <p className="mt-2 text-sm leading-6 text-white/70">{item.verse_text}</p>
                   {item.note ? <p className="mt-2 text-xs text-white/45">{item.note}</p> : null}
@@ -589,12 +589,12 @@ export function BiblePage() {
             </div>
           </article>
 
-          <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+          <article className="app-card">
             <h2 className="text-2xl font-black">Subrayados</h2>
             <div className="mt-5 space-y-3">
               {!highlights.length ? <p className="text-sm text-white/60">Subraya fragmentos breves que quieras recordar.</p> : null}
               {highlights.slice(0, 8).map((item) => (
-                <div key={item.id} className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+                <div key={item.id} className="app-card-soft">
                   <p className="font-bold text-emerald-200">{item.reference}</p>
                   <p className="mt-2 text-sm leading-6 text-white/70">{item.highlight_text}</p>
                 </div>
