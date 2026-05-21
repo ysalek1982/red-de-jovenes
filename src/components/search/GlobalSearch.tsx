@@ -46,15 +46,19 @@ export function GlobalSearch() {
               setQuery('')
               setResults([])
             }}
-            className="ml-2 text-white/50"
+            className="ml-2 flex h-8 w-8 items-center justify-center rounded-full text-white/50 transition hover:bg-white/10 hover:text-white"
             aria-label="Limpiar busqueda"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4" aria-hidden="true" />
           </button>
         ) : null}
       </label>
       {isOpen && query.trim().length >= 2 ? (
-        <div className="absolute right-0 top-13 z-50 max-h-96 w-[min(24rem,calc(100vw-2rem))] overflow-y-auto rounded-[1.25rem] border border-white/10 bg-slate-950/97 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl">
+        <div
+          className="absolute right-0 top-13 z-50 max-h-96 w-[min(24rem,calc(100vw-2rem))] overflow-y-auto rounded-[1.25rem] border border-white/10 bg-slate-950/97 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl"
+          role="listbox"
+          aria-label="Resultados de busqueda"
+        >
           {results.length ? (
             results.map((result) => (
               <Link
@@ -62,6 +66,7 @@ export function GlobalSearch() {
                 to={result.to}
                 onClick={() => setIsOpen(false)}
                 className="block rounded-2xl px-3 py-3 transition hover:bg-white/10"
+                role="option"
               >
                 <p className="text-xs font-black uppercase tracking-wide text-amber-200">
                   {result.type}

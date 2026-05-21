@@ -12,7 +12,10 @@ export function ModuleErrorFallback({
   return (
     <section className="app-page">
       <div className="section-shell">
-        <div className="mx-auto max-w-2xl rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-center shadow-2xl shadow-black/25 backdrop-blur">
+        <div
+          className="mx-auto max-w-2xl rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-center shadow-2xl shadow-black/25 backdrop-blur"
+          role="alert"
+        >
           <p className="text-sm font-black uppercase tracking-[0.18em] text-amber-200">
             Necesita recargarse
           </p>

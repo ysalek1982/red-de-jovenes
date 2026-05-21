@@ -113,13 +113,16 @@ export function PilotFeedbackDialog({
           <form
             onSubmit={(event) => void handleSubmit(event)}
             className="max-h-[88vh] w-full max-w-xl overflow-auto rounded-[1.5rem] border border-white/10 bg-slate-950 p-5 text-white shadow-2xl shadow-black/50"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="pilot-feedback-title"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-sm font-black uppercase tracking-[0.2em] text-emerald-200">
                   Piloto cerrado
                 </p>
-                <h2 className="mt-2 text-2xl font-black">
+                <h2 id="pilot-feedback-title" className="mt-2 text-2xl font-black">
                   Ayudanos a mejorar
                 </h2>
                 <p className="mt-2 text-sm leading-6 text-white/60">

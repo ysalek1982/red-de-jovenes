@@ -110,7 +110,10 @@ function RouteLoading({ moduleName = 'modulo' }: { moduleName?: string }) {
       aria-busy="true"
     >
       <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-6 py-5 shadow-2xl shadow-black/25 backdrop-blur">
-        <span className="mx-auto block h-9 w-9 animate-spin rounded-full border-2 border-white/15 border-t-amber-200" />
+        <span
+          className="mx-auto block h-9 w-9 animate-spin rounded-full border-2 border-white/15 border-t-amber-200"
+          aria-hidden="true"
+        />
         <p className="mt-4 text-sm font-black text-white">
           Cargando {moduleName}...
         </p>

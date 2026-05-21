@@ -77,11 +77,12 @@ export function NotificationBell() {
               type="button"
               onClick={() => void handleMarkAll()}
               className="inline-flex items-center gap-1 text-xs font-bold text-amber-200"
+              aria-label="Marcar todas las notificaciones como leidas"
             >
               <CheckCheck className="h-3 w-3" /> Leidas
             </button>
           </div>
-          <div className="max-h-80 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto" role="list">
             {notifications.length ? (
               notifications.map((notification) => (
                 <Link
@@ -92,6 +93,7 @@ export function NotificationBell() {
                     void handleMarkRead(notification)
                   }}
                   className="block rounded-2xl px-3 py-3 transition hover:bg-white/10"
+                  role="listitem"
                 >
                   <p className="text-sm font-bold text-white">{notification.title}</p>
                   {notification.body ? (
