@@ -90,10 +90,6 @@ export function AppShell() {
     location.pathname.startsWith(item.to),
   )
 
-  useEffect(() => {
-    setIsMoreOpen(false)
-  }, [location.pathname])
-
   async function handleSignOut() {
     await signOut()
     navigate('/')
@@ -183,6 +179,7 @@ export function AppShell() {
                   key={item.to}
                   to={item.to}
                   end={item.to === '/app'}
+                  onClick={() => setIsMoreOpen(false)}
                   className={({ isActive }) =>
                     cn(
                       'flex min-h-14 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-3 text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white',
