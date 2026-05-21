@@ -12,7 +12,6 @@ import {
   LogOut,
   Menu,
   MessageCircle,
-  Search,
   ShieldCheck,
   Sparkles,
   type LucideIcon,
@@ -55,9 +54,9 @@ const secondaryNavigation: NavigationItem[] = [
 
 function navigationItemClass(isActive: boolean) {
   return cn(
-    'flex min-h-14 flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl px-2 text-[0.62rem] font-semibold text-white/55 transition hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 sm:text-xs',
+    'flex min-h-[3.65rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl px-2 text-[0.62rem] font-semibold text-white/55 transition hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 sm:text-xs',
     isActive &&
-      'bg-gradient-to-br from-emerald-300/20 to-amber-300/20 text-white ring-1 ring-white/10',
+      'bg-white text-slate-950 shadow-lg shadow-amber-500/10 ring-1 ring-amber-100/70 hover:bg-amber-100 hover:text-slate-950',
   )
 }
 
@@ -90,6 +89,10 @@ export function AppShell() {
   const isMoreActive = moreNavigation.some((item) =>
     location.pathname.startsWith(item.to),
   )
+
+  useEffect(() => {
+    setIsMoreOpen(false)
+  }, [location.pathname])
 
   async function handleSignOut() {
     await signOut()
@@ -138,24 +141,41 @@ export function AppShell() {
       <Outlet />
 
       {isMoreOpen ? (
-        <div
-          className="fixed inset-x-3 z-50 rounded-[1.5rem] border border-white/10 bg-slate-950/95 p-3 text-white shadow-2xl shadow-black/40 backdrop-blur-xl lg:hidden"
-          style={{
-            bottom: 'calc(max(0.75rem, env(safe-area-inset-bottom)) + 5.35rem)',
-          }}
-        >
+        <>
+          <button
+            type="button"
+            aria-label="Cerrar mas opciones"
+            className="fixed inset-0 z-40 bg-black/45 backdrop-blur-[2px] lg:hidden"
+            onClick={() => setIsMoreOpen(false)}
+          />
+          <div
+            className="fixed inset-x-3 z-50 max-h-[68dvh] overflow-y-auto rounded-2xl border border-white/10 bg-slate-950/95 p-3 text-white shadow-2xl shadow-black/45 backdrop-blur-xl lg:hidden"
+            style={{
+              bottom:
+                'calc(max(0.75rem, env(safe-area-inset-bottom)) + 5.6rem)',
+            }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mas opciones de navegacion"
+          >
+          <div className="mx-auto mb-3 h-1 w-12 rounded-full bg-white/20" />
           <div className="mb-3 flex items-center justify-between px-2">
-            <p className="text-sm font-black text-white">Mas de tu Red</p>
+            <div>
+              <p className="text-sm font-black text-white">Mas de tu Red</p>
+              <p className="mt-1 text-xs font-semibold text-white/45">
+                Devocional, comunidad y herramientas personales.
+              </p>
+            </div>
             <button
               type="button"
               onClick={() => setIsMoreOpen(false)}
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-white/70"
+              className="flex h-10 w-10 flex-none items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-white/70 transition hover:bg-white/10 hover:text-white"
               aria-label="Cerrar menu"
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
-          <div className="grid gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {moreNavigation.map((item) => {
               const Icon = item.icon
               return (
@@ -163,10 +183,9 @@ export function AppShell() {
                   key={item.to}
                   to={item.to}
                   end={item.to === '/app'}
-                  onClick={() => setIsMoreOpen(false)}
                   className={({ isActive }) =>
                     cn(
-                      'flex min-h-12 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-4 text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white',
+                      'flex min-h-14 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-3 text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white',
                       isActive &&
                         'border-amber-300/25 bg-amber-300/10 text-amber-100',
                     )
@@ -177,29 +196,24 @@ export function AppShell() {
                 </NavLink>
               )
             })}
-            <div className="rounded-2xl border border-white/10 bg-white/[0.05] p-2">
-              <div className="flex items-center gap-2 px-2 py-1 text-xs font-bold text-white/45">
-                <Search className="h-3 w-3" aria-hidden="true" />
-                Busca personas, eventos y versiculos desde la lupa superior.
-              </div>
-            </div>
             <PilotFeedbackDialog
-              triggerClassName="flex min-h-12 items-center gap-3 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-4 text-sm font-bold text-emerald-100 transition hover:bg-emerald-300/15"
+              triggerClassName="flex min-h-14 items-center gap-3 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-3 text-sm font-bold text-emerald-100 transition hover:bg-emerald-300/15"
             />
             <button
               type="button"
               onClick={() => void handleSignOut()}
-              className="flex min-h-12 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-4 text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white"
+              className="flex min-h-14 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-3 text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white"
             >
               <LogOut className="h-4 w-4" aria-hidden="true" />
               Cerrar sesion
             </button>
           </div>
-        </div>
+          </div>
+        </>
       ) : null}
 
       <nav
-        className="fixed inset-x-3 z-50 mx-auto max-w-6xl overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/90 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl lg:hidden"
+        className="fixed inset-x-3 z-50 mx-auto max-w-6xl overflow-hidden rounded-2xl border border-white/10 bg-slate-950/92 p-2 shadow-2xl shadow-black/45 backdrop-blur-xl lg:hidden"
         style={{
           bottom: 'max(0.75rem, env(safe-area-inset-bottom))',
           paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
