@@ -643,7 +643,7 @@ export function AdminHome() {
 
   if (isLoading) {
     return (
-      <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
+      <section className="app-page">
         <div className="section-shell flex items-center gap-3 text-white/70">
           <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
           Verificando permisos...
@@ -654,9 +654,9 @@ export function AdminHome() {
 
   if (!isAdmin) {
     return (
-      <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
+      <section className="app-page">
         <div className="section-shell">
-          <div className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-8 shadow-2xl shadow-black/25 backdrop-blur">
+          <div className="app-card-accent p-8">
             <ShieldCheck className="h-10 w-10 text-amber-200" aria-hidden="true" />
             <h1 className="mt-5 text-4xl font-black">No autorizado</h1>
             <p className="mt-4 max-w-xl text-white/70">
@@ -664,7 +664,7 @@ export function AdminHome() {
             </p>
             <Link
               to="/app"
-              className="mt-7 inline-flex h-12 items-center justify-center rounded-full bg-white px-6 text-sm font-bold text-slate-950 transition hover:bg-amber-100"
+              className="app-button-primary mt-7"
             >
               Volver a mi red
             </Link>
@@ -732,11 +732,10 @@ export function AdminHome() {
   ]
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-24 pt-32 text-white">
-      <div className="pointer-events-none fixed right-0 top-24 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
+    <section className="app-page">
       <div className="section-shell relative">
         <div className="max-w-3xl">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-amber-200 backdrop-blur">
+          <p className="app-kicker">
             <ShieldCheck className="h-4 w-4" aria-hidden="true" />
             Administración
           </p>
@@ -749,12 +748,12 @@ export function AdminHome() {
         </div>
 
         {message ? (
-          <div className="mt-8 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm font-semibold text-amber-100">
+          <div className="app-alert-warning mt-8">
             {message}
           </div>
         ) : null}
 
-        <div className="mt-10 rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+        <div className="mt-10 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-200">
@@ -773,7 +772,7 @@ export function AdminHome() {
                 <a
                   key={action.href}
                   href={action.href}
-                  className="inline-flex h-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.08] px-4 text-xs font-black text-white transition hover:bg-white/15"
+                  className="app-chip min-h-10 bg-white/[0.08] text-xs text-white"
                 >
                   {action.label}
                 </a>
@@ -784,7 +783,7 @@ export function AdminHome() {
             {pilotChecks.map((item) => (
               <article
                 key={item.title}
-                className="rounded-3xl border border-white/10 bg-slate-950/35 p-4"
+                className="app-card-soft"
               >
                 <h3 className="font-black text-white">{item.title}</h3>
                 <p className="mt-2 text-sm leading-6 text-white/55">
@@ -793,7 +792,7 @@ export function AdminHome() {
               </article>
             ))}
           </div>
-          <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/35 p-5">
+          <div className="app-card-soft mt-6 p-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <h3 className="text-xl font-black">Estado del piloto</h3>
@@ -847,7 +846,7 @@ export function AdminHome() {
                 detail={`${pilotMetrics.moderation.reportsPending} reportes pendientes`}
               />
             </div>
-            <div className="mt-6 rounded-3xl border border-white/10 bg-slate-950/35 p-5">
+            <div className="app-card-soft mt-6 p-5">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <h3 className="text-lg font-black">Monitoreo diario</h3>
@@ -1776,7 +1775,7 @@ function AdminList({
   return (
     <article
       id={id}
-      className="scroll-mt-28 rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/20 backdrop-blur"
+      className="app-card scroll-mt-28"
     >
       <h2 className="text-xl font-black">{title}</h2>
       <div className="mt-4 space-y-3">
@@ -1800,7 +1799,7 @@ function AdminListItem({
   action?: ReactNode
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-3xl border border-white/10 bg-slate-950/45 p-4">
+    <div className="app-card-soft flex items-center justify-between gap-3">
       <div className="min-w-0">
         <p className="truncate font-bold">{title}</p>
         <p className="mt-1 truncate text-xs text-white/45">{detail}</p>
@@ -1820,7 +1819,7 @@ function PilotMetricCard({
   detail: string
 }) {
   return (
-    <article className="rounded-3xl border border-white/10 bg-white/[0.05] p-4">
+    <article className="app-card-soft">
       <p className="text-2xl font-black">{value}</p>
       <h4 className="mt-1 text-sm font-black text-white">{title}</h4>
       <p className="mt-1 text-xs leading-5 text-white/50">{detail}</p>
