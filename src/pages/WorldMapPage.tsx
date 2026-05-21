@@ -51,7 +51,7 @@ const safePrinciples = [
     text: 'Conversaciones cuidadas, sin ataques y con foco en edificar.',
   },
   {
-    title: 'Jovenes protegidos',
+    title: 'Jóvenes protegidos',
     text: 'Reportes visibles, reglas simples y acompanamiento pastoral.',
   },
   {
@@ -337,7 +337,7 @@ export function WorldMapPage() {
               Mapa mundial
             </p>
             <h1 data-page-title className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
-              Encuentra jovenes cerca de ti.
+              Encuentra jóvenes cerca de ti.
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/65">
               Explora iglesias y grupos juveniles activos en la Red. Este
@@ -521,7 +521,7 @@ export function WorldMapPage() {
                     <p className="mt-4 line-clamp-2 text-sm leading-6 text-white/55">
                       {group.meeting_info ||
                         group.description ||
-                        'Grupo juvenil conectado a Red de Jovenes.'}
+                        'Grupo juvenil conectado a Red de Jóvenes.'}
                     </p>
                     <div className="mt-4 flex flex-wrap gap-2">
                       <span className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-bold text-white/60">

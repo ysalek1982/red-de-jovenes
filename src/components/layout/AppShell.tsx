@@ -122,10 +122,10 @@ export function AppShell() {
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-black">
-                Red de Jovenes
+                Red de Jóvenes
               </span>
               <span className="hidden truncate text-xs text-white/45 sm:block">
-                Conectando jovenes en Cristo
+                Conectando jóvenes en Cristo
               </span>
             </span>
           </button>

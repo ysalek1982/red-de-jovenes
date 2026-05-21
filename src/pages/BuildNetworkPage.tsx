@@ -45,7 +45,7 @@ export function BuildNetworkPage() {
 
   async function copyInvite() {
     await navigator.clipboard.writeText(
-      'Unete a Red de Jovenes: una comunidad cristiana para orar, crecer, jugar y conectar. https://red-de-jovenes.vercel.app/',
+      'Únete a Red de Jóvenes: una comunidad cristiana para orar, crecer, jugar y conectar. https://red-de-jovenes.vercel.app/',
     )
     setStatus('Invitacion copiada.')
   }
@@ -95,7 +95,7 @@ export function BuildNetworkPage() {
           <article className="app-card-accent">
             <Hammer className="h-8 w-8 text-amber-200" />
             <h2 className="mt-4 text-2xl font-black">Invitar amigo</h2>
-            <p className="mt-3 text-sm leading-6 text-white/65">Comparte un texto sencillo para que mas jovenes conozcan Red de Jovenes.</p>
+            <p className="mt-3 text-sm leading-6 text-white/65">Comparte un texto sencillo para que más jóvenes conozcan Red de Jóvenes.</p>
             <button type="button" onClick={() => void copyInvite()} className="app-button-primary mt-5">
               <Copy className="h-4 w-4" /> Copiar enlace
             </button>

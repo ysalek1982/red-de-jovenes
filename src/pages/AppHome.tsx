@@ -382,11 +382,11 @@ export function AppHome() {
                       Primeros pasos
                     </p>
                     <h2 className="mt-2 text-2xl font-black">
-                      Empieza tu camino en Red de Jovenes
+                      Empieza tu camino en Red de Jóvenes
                     </h2>
                     <p className="mt-3 max-w-2xl text-sm leading-6 text-white/68">
                       Completa acciones reales para conocer la app, conectar con
-                      otros jovenes y dejar tu primera huella en la comunidad.
+                      otros jóvenes y dejar tu primera huella en la comunidad.
                     </p>
                   </div>
                   <button

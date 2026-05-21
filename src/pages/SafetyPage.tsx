@@ -23,10 +23,10 @@ const communityRules = [
   },
   {
     title: 'La Palabra guia el tono',
-    text: 'Los foros pueden tener desacuerdos. No se permiten ataques personales, burlas, manipulacion espiritual ni presion sobre otros jovenes.',
+    text: 'Los foros pueden tener desacuerdos. No se permiten ataques personales, burlas, manipulación espiritual ni presión sobre otros jóvenes.',
   },
   {
-    title: 'Protegemos a los jovenes',
+    title: 'Protegemos a los jóvenes',
     text: 'No publiques datos privados, ubicaciones sensibles, conversaciones personales ni informacion de menores sin permiso claro.',
   },
   {

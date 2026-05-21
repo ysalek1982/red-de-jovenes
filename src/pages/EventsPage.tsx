@@ -129,7 +129,7 @@ export function EventsPage() {
                 </div>
                 <CalendarDays className="h-7 w-7 text-amber-200" />
               </div>
-              <p className="mt-4 text-sm leading-6 text-white/65">{event.description || 'Encuentro comunitario de Red de Jovenes.'}</p>
+              <p className="mt-4 text-sm leading-6 text-white/65">{event.description || 'Encuentro comunitario de Red de Jóvenes.'}</p>
               <div className="mt-5 flex flex-wrap gap-2 text-xs font-bold text-white/60">
                 <span className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><MapPin className="h-3 w-3" /> {event.city || 'Online'} {event.country ? `- ${event.country}` : ''}</span>
                 <span className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><UsersRound className="h-3 w-3" /> {event.rsvpCount} confirmados</span>

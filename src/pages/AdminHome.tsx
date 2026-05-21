@@ -764,7 +764,7 @@ export function AdminHome() {
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
                 Usa este bloque como punto de control durante las primeras
-                sesiones con jovenes, moderadores y administracion.
+                sesiones con jóvenes, moderadores y administración.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">

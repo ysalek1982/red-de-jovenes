@@ -398,7 +398,7 @@ export function AppProfile() {
                   <h2 className="mt-2 text-3xl font-black">Editar perfil</h2>
                   {!profileCompletion.isComplete ? (
                     <p className="mt-2 text-sm leading-6 text-white/58">
-                      Completa los datos faltantes para que otros jovenes sepan
+                      Completa los datos faltantes para que otros jóvenes sepan
                       desde donde te conectas y como caminar contigo.
                     </p>
                   ) : null}

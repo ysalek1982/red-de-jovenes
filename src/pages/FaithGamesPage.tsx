@@ -401,7 +401,7 @@ export function FaithGamesPage() {
                             : 'border-white/10 bg-slate-950/55 text-white/55 hover:bg-white/10'
                         }`}
                       >
-                        {isVisible ? card.value : 'Red de Jovenes'}
+                        {isVisible ? card.value : 'Red de Jóvenes'}
                       </button>
                     )
                   })}

@@ -280,7 +280,7 @@ export function BiblePage() {
   async function handleExplainVerse(verse = activeVerse) {
     const result = await generateAiContent({
       actionType: 'explain_bible_verse',
-      prompt: `Explica brevemente ${verse.reference} para jovenes: ${verse.verse_text}`,
+      prompt: `Explica brevemente ${verse.reference} para jóvenes: ${verse.verse_text}`,
     })
     setAiExplanation(
       result?.text ||

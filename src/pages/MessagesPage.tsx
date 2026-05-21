@@ -118,7 +118,7 @@ export function MessagesPage() {
                 {isLoading ? <p className="text-sm text-white/60">Cargando...</p> : null}
                 {!isLoading && !conversations.length ? (
                   <p className="app-empty text-left">
-                    Empieza una conversacion que edifique con jovenes de tus
+                    Empieza una conversación que edifique con jóvenes de tus
                     comunidades o perfiles sugeridos.
                   </p>
                 ) : null}

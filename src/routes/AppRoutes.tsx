@@ -118,7 +118,7 @@ function RouteLoading({ moduleName = 'modulo' }: { moduleName?: string }) {
           Cargando {moduleName}...
         </p>
         <p className="mt-1 text-xs font-semibold text-white/50">
-          Preparando tu Red de Jovenes.
+          Preparando tu Red de Jóvenes.
         </p>
       </div>
     </section>
