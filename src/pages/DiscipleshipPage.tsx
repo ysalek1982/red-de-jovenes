@@ -81,7 +81,7 @@ export function DiscipleshipPage() {
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-32 pt-32 text-white">
+    <section className="app-page">
       <div className="section-shell">
         <div>
           <p className="text-sm font-semibold text-amber-200">Discipulado</p>
@@ -90,7 +90,7 @@ export function DiscipleshipPage() {
             Caminos cortos para afirmar tu fe, practicar la Palabra y compartir lo aprendido.
           </p>
         </div>
-        {status ? <p className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm font-semibold text-emerald-100">{status}</p> : null}
+        {status ? <p className="app-alert mt-5">{status}</p> : null}
 
         <div className="mt-8 grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
           <aside className="space-y-3">
@@ -100,7 +100,7 @@ export function DiscipleshipPage() {
                 type="button"
                 key={track.id}
                 onClick={() => setSelectedTrackId(track.id)}
-                className={`w-full rounded-[1.5rem] border p-5 text-left transition ${
+                className={`w-full rounded-2xl border p-5 text-left transition ${
                   selectedTrackId === track.id
                     ? 'border-amber-300/30 bg-amber-300/10'
                     : 'border-white/10 bg-white/[0.06] hover:bg-white/10'
@@ -113,7 +113,7 @@ export function DiscipleshipPage() {
             ))}
           </aside>
 
-          <article className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+          <article className="app-card">
             {selectedTrack && nextStep ? (
               <>
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
@@ -129,27 +129,27 @@ export function DiscipleshipPage() {
                   Dia {nextStep.day_number} · {nextStep.verse_reference}
                 </p>
                 <p className="mt-4 text-lg leading-8 text-white/75">{nextStep.content}</p>
-                <div className="mt-5 rounded-3xl border border-white/10 bg-slate-950/45 p-5">
+                <div className="app-card-soft mt-5">
                   <p className="text-sm font-semibold text-white">Accion practica</p>
                   <p className="mt-2 text-sm leading-6 text-white/62">{nextStep.action_step}</p>
                 </div>
                 <div className="mt-5 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => void handleCompleteStep()} className="inline-flex h-11 items-center gap-2 rounded-full bg-white px-5 text-sm font-black text-slate-950">
+                  <button type="button" onClick={() => void handleCompleteStep()} className="app-button-primary">
                     <CheckCircle2 className="h-4 w-4" /> Completar paso
                   </button>
-                  <Link to="/app/oracion" className="inline-flex h-11 items-center rounded-full border border-white/10 px-5 text-sm font-bold text-white">
+                  <Link to="/app/oracion" className="app-button-secondary">
                     Pedir oracion
                   </Link>
                 </div>
                 <form onSubmit={(event) => void handleShare(event)} className="mt-6">
-                  <textarea value={reflection} onChange={(event) => setReflection(event.target.value)} rows={3} placeholder="Comparte un aprendizaje con la Red" className="w-full rounded-3xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm outline-none focus:border-amber-200" />
-                  <button type="submit" className="mt-3 inline-flex h-11 items-center gap-2 rounded-full bg-emerald-200 px-5 text-sm font-black text-slate-950">
+                  <textarea value={reflection} onChange={(event) => setReflection(event.target.value)} rows={3} placeholder="Comparte un aprendizaje con la Red" className="app-input" />
+                  <button type="submit" className="app-button-primary mt-3 bg-emerald-200 hover:bg-emerald-100">
                     <MessageCircle className="h-4 w-4" /> Compartir
                   </button>
                 </form>
               </>
             ) : (
-              <p className="text-white/60">Aun no hay caminos activos de discipulado.</p>
+              <p className="app-empty">Aun no hay caminos activos de discipulado.</p>
             )}
           </article>
         </div>

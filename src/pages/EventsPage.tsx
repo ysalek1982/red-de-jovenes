@@ -85,7 +85,7 @@ export function EventsPage() {
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-32 pt-32 text-white">
+    <section className="app-page">
       <div className="section-shell">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -93,21 +93,21 @@ export function EventsPage() {
             <h1 className="mt-2 text-4xl font-black">Encuentros de la Red</h1>
             <p className="mt-3 max-w-2xl text-white/62">Reuniones, estudios, juegos y momentos de oracion para crecer juntos.</p>
           </div>
-          <select value={filter} onChange={(event) => setFilter(event.target.value)} className="h-11 rounded-full border border-white/10 bg-slate-950/70 px-4 text-sm font-bold">
+          <select value={filter} onChange={(event) => setFilter(event.target.value)} className="app-select w-fit rounded-full">
             <option value="todos">Todos</option>
             <option value="online">Online</option>
             <option value="esta-semana">Esta semana</option>
             <option value="confirmados">Mis confirmados</option>
           </select>
         </div>
-        {status ? <p className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm font-semibold text-emerald-100">{status}</p> : null}
+        {status ? <p className="app-alert mt-5">{status}</p> : null}
         <div className="mt-8 grid gap-5 lg:grid-cols-2">
           {isLoading ? <p className="text-white/60">Cargando eventos...</p> : null}
           {!isLoading && !filteredEvents.length ? (
-            <div className="rounded-[2rem] border border-dashed border-white/10 bg-white/[0.05] p-6 text-white/60">Aun no hay eventos para este filtro. Pronto la Red tendra mas encuentros.</div>
+            <div className="app-empty">Aun no hay eventos para este filtro. Pronto la Red tendra mas encuentros.</div>
           ) : null}
           {filteredEvents.map((event) => (
-            <article key={event.id} className="rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+            <article key={event.id} className="app-card">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="inline-flex rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-amber-100">{event.modality}</p>
@@ -121,23 +121,23 @@ export function EventsPage() {
                 <span className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><UsersRound className="h-3 w-3" /> {event.rsvpCount} confirmados</span>
               </div>
               <p className="mt-4 text-sm font-semibold text-emerald-200">{new Date(event.starts_at).toLocaleString('es-BO')}</p>
-              <button type="button" onClick={() => void handleRsvp(event)} className="mt-5 h-11 rounded-full bg-white px-5 text-sm font-black text-slate-950">
+              <button type="button" onClick={() => void handleRsvp(event)} className="app-button-primary mt-5">
                 {event.myRsvp ? 'Cancelar asistencia' : 'Confirmar asistencia'}
               </button>
             </article>
           ))}
         </div>
         {isAdmin ? (
-          <form onSubmit={(event) => void handleCreateEvent(event)} className="mt-8 rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur">
+          <form onSubmit={(event) => void handleCreateEvent(event)} className="app-card mt-8">
             <h2 className="text-2xl font-black">Crear evento</h2>
             <div className="mt-5 grid gap-3 md:grid-cols-2">
-              <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Titulo" className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm" />
-              <input type="datetime-local" value={form.startsAt} onChange={(event) => setForm({ ...form, startsAt: event.target.value })} className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm" />
-              <input value={form.city} onChange={(event) => setForm({ ...form, city: event.target.value })} placeholder="Ciudad" className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm" />
-              <input value={form.country} onChange={(event) => setForm({ ...form, country: event.target.value })} placeholder="Pais" className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm" />
+              <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Titulo" className="app-input" />
+              <input type="datetime-local" value={form.startsAt} onChange={(event) => setForm({ ...form, startsAt: event.target.value })} className="app-input" />
+              <input value={form.city} onChange={(event) => setForm({ ...form, city: event.target.value })} placeholder="Ciudad" className="app-input" />
+              <input value={form.country} onChange={(event) => setForm({ ...form, country: event.target.value })} placeholder="Pais" className="app-input" />
             </div>
-            <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Descripcion" rows={3} className="mt-3 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm" />
-            <button type="submit" className="mt-4 h-11 rounded-full bg-emerald-200 px-5 text-sm font-black text-slate-950">Crear</button>
+            <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Descripcion" rows={3} className="app-input mt-3" />
+            <button type="submit" className="app-button-primary mt-4 bg-emerald-200 hover:bg-emerald-100">Crear</button>
           </form>
         ) : null}
       </div>
