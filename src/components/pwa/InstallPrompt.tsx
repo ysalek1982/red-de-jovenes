@@ -18,7 +18,11 @@ function isStandaloneMode() {
 }
 
 function wasInstallDismissed() {
-  return window.localStorage.getItem('red-jovenes-install-dismissed') === 'true'
+  try {
+    return window.localStorage.getItem('red-jovenes-install-dismissed') === 'true'
+  } catch {
+    return false
+  }
 }
 
 export function InstallPrompt() {
@@ -53,7 +57,11 @@ export function InstallPrompt() {
     await installEvent.prompt()
     const choice = await installEvent.userChoice.catch(() => undefined)
     if (choice?.outcome === 'dismissed') {
-      window.localStorage.setItem('red-jovenes-install-dismissed', 'true')
+      try {
+        window.localStorage.setItem('red-jovenes-install-dismissed', 'true')
+      } catch {
+        // Si el navegador bloquea localStorage, solo ocultamos el prompt en memoria.
+      }
       setIsDismissed(true)
     }
     setInstallEvent(null)

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'red-de-jovenes-v2'
+const CACHE_NAME = 'red-de-jovenes-v3'
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -39,6 +39,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url)
 
   if (url.origin !== self.location.origin) return
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/functions/')) return
 
   if (request.mode === 'navigate') {
     event.respondWith(
