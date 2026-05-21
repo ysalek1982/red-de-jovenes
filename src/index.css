@@ -12,7 +12,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
@@ -36,6 +36,12 @@ select {
 
 img {
   max-width: 100%;
+}
+
+[id],
+main,
+[data-page-title] {
+  scroll-margin-top: 96px;
 }
 
 ::selection {
