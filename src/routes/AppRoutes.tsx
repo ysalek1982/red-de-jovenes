@@ -96,6 +96,11 @@ const BuildNetworkPage = lazy(() =>
     default: module.BuildNetworkPage,
   })),
 )
+const QuickGuidePage = lazy(() =>
+  import('../pages/QuickGuidePage').then((module) => ({
+    default: module.QuickGuidePage,
+  })),
+)
 const SafetyPage = lazy(() =>
   import('../pages/SafetyPage').then((module) => ({
     default: module.SafetyPage,
@@ -200,6 +205,7 @@ export function AppRoutes() {
           <Route path="discipulado" element={withSuspense(<DiscipleshipPage />, 'discipulado', routeResetKey)} />
           <Route path="mensajes" element={withSuspense(<MessagesPage />, 'mensajes', routeResetKey)} />
           <Route path="construir" element={withSuspense(<BuildNetworkPage />, 'Construir la Red', routeResetKey)} />
+          <Route path="guia" element={withSuspense(<QuickGuidePage />, 'guia rapida', routeResetKey)} />
           <Route path="seguridad" element={withSuspense(<SafetyPage />, 'cuidado comunitario', routeResetKey)} />
           <Route path="admin" element={withSuspense(<AdminHome />, 'administracion', routeResetKey)} />
         </Route>

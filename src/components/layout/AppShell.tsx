@@ -49,6 +49,7 @@ const secondaryNavigation: NavigationItem[] = [
   { label: 'Eventos', to: '/app/eventos', icon: CalendarDays },
   { label: 'Discipulado', to: '/app/discipulado', icon: GraduationCap },
   { label: 'Mensajes', to: '/app/mensajes', icon: MessageCircle },
+  { label: 'Guia rapida', to: '/app/guia', icon: Sparkles },
   { label: 'Perfil', to: '/app/perfil', icon: UserRound },
   { label: 'Construir', to: '/app/construir', icon: Hammer },
 ]

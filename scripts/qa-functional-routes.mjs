@@ -33,6 +33,7 @@ const privateRoutes = [
   '/app/discipulado',
   '/app/mensajes',
   '/app/construir',
+  '/app/guia',
   '/app/seguridad',
   '/app/perfil',
   '/app/admin',
