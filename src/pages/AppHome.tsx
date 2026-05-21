@@ -232,9 +232,10 @@ export function AppHome() {
   const myCommunities = communities.filter((community) => community.isMember)
   const highlightedCommunity =
     myCommunities[0] ?? communities.find((community) => community.membersCount > 0) ?? communities[0]
-  const profileIncomplete =
-    !profile?.city || !profile.country || !profile.bio || !profile.church_name
   const profileCompletion = onboarding?.profileCompletion
+  const profileIncomplete = profileCompletion
+    ? !profileCompletion.isComplete
+    : !profile?.city || !profile.country || !profile.bio || !profile.church_name
   const communityPulse = [
     ...posts.slice(0, 2).map((post) => ({
       title: 'Nueva reflexion en foros',

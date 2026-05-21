@@ -25,6 +25,7 @@ import {
   getMyFaithProgress,
   type FaithProgressSummary,
 } from '../features/progress/progressService'
+import { getProfileCompletion } from '../features/onboarding/onboardingService'
 import type { NotificationPreference, Profile } from '../types/database'
 
 interface ProfileForm {
@@ -125,6 +126,14 @@ export function AppProfile() {
         year: 'numeric',
       }).format(new Date(profile.created_at))
     : 'Miembro de la Red'
+  const profileCompletion = getProfileCompletion({
+    fullName: form.fullName,
+    city: form.city,
+    country: form.country,
+    churchName: form.churchName,
+    bio: form.bio,
+    avatarUrl: form.avatarUrl,
+  })
 
   useEffect(() => {
     let isMounted = true
@@ -276,6 +285,34 @@ export function AppProfile() {
             <div className="app-card-soft mt-3 text-sm text-white/65">
               Rol visible: {isAdmin ? 'Administrador' : 'Miembro'}
             </div>
+            <div className="mt-3 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-black text-amber-100">
+                  Perfil {profileCompletion.percentage}% completo
+                </p>
+                <span className="text-xs font-bold text-white/55">
+                  {profileCompletion.completed}/{profileCompletion.total}
+                </span>
+              </div>
+              <div
+                className="mt-3 h-2 overflow-hidden rounded-full bg-slate-950/45"
+                aria-hidden="true"
+              >
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-300 to-amber-200"
+                  style={{ width: `${profileCompletion.percentage}%` }}
+                />
+              </div>
+              {profileCompletion.isComplete ? (
+                <p className="mt-3 text-sm leading-6 text-white/62">
+                  Tu perfil ya tiene lo necesario para conectar mejor en la Red.
+                </p>
+              ) : (
+                <p className="mt-3 text-sm leading-6 text-white/62">
+                  Te falta agregar: {profileCompletion.missingLabels.join(', ')}.
+                </p>
+              )}
+            </div>
             <div className="mt-3 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4">
               <p className="text-sm font-black text-emerald-100">
                 Piloto cerrado
@@ -359,6 +396,12 @@ export function AppProfile() {
                 <div>
                   <p className="text-sm font-semibold text-amber-200">Mi cuenta</p>
                   <h2 className="mt-2 text-3xl font-black">Editar perfil</h2>
+                  {!profileCompletion.isComplete ? (
+                    <p className="mt-2 text-sm leading-6 text-white/58">
+                      Completa los datos faltantes para que otros jovenes sepan
+                      desde donde te conectas y como caminar contigo.
+                    </p>
+                  ) : null}
                 </div>
                 {isLoading ? (
                   <span className="inline-flex items-center gap-2 text-sm text-white/60">
