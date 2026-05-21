@@ -1,0 +1,736 @@
+{
+  "baseUrl": "http://127.0.0.1:4173",
+  "generatedAt": "2026-05-21T19:25:55.326Z",
+  "status": "VISUAL_AUDIT_OK",
+  "rows": [
+    {
+      "width": 360,
+      "route": "/entrar",
+      "path": "/entrar",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 3,
+      "screenshot": "screenshots/360-entrar.jpg"
+    },
+    {
+      "width": 360,
+      "route": "/crear-cuenta",
+      "path": "/crear-cuenta",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 2,
+      "screenshot": "screenshots/360-crear-cuenta.jpg"
+    },
+    {
+      "width": 360,
+      "route": "/app",
+      "path": "/app",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/360-app.jpg"
+    },
+    {
+      "width": 360,
+      "route": "/app/biblia",
+      "path": "/app/biblia",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 3,
+      "screenshot": "screenshots/360-app-biblia.jpg"
+    },
+    {
+      "width": 360,
+      "route": "/app/foros",
+      "path": "/app/foros",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/360-app-foros.jpg"
+    },
+    {
+      "width": 360,
+      "route": "/app/oracion",
+      "path": "/app/oracion",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 2,
+      "screenshot": "screenshots/360-app-oracion.jpg"
+    },
+    {
+      "width": 360,
+      "route": "/app/juegos",
+      "path": "/app/juegos",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/360-app-juegos.jpg"
+    },
+    {
+      "width": 360,
+      "route": "/app/mapa",
+      "path": "/app/mapa",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/360-app-mapa.jpg"
+    },
+    {
+      "width": 360,
+      "route": "/app/eventos",
+      "path": "/app/eventos",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/360-app-eventos.jpg"
+    },
+    {
+      "width": 360,
+      "route": "/app/discipulado",
+      "path": "/app/discipulado",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/360-app-discipulado.jpg"
+    },
+    {
+      "width": 360,
+      "route": "/app/mensajes",
+      "path": "/app/mensajes",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/360-app-mensajes.jpg"
+    },
+    {
+      "width": 360,
+      "route": "/app/perfil",
+      "path": "/app/perfil",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 4,
+      "screenshot": "screenshots/360-app-perfil.jpg"
+    },
+    {
+      "width": 360,
+      "route": "/app/admin",
+      "path": "/app/admin",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/360-app-admin.jpg"
+    },
+    {
+      "width": 375,
+      "route": "/entrar",
+      "path": "/entrar",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 3
+    },
+    {
+      "width": 375,
+      "route": "/crear-cuenta",
+      "path": "/crear-cuenta",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 2
+    },
+    {
+      "width": 375,
+      "route": "/app",
+      "path": "/app",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 375,
+      "route": "/app/biblia",
+      "path": "/app/biblia",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 3
+    },
+    {
+      "width": 375,
+      "route": "/app/foros",
+      "path": "/app/foros",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 375,
+      "route": "/app/oracion",
+      "path": "/app/oracion",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 2
+    },
+    {
+      "width": 375,
+      "route": "/app/juegos",
+      "path": "/app/juegos",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 375,
+      "route": "/app/mapa",
+      "path": "/app/mapa",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 375,
+      "route": "/app/eventos",
+      "path": "/app/eventos",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 375,
+      "route": "/app/discipulado",
+      "path": "/app/discipulado",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 375,
+      "route": "/app/mensajes",
+      "path": "/app/mensajes",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 375,
+      "route": "/app/perfil",
+      "path": "/app/perfil",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 4
+    },
+    {
+      "width": 375,
+      "route": "/app/admin",
+      "path": "/app/admin",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 414,
+      "route": "/entrar",
+      "path": "/entrar",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 3
+    },
+    {
+      "width": 414,
+      "route": "/crear-cuenta",
+      "path": "/crear-cuenta",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 2
+    },
+    {
+      "width": 414,
+      "route": "/app",
+      "path": "/app",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 414,
+      "route": "/app/biblia",
+      "path": "/app/biblia",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 3
+    },
+    {
+      "width": 414,
+      "route": "/app/foros",
+      "path": "/app/foros",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 414,
+      "route": "/app/oracion",
+      "path": "/app/oracion",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 2
+    },
+    {
+      "width": 414,
+      "route": "/app/juegos",
+      "path": "/app/juegos",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 414,
+      "route": "/app/mapa",
+      "path": "/app/mapa",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 414,
+      "route": "/app/eventos",
+      "path": "/app/eventos",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 414,
+      "route": "/app/discipulado",
+      "path": "/app/discipulado",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 414,
+      "route": "/app/mensajes",
+      "path": "/app/mensajes",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 414,
+      "route": "/app/perfil",
+      "path": "/app/perfil",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 4
+    },
+    {
+      "width": 414,
+      "route": "/app/admin",
+      "path": "/app/admin",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 768,
+      "route": "/entrar",
+      "path": "/entrar",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 3
+    },
+    {
+      "width": 768,
+      "route": "/crear-cuenta",
+      "path": "/crear-cuenta",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 2
+    },
+    {
+      "width": 768,
+      "route": "/app",
+      "path": "/app",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 768,
+      "route": "/app/biblia",
+      "path": "/app/biblia",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 3
+    },
+    {
+      "width": 768,
+      "route": "/app/foros",
+      "path": "/app/foros",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 768,
+      "route": "/app/oracion",
+      "path": "/app/oracion",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 2
+    },
+    {
+      "width": 768,
+      "route": "/app/juegos",
+      "path": "/app/juegos",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 768,
+      "route": "/app/mapa",
+      "path": "/app/mapa",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 768,
+      "route": "/app/eventos",
+      "path": "/app/eventos",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 768,
+      "route": "/app/discipulado",
+      "path": "/app/discipulado",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 768,
+      "route": "/app/mensajes",
+      "path": "/app/mensajes",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 768,
+      "route": "/app/perfil",
+      "path": "/app/perfil",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 4
+    },
+    {
+      "width": 768,
+      "route": "/app/admin",
+      "path": "/app/admin",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 1024,
+      "route": "/entrar",
+      "path": "/entrar",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 7
+    },
+    {
+      "width": 1024,
+      "route": "/crear-cuenta",
+      "path": "/crear-cuenta",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 6
+    },
+    {
+      "width": 1024,
+      "route": "/app",
+      "path": "/app",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 1024,
+      "route": "/app/biblia",
+      "path": "/app/biblia",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 2
+    },
+    {
+      "width": 1024,
+      "route": "/app/foros",
+      "path": "/app/foros",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 1024,
+      "route": "/app/oracion",
+      "path": "/app/oracion",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 2
+    },
+    {
+      "width": 1024,
+      "route": "/app/juegos",
+      "path": "/app/juegos",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 1024,
+      "route": "/app/mapa",
+      "path": "/app/mapa",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 1024,
+      "route": "/app/eventos",
+      "path": "/app/eventos",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 1024,
+      "route": "/app/discipulado",
+      "path": "/app/discipulado",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 1024,
+      "route": "/app/mensajes",
+      "path": "/app/mensajes",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 1024,
+      "route": "/app/perfil",
+      "path": "/app/perfil",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 4
+    },
+    {
+      "width": 1024,
+      "route": "/app/admin",
+      "path": "/app/admin",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1
+    },
+    {
+      "width": 1440,
+      "route": "/entrar",
+      "path": "/entrar",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 7,
+      "screenshot": "screenshots/1440-entrar.jpg"
+    },
+    {
+      "width": 1440,
+      "route": "/crear-cuenta",
+      "path": "/crear-cuenta",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 6,
+      "screenshot": "screenshots/1440-crear-cuenta.jpg"
+    },
+    {
+      "width": 1440,
+      "route": "/app",
+      "path": "/app",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/1440-app.jpg"
+    },
+    {
+      "width": 1440,
+      "route": "/app/biblia",
+      "path": "/app/biblia",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 2,
+      "screenshot": "screenshots/1440-app-biblia.jpg"
+    },
+    {
+      "width": 1440,
+      "route": "/app/foros",
+      "path": "/app/foros",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/1440-app-foros.jpg"
+    },
+    {
+      "width": 1440,
+      "route": "/app/oracion",
+      "path": "/app/oracion",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 2,
+      "screenshot": "screenshots/1440-app-oracion.jpg"
+    },
+    {
+      "width": 1440,
+      "route": "/app/juegos",
+      "path": "/app/juegos",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/1440-app-juegos.jpg"
+    },
+    {
+      "width": 1440,
+      "route": "/app/mapa",
+      "path": "/app/mapa",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/1440-app-mapa.jpg"
+    },
+    {
+      "width": 1440,
+      "route": "/app/eventos",
+      "path": "/app/eventos",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/1440-app-eventos.jpg"
+    },
+    {
+      "width": 1440,
+      "route": "/app/discipulado",
+      "path": "/app/discipulado",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/1440-app-discipulado.jpg"
+    },
+    {
+      "width": 1440,
+      "route": "/app/mensajes",
+      "path": "/app/mensajes",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/1440-app-mensajes.jpg"
+    },
+    {
+      "width": 1440,
+      "route": "/app/perfil",
+      "path": "/app/perfil",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 4,
+      "screenshot": "screenshots/1440-app-perfil.jpg"
+    },
+    {
+      "width": 1440,
+      "route": "/app/admin",
+      "path": "/app/admin",
+      "overflow": 0,
+      "mojibake": false,
+      "technical": false,
+      "smallTargets": 1,
+      "screenshot": "screenshots/1440-app-admin.jpg"
+    }
+  ],
+  "issues": []
+}
