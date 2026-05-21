@@ -48,6 +48,7 @@
     "qa:pilot-incidents": "node scripts/qa-pilot-incidents.mjs",
     "qa:pilot-report": "node scripts/qa-pilot-report.mjs",
     "qa:journeys": "node scripts/qa-user-journeys.mjs",
+    "qa:mobile-scroll": "node scripts/qa-mobile-scroll-routes.mjs",
     "qa:seed": "node scripts/qa-seed-data.mjs",
     "smoke:build": "node scripts/smoke-production-build.mjs",
     "admin:create": "node scripts/create-admin-user.mjs",
