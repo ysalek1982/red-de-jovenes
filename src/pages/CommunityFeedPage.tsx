@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   BookOpen,
   Flag,
@@ -28,6 +28,9 @@ import {
 } from '../features/community/communityService'
 import { getActiveGroups, type GroupWithMembership } from '../features/map/worldMapService'
 import { createContentReport } from '../features/safety/safetyService'
+import { scrollElementIntoView } from '../lib/scroll'
+
+type PostFilter = 'recent' | 'verse' | 'commented' | 'myCommunity'
 
 function formatDate(value: string | null) {
   if (!value) return 'Fecha pendiente'
@@ -45,6 +48,9 @@ function getAuthor(post: PostWithAuthor) {
 export function CommunityFeedPage() {
   const { user } = useAuth()
   const userId = user?.id
+  const pageTopRef = useRef<HTMLFormElement>(null)
+  const feedTopRef = useRef<HTMLDivElement>(null)
+  const postRefs = useRef<Record<string, HTMLElement | null>>({})
   const [posts, setPosts] = useState<PostWithAuthor[]>([])
   const [body, setBody] = useState('')
   const [verseReference, setVerseReference] = useState('')
@@ -55,9 +61,7 @@ export function CommunityFeedPage() {
   const [commentEdits, setCommentEdits] = useState<Record<string, string>>({})
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
-  const [postFilter, setPostFilter] = useState<
-    'recent' | 'verse' | 'commented' | 'myCommunity'
-  >('recent')
+  const [postFilter, setPostFilter] = useState<PostFilter>('recent')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [busyPostId, setBusyPostId] = useState<string | null>(null)
@@ -89,6 +93,17 @@ export function CommunityFeedPage() {
     return () => window.clearTimeout(timer)
   }, [loadPosts])
 
+  function revealNode(target: HTMLElement | null, behavior: ScrollBehavior = 'auto') {
+    window.requestAnimationFrame(() => {
+      scrollElementIntoView(target, behavior)
+    })
+  }
+
+  function handlePostFilterChange(value: PostFilter) {
+    setPostFilter(value)
+    revealNode(feedTopRef.current)
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!user || !body.trim()) return
@@ -109,6 +124,7 @@ export function CommunityFeedPage() {
       setVerseText('')
       setGroupId('')
       await loadPosts(false)
+      revealNode(feedTopRef.current)
       setActionMessage('Tu aporte quedó en la Red. Gracias por edificar.')
     } catch {
       setError('No pudimos publicar tu post.')
@@ -125,6 +141,7 @@ export function CommunityFeedPage() {
     try {
       await deleteOwnPost({ postId, userId: user.id })
       await loadPosts(false)
+      revealNode(feedTopRef.current)
       setActionMessage('Post eliminado.')
     } catch {
       setError('Solo puedes eliminar tus propios posts.')
@@ -143,7 +160,7 @@ export function CommunityFeedPage() {
         ? post.group_id
         : '',
     )
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    revealNode(pageTopRef.current, 'smooth')
   }
 
   async function handleSaveEditedPost(event: FormEvent<HTMLFormElement>) {
@@ -168,6 +185,7 @@ export function CommunityFeedPage() {
       setVerseText('')
       setGroupId('')
       await loadPosts(false)
+      revealNode(feedTopRef.current)
       setActionMessage('Post actualizado.')
     } catch {
       setError('No pudimos editar tu publicacion.')
@@ -216,6 +234,7 @@ export function CommunityFeedPage() {
       })
       setCommentDrafts((current) => ({ ...current, [postId]: '' }))
       await loadPosts(false)
+      revealNode(postRefs.current[postId], 'smooth')
       setActionMessage('Comentario publicado con gracia.')
     } catch {
       setError('No pudimos publicar tu comentario.')
@@ -241,6 +260,7 @@ export function CommunityFeedPage() {
       setEditingCommentId(null)
       setCommentEdits((current) => ({ ...current, [commentId]: '' }))
       await loadPosts(false)
+      revealNode(feedTopRef.current)
       setActionMessage('Comentario actualizado.')
     } catch {
       setError('No pudimos editar tu comentario.')
@@ -258,6 +278,7 @@ export function CommunityFeedPage() {
     try {
       await deleteOwnPostComment({ commentId, userId: user.id })
       await loadPosts(false)
+      revealNode(feedTopRef.current)
       setActionMessage('Comentario eliminado.')
     } catch {
       setError('Solo puedes eliminar tus propios comentarios.')
@@ -330,6 +351,7 @@ export function CommunityFeedPage() {
       <div className="section-shell relative">
         <div className="grid gap-6 xl:grid-cols-[0.86fr_1.14fr]">
           <form
+            ref={pageTopRef}
             onSubmit={editingPostId ? handleSaveEditedPost : handleSubmit}
             className="app-card h-fit md:p-8"
           >
@@ -337,7 +359,10 @@ export function CommunityFeedPage() {
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
               {editingPostId ? 'Editando post' : 'Foros con la Palabra'}
             </p>
-            <h1 className="mt-5 text-4xl font-black tracking-tight md:text-5xl">
+            <h1
+              data-page-title
+              className="mt-5 text-4xl font-black tracking-tight md:text-5xl"
+            >
               Debates anclados en la Palabra.
             </h1>
             <p className="mt-4 text-white/65">
@@ -449,7 +474,7 @@ export function CommunityFeedPage() {
             </div>
           </form>
 
-          <div className="app-card md:p-6">
+          <div ref={feedTopRef} className="app-card md:p-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-amber-200">
@@ -472,11 +497,7 @@ export function CommunityFeedPage() {
                 <button
                   key={value}
                   type="button"
-                  onClick={() =>
-                    setPostFilter(
-                      value as 'recent' | 'verse' | 'commented' | 'myCommunity',
-                    )
-                  }
+                  onClick={() => handlePostFilterChange(value as PostFilter)}
                   className={`app-chip flex-none ${
                     postFilter === value
                       ? 'app-chip-active'
@@ -544,6 +565,9 @@ export function CommunityFeedPage() {
                   return (
                     <article
                       key={post.id}
+                      ref={(node) => {
+                        postRefs.current[post.id] = node
+                      }}
                       className="app-card-soft"
                     >
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -671,6 +695,7 @@ export function CommunityFeedPage() {
                                           ...current,
                                           [comment.id]: comment.body,
                                         }))
+                                        revealNode(postRefs.current[post.id], 'smooth')
                                       }}
                                       className="rounded-full border border-white/10 px-3 py-1 text-xs font-bold text-white/45 transition hover:bg-white/10 hover:text-white"
                                     >
