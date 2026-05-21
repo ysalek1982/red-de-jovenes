@@ -19,16 +19,37 @@ function mapEvent(event: AppEvent & { event_rsvps?: EventRsvp[] }, userId?: stri
 export async function getUpcomingEvents(userId?: string) {
   const { data, error } = await supabase
     .from('events')
-    .select('*, event_rsvps(*)')
+    .select(
+      [
+        'id',
+        'group_id',
+        'created_by',
+        'title',
+        'description',
+        'event_type',
+        'modality',
+        'country',
+        'city',
+        'location_text',
+        'meeting_link',
+        'starts_at',
+        'ends_at',
+        'is_active',
+        'created_at',
+        'updated_at',
+        'event_rsvps(id, event_id, user_id, status, created_at)',
+      ].join(', '),
+    )
     .eq('is_active', true)
     .gte('starts_at', new Date(Date.now() - 86_400_000).toISOString())
     .order('starts_at', { ascending: true })
     .limit(30)
+    .limit(80, { referencedTable: 'event_rsvps' })
 
   if (error) throw error
-  return ((data ?? []) as Array<AppEvent & { event_rsvps?: EventRsvp[] }>).map(
-    (event) => mapEvent(event, userId),
-  )
+  return ((data ?? []) as unknown as Array<
+    AppEvent & { event_rsvps?: EventRsvp[] }
+  >).map((event) => mapEvent(event, userId))
 }
 
 export async function createEvent(input: {

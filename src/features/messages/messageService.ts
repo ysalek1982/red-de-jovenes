@@ -9,11 +9,26 @@ export type ConversationWithMembers = Conversation & {
 export async function getMyConversations() {
   const { data, error } = await supabase
     .from('conversations')
-    .select('*, conversation_members(*), messages(*)')
+    .select(
+      [
+        'id',
+        'title',
+        'conversation_type',
+        'group_id',
+        'created_by',
+        'created_at',
+        'updated_at',
+        'conversation_members(id, conversation_id, user_id, role, joined_at)',
+        'messages(id, conversation_id, sender_id, body, created_at, edited_at, deleted_at)',
+      ].join(', '),
+    )
     .order('updated_at', { ascending: false })
+    .order('created_at', { referencedTable: 'messages', ascending: false })
+    .limit(25)
+    .limit(40, { referencedTable: 'messages' })
 
   if (error) throw error
-  return (data ?? []) as ConversationWithMembers[]
+  return (data ?? []) as unknown as ConversationWithMembers[]
 }
 
 export async function createDirectConversation(input: {

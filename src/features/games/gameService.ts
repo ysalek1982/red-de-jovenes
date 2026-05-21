@@ -42,7 +42,7 @@ export async function saveGameScore(input: {
 export async function getMyGameScores(userId: string) {
   const { data, error } = await supabase
     .from('game_scores')
-    .select('*')
+    .select('id, user_id, game_key, score, total, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(60)
