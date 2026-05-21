@@ -225,15 +225,14 @@ export function PrayerRoomPage() {
   )
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
-      <div className="pointer-events-none fixed left-0 top-24 h-96 w-96 rounded-full bg-emerald-300/10 blur-3xl" />
+    <section className="app-page">
       <div className="section-shell relative">
         <div className="grid gap-6 xl:grid-cols-[0.82fr_1.18fr]">
           <form
             onSubmit={handleSubmit}
-            className="h-fit rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur md:p-8"
+            className="app-card h-fit md:p-8"
           >
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-amber-200">
+            <p className="app-kicker">
               <Heart className="h-4 w-4" aria-hidden="true" />
               Sala de oración global
             </p>
@@ -246,13 +245,13 @@ export function PrayerRoomPage() {
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4">
+              <div className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4">
                 <p className="text-3xl font-black">{totalSupports}</p>
                 <p className="mt-1 text-sm text-white/60">
                   apoyos de oración registrados
                 </p>
               </div>
-              <div className="rounded-3xl border border-amber-300/20 bg-amber-300/10 p-4">
+              <div className="rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4">
                 <p className="text-sm font-bold text-amber-200">
                   {activePrayers} peticiones activas
                 </p>
@@ -296,7 +295,7 @@ export function PrayerRoomPage() {
                     id="prayerCategory"
                     value={category}
                     onChange={(event) => setCategory(event.target.value)}
-                    className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+                    className="app-select mt-2"
                   >
                     {prayerCategories.map(([value, label]) => (
                       <option key={value} value={value}>
@@ -305,7 +304,7 @@ export function PrayerRoomPage() {
                     ))}
                   </select>
                 </div>
-                <label className="mt-7 flex h-11 items-center gap-3 rounded-lg border border-white/10 bg-white/[0.06] px-4 text-sm font-semibold text-white/75">
+                <label className="mt-7 flex h-11 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.06] px-4 text-sm font-semibold text-white/75">
                   <input
                     type="checkbox"
                     checked={isAnonymous}
@@ -323,7 +322,7 @@ export function PrayerRoomPage() {
                   id="prayerGroup"
                   value={groupId}
                   onChange={(event) => setGroupId(event.target.value)}
-                  className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+                  className="app-select mt-2"
                 >
                   <option value="">Sala general de la Red</option>
                   {groups.map((group) => (
@@ -351,7 +350,7 @@ export function PrayerRoomPage() {
             </div>
           </form>
 
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-4 shadow-2xl shadow-black/25 backdrop-blur md:p-6">
+          <div className="app-card md:p-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-amber-200">
@@ -364,7 +363,7 @@ export function PrayerRoomPage() {
               </span>
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="app-scroll-x mt-5">
               {[
                 ['all', 'Todas'],
                 ['active', 'En oración'],
@@ -387,10 +386,10 @@ export function PrayerRoomPage() {
                         | 'myCommunity',
                     )
                   }
-                  className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                  className={`app-chip flex-none ${
                     statusFilter === value
-                      ? 'border-amber-300/30 bg-amber-300/15 text-amber-100'
-                      : 'border-white/10 bg-white/[0.05] text-white/55 hover:bg-white/10 hover:text-white'
+                      ? 'app-chip-active'
+                      : ''
                   }`}
                 >
                   {label}
@@ -398,7 +397,7 @@ export function PrayerRoomPage() {
               ))}
             </div>
 
-            <article className="mt-6 rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5">
+            <article className="app-card-soft mt-6">
               <p className="text-sm font-bold text-amber-200">Oración del día</p>
               <p className="mt-3 leading-7 text-white/70">
                 Padre, hoy entrego mis cargas. Llena mi corazón de Tu paz, mis
@@ -411,12 +410,12 @@ export function PrayerRoomPage() {
             </article>
 
             {error ? (
-              <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
+              <div className="app-alert-warning mt-5">
                 {error}
               </div>
             ) : null}
             {actionMessage ? (
-              <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm text-emerald-100">
+              <div className="app-alert mt-5">
                 {actionMessage}
               </div>
             ) : null}
@@ -433,7 +432,7 @@ export function PrayerRoomPage() {
                   return (
                     <article
                       key={prayer.id}
-                      className="rounded-[1.5rem] border border-white/10 bg-slate-950/45 p-5"
+                      className="app-card-soft"
                     >
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
@@ -463,7 +462,7 @@ export function PrayerRoomPage() {
                       </div>
                       <p className="mt-4 leading-7 text-white/65">{prayer.body}</p>
                       {prayer.answered_testimony ? (
-                        <div className="mt-4 rounded-3xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm leading-6 text-emerald-50">
+                          <div className="mt-4 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm leading-6 text-emerald-50">
                           Testimonio: {prayer.answered_testimony}
                         </div>
                       ) : null}
@@ -533,7 +532,7 @@ export function PrayerRoomPage() {
                 })}
               </div>
             ) : (
-              <div className="mt-8 rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-8 text-center text-white/60">
+              <div className="app-empty mt-8">
                 Todavía no hay peticiones públicas. Puedes ser el primero en
                 compartir una necesidad de oración.
               </div>
