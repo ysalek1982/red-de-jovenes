@@ -153,6 +153,15 @@ const initialPilotMetrics: PilotMetrics = {
   ai: { aiActions: 0, aiCostEvents: 0 },
   moderation: { reportsPending: 0, reportsResolved: 0 },
   pilot: { feedbackNew: 0, feedbackTotal: 0, incidentsOpen: 0, incidentsCritical: 0 },
+  activation: {
+    profileCompleteUsers: 0,
+    firstSavedVerseUsers: 0,
+    firstPrayerUsers: 0,
+    firstForumUsers: 0,
+    firstGameUsers: 0,
+    communityJoinedUsers: 0,
+    feedbackSentUsers: 0,
+  },
   daily: {
     activeUsersToday: 0,
     newRegistrations: 0,
@@ -845,6 +854,56 @@ export function AdminHome() {
                 value={pilotMetrics.ai.aiActions}
                 detail={`${pilotMetrics.moderation.reportsPending} reportes pendientes`}
               />
+            </div>
+            <div className="app-card-soft mt-6 p-5">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-black">Activacion inicial</h3>
+                  <p className="mt-1 text-sm text-white/55">
+                    Hitos reales que muestran si un joven paso de entrar a participar.
+                  </p>
+                </div>
+                <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/60">
+                  Datos reales
+                </span>
+              </div>
+              <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                <PilotMetricCard
+                  title="Perfil completo"
+                  value={pilotMetrics.activation.profileCompleteUsers}
+                  detail="nombre, ubicacion, iglesia, bio y avatar"
+                />
+                <PilotMetricCard
+                  title="Primer versiculo"
+                  value={pilotMetrics.activation.firstSavedVerseUsers}
+                  detail="usuarios con versiculo guardado"
+                />
+                <PilotMetricCard
+                  title="Primera oracion"
+                  value={pilotMetrics.activation.firstPrayerUsers}
+                  detail="pidieron o apoyaron oracion"
+                />
+                <PilotMetricCard
+                  title="Primer foro"
+                  value={pilotMetrics.activation.firstForumUsers}
+                  detail="publicaron o comentaron"
+                />
+                <PilotMetricCard
+                  title="Primer juego"
+                  value={pilotMetrics.activation.firstGameUsers}
+                  detail="puntaje guardado"
+                />
+                <PilotMetricCard
+                  title="Con comunidad"
+                  value={pilotMetrics.activation.communityJoinedUsers}
+                  detail="usuarios unidos a grupos"
+                />
+                <PilotMetricCard
+                  title="Feedback real"
+                  value={pilotMetrics.activation.feedbackSentUsers}
+                  detail="excluye evidencia QA"
+                />
+              </div>
             </div>
             <div className="app-card-soft mt-6 p-5">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">

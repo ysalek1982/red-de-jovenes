@@ -120,6 +120,18 @@ async function getUserIdsSince(
     .filter(Boolean) as string[]
 }
 
+async function getUserIds(table: PilotMetricTable, column: string) {
+  const { data, error } = await supabase
+    .from(table)
+    .select(column)
+    .limit(10000)
+
+  if (error) throw error
+  return (data ?? [])
+    .map((row) => (row as unknown as Record<string, string | null>)[column])
+    .filter(Boolean) as string[]
+}
+
 async function getPilotFeedbackMetricRows(since?: string) {
   const query = supabase
     .from('pilot_feedback')
@@ -167,6 +179,28 @@ async function getRealPilotFeedbackUserIdsSince(since: string) {
     .filter(Boolean) as string[]
 }
 
+async function countRealPilotFeedbackUsers() {
+  const rows = await getPilotFeedbackMetricRows()
+  return new Set(
+    rows
+      .filter((row) => !isQaPilotFeedback(row))
+      .map((row) => row.user_id)
+      .filter(Boolean) as string[],
+  ).size
+}
+
+async function countUsersWithAnyActivity(
+  sources: Array<{ table: PilotMetricTable; column: string }>,
+) {
+  const ids = (
+    await Promise.all(
+      sources.map((source) => getUserIds(source.table, source.column)),
+    )
+  ).flat()
+
+  return new Set(ids).size
+}
+
 async function countIncompleteProfiles() {
   const { data, error } = await supabase
     .from('profiles')
@@ -183,6 +217,25 @@ async function countIncompleteProfiles() {
       !profile.country?.trim() ||
       !profile.church_name?.trim() ||
       !profile.bio?.trim(),
+  ).length
+}
+
+async function countCompleteActivationProfiles() {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, city, country, church_name, bio, avatar_url')
+    .limit(5000)
+
+  if (error) throw error
+
+  return (data ?? []).filter(
+    (profile) =>
+      profile.full_name?.trim() &&
+      profile.city?.trim() &&
+      profile.country?.trim() &&
+      profile.church_name?.trim() &&
+      profile.bio?.trim() &&
+      profile.avatar_url?.trim(),
   ).length
 }
 
@@ -230,6 +283,13 @@ export async function getPilotMetrics() {
     aiUsageToday,
     aiErrorsToday,
     aiLimitReachedToday,
+    activatedProfiles,
+    activatedSavedVerse,
+    activatedPrayer,
+    activatedForum,
+    activatedGame,
+    activatedCommunity,
+    activatedFeedback,
   ] = await Promise.all([
     countRows('profiles'),
     countRows('posts'),
@@ -269,6 +329,25 @@ export async function getPilotMetrics() {
     countRowsSince('ai_action_logs', todayIso),
     countFilteredSince('ai_action_logs', 'status', 'error', todayIso),
     countFilteredSince('ai_action_logs', 'status', 'limit_reached', todayIso),
+    countCompleteActivationProfiles(),
+    countUsersWithAnyActivity([
+      { table: 'bible_saved_verses', column: 'user_id' },
+    ]),
+    countUsersWithAnyActivity([
+      { table: 'prayer_requests', column: 'user_id' },
+      { table: 'prayer_supports', column: 'user_id' },
+    ]),
+    countUsersWithAnyActivity([
+      { table: 'posts', column: 'user_id' },
+      { table: 'post_comments', column: 'user_id' },
+    ]),
+    countUsersWithAnyActivity([
+      { table: 'game_scores', column: 'user_id' },
+    ]),
+    countUsersWithAnyActivity([
+      { table: 'group_members', column: 'user_id' },
+    ]),
+    countRealPilotFeedbackUsers(),
   ])
 
   const activeUserIds = new Set(
@@ -331,6 +410,15 @@ export async function getPilotMetrics() {
       feedbackTotal,
       incidentsOpen,
       incidentsCritical,
+    },
+    activation: {
+      profileCompleteUsers: activatedProfiles,
+      firstSavedVerseUsers: activatedSavedVerse,
+      firstPrayerUsers: activatedPrayer,
+      firstForumUsers: activatedForum,
+      firstGameUsers: activatedGame,
+      communityJoinedUsers: activatedCommunity,
+      feedbackSentUsers: activatedFeedback,
     },
     daily: {
       activeUsersToday: activeUserIds.size,
