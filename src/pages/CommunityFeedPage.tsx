@@ -326,15 +326,14 @@ export function CommunityFeedPage() {
     })
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white">
-      <div className="pointer-events-none fixed right-0 top-24 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
+    <section className="app-page">
       <div className="section-shell relative">
         <div className="grid gap-6 xl:grid-cols-[0.86fr_1.14fr]">
           <form
             onSubmit={editingPostId ? handleSaveEditedPost : handleSubmit}
-            className="h-fit rounded-[2rem] border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/25 backdrop-blur md:p-8"
+            className="app-card h-fit md:p-8"
           >
-            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 text-sm font-semibold text-amber-200">
+            <p className="app-kicker">
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
               {editingPostId ? 'Editando post' : 'Foros con la Palabra'}
             </p>
@@ -350,7 +349,7 @@ export function CommunityFeedPage() {
               {forumCategories.slice(0, 4).map((category) => (
                 <div
                   key={category.title}
-                  className="rounded-2xl border border-white/10 bg-slate-950/45 p-3"
+                  className="app-card-soft"
                 >
                   <p className="text-sm font-bold">{category.title}</p>
                   <p className="mt-1 text-xs text-white/45">{category.threads}</p>
@@ -403,7 +402,7 @@ export function CommunityFeedPage() {
                   id="postGroup"
                   value={groupId}
                   onChange={(event) => setGroupId(event.target.value)}
-                  className="mt-2 h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-900 outline-none transition focus:border-brand-600 focus:ring-4 focus:ring-brand-100"
+                  className="app-select mt-2"
                 >
                   <option value="">Foro general de la Red</option>
                   {groups.map((group) => (
@@ -442,7 +441,7 @@ export function CommunityFeedPage() {
                     setVerseText('')
                     setGroupId('')
                   }}
-                  className="w-full rounded-full border border-white/10 px-4 py-2 text-sm font-bold text-white/65 transition hover:bg-white/10 hover:text-white"
+                  className="app-button-secondary w-full"
                 >
                   Cancelar edicion
                 </button>
@@ -450,7 +449,7 @@ export function CommunityFeedPage() {
             </div>
           </form>
 
-          <div className="rounded-[2rem] border border-white/10 bg-white/[0.05] p-4 shadow-2xl shadow-black/25 backdrop-blur md:p-6">
+          <div className="app-card md:p-6">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="text-sm font-semibold text-amber-200">
@@ -463,7 +462,7 @@ export function CommunityFeedPage() {
               </span>
             </div>
 
-            <div className="mt-5 flex flex-wrap gap-2">
+            <div className="app-scroll-x mt-5">
               {[
                 ['recent', 'Recientes'],
                 ['verse', 'Con versiculo'],
@@ -478,10 +477,10 @@ export function CommunityFeedPage() {
                       value as 'recent' | 'verse' | 'commented' | 'myCommunity',
                     )
                   }
-                  className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                  className={`app-chip flex-none ${
                     postFilter === value
-                      ? 'border-amber-300/30 bg-amber-300/15 text-amber-100'
-                      : 'border-white/10 bg-white/[0.05] text-white/55 hover:bg-white/10 hover:text-white'
+                      ? 'app-chip-active'
+                      : ''
                   }`}
                 >
                   {label}
@@ -496,7 +495,7 @@ export function CommunityFeedPage() {
               {forumTopics.slice(0, 2).map((topic) => (
                 <article
                   key={topic.title}
-                  className="rounded-[1.5rem] border border-amber-300/20 bg-amber-300/10 p-4"
+                  className="rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4"
                 >
                   <div className="flex flex-wrap items-center gap-2 text-xs font-bold uppercase tracking-wide text-amber-200">
                     <Sparkles className="h-4 w-4" aria-hidden="true" />
@@ -523,12 +522,12 @@ export function CommunityFeedPage() {
             </div>
 
             {error ? (
-              <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-4 text-sm text-amber-100">
+              <div className="app-alert-warning mt-5">
                 {error}
               </div>
             ) : null}
             {actionMessage ? (
-              <div className="mt-5 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm text-emerald-100">
+              <div className="app-alert mt-5">
                 {actionMessage}
               </div>
             ) : null}
@@ -545,7 +544,7 @@ export function CommunityFeedPage() {
                   return (
                     <article
                       key={post.id}
-                      className="rounded-[1.5rem] border border-white/10 bg-slate-950/45 p-5"
+                      className="app-card-soft"
                     >
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0 flex-1">
@@ -623,7 +622,7 @@ export function CommunityFeedPage() {
                       </div>
 
                       {post.verse_reference || post.verse_text ? (
-                        <div className="mt-5 rounded-3xl border border-amber-300/20 bg-amber-300/10 p-5">
+                        <div className="app-card-accent mt-5">
                           <div className="flex items-center gap-2 text-sm font-semibold text-amber-200">
                             <BookOpen className="h-4 w-4" aria-hidden="true" />
                             {post.verse_reference || 'Versículo compartido'}
@@ -655,7 +654,7 @@ export function CommunityFeedPage() {
                         {(post.post_comments ?? []).slice(0, 3).map((comment) => (
                           <div
                             key={comment.id}
-                            className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+                            className="app-card-soft bg-white/[0.04]"
                           >
                             <div className="flex items-start justify-between gap-3">
                               <p className="text-xs font-semibold uppercase tracking-wide text-white/40">
@@ -761,7 +760,7 @@ export function CommunityFeedPage() {
                 })}
               </div>
             ) : (
-              <div className="mt-8 rounded-3xl border border-dashed border-white/10 bg-slate-950/35 p-8 text-center text-white/60">
+              <div className="app-empty mt-8">
                 Todavía no hay posts. Comparte la primera palabra de ánimo para
                 la comunidad.
               </div>
