@@ -3,6 +3,10 @@ import {
   ArrowRight,
   BookOpen,
   CalendarDays,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Circle,
   Gamepad2,
   GraduationCap,
   Globe2,
@@ -36,6 +40,10 @@ import {
   getMyFaithProgress,
   type FaithProgressSummary,
 } from '../features/progress/progressService'
+import {
+  getOnboardingStatus,
+  type OnboardingStatus,
+} from '../features/onboarding/onboardingService'
 import { useAuth } from '../features/auth/useAuth'
 import type { Devotional, Profile } from '../types/database'
 
@@ -165,6 +173,8 @@ export function AppHome() {
   const [events, setEvents] = useState<EventWithRsvps[]>([])
   const [momentVerse, setMomentVerse] = useState<BibleVerseResult | null>(null)
   const [progress, setProgress] = useState<FaithProgressSummary | null>(null)
+  const [onboarding, setOnboarding] = useState<OnboardingStatus | null>(null)
+  const [isOnboardingCollapsed, setIsOnboardingCollapsed] = useState(false)
   const [quickPost, setQuickPost] = useState('')
   const [quickStatus, setQuickStatus] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -191,6 +201,7 @@ export function AppHome() {
         profileData,
         eventData,
         momentVerseData,
+        onboardingData,
       ] = await Promise.all([
         getTodayDevotional(),
         getPublicPrayerRequests(),
@@ -200,6 +211,7 @@ export function AppHome() {
         userId ? getProfile(userId) : Promise.resolve(null),
         getUpcomingEvents(userId),
         getDailyBibleVerse({ translationCode: 'RVR1909' }),
+        userId ? getOnboardingStatus(userId) : Promise.resolve(null),
       ])
       setDevotional(devotionalData)
       setProfile(profileData)
@@ -209,6 +221,7 @@ export function AppHome() {
       setProgress(progressData)
       setEvents(eventData.slice(0, 3))
       setMomentVerse(momentVerseData)
+      setOnboarding(onboardingData)
     } catch {
       setError('No pudimos cargar tu Red. Revisa la conexión o intenta más tarde.')
     } finally {
@@ -221,6 +234,7 @@ export function AppHome() {
     myCommunities[0] ?? communities.find((community) => community.membersCount > 0) ?? communities[0]
   const profileIncomplete =
     !profile?.city || !profile.country || !profile.bio || !profile.church_name
+  const profileCompletion = onboarding?.profileCompletion
   const communityPulse = [
     ...posts.slice(0, 2).map((post) => ({
       title: 'Nueva reflexion en foros',
@@ -276,6 +290,20 @@ export function AppHome() {
     await loadData()
   }
 
+  function handleToggleOnboarding() {
+    if (!userId) return
+    const nextValue = !isOnboardingCollapsed
+    setIsOnboardingCollapsed(nextValue)
+    try {
+      window.localStorage.setItem(
+        `red-jovenes:onboarding-checklist:${userId}`,
+        String(nextValue),
+      )
+    } catch {
+      // El colapso es una preferencia local no critica.
+    }
+  }
+
   const displayedMomentVerse = momentVerse ?? {
     reference: verseOfTheMoment.reference,
     verse_text: verseOfTheMoment.text,
@@ -288,6 +316,19 @@ export function AppHome() {
 
     return () => window.clearTimeout(timer)
   }, [loadData])
+
+  useEffect(() => {
+    if (!userId) return
+    try {
+      setIsOnboardingCollapsed(
+        window.localStorage.getItem(
+          `red-jovenes:onboarding-checklist:${userId}`,
+        ) === 'true',
+      )
+    } catch {
+      setIsOnboardingCollapsed(false)
+    }
+  }, [userId])
 
   return (
     <section className="app-page">
@@ -332,6 +373,96 @@ export function AppHome() {
           </div>
         ) : (
           <div className="mt-10 space-y-6">
+            {onboarding && !onboarding.isActivated ? (
+              <article className="app-card-accent">
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-amber-100">
+                      Primeros pasos
+                    </p>
+                    <h2 className="mt-2 text-2xl font-black">
+                      Empieza tu camino en Red de Jovenes
+                    </h2>
+                    <p className="mt-3 max-w-2xl text-sm leading-6 text-white/68">
+                      Completa acciones reales para conocer la app, conectar con
+                      otros jovenes y dejar tu primera huella en la comunidad.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleToggleOnboarding}
+                    className="app-button-secondary w-full justify-center md:w-auto"
+                    aria-expanded={!isOnboardingCollapsed}
+                  >
+                    {isOnboardingCollapsed ? (
+                      <>
+                        Ver pasos
+                        <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                      </>
+                    ) : (
+                      <>
+                        Ocultar
+                        <ChevronUp className="h-4 w-4" aria-hidden="true" />
+                      </>
+                    )}
+                  </button>
+                </div>
+                <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-sm font-black text-white">
+                      {onboarding.completedCount}/{onboarding.totalCount} pasos completados
+                    </span>
+                    <span className="text-xs font-bold text-amber-100">
+                      {onboarding.percentage}% de activacion inicial
+                    </span>
+                  </div>
+                  <div
+                    className="mt-3 h-2 overflow-hidden rounded-full bg-white/10"
+                    aria-hidden="true"
+                  >
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-300 to-amber-200"
+                      style={{ width: `${onboarding.percentage}%` }}
+                    />
+                  </div>
+                </div>
+                {!isOnboardingCollapsed ? (
+                  <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                    {onboarding.steps.map((step) => (
+                      <Link
+                        key={step.key}
+                        to={step.to}
+                        className="app-card-soft transition hover:bg-white/10"
+                      >
+                        <div className="flex items-start gap-3">
+                          {step.isComplete ? (
+                            <CheckCircle2
+                              className="mt-0.5 h-5 w-5 flex-none text-emerald-200"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            <Circle
+                              className="mt-0.5 h-5 w-5 flex-none text-white/35"
+                              aria-hidden="true"
+                            />
+                          )}
+                          <div>
+                            <h3 className="font-black text-white">{step.title}</h3>
+                            <p className="mt-2 text-sm leading-6 text-white/60">
+                              {step.text}
+                            </p>
+                            <span className="mt-3 inline-flex text-sm font-bold text-amber-200">
+                              {step.isComplete ? 'Completado' : step.cta}
+                            </span>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
+              </article>
+            ) : null}
+
             <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
               <article className="app-card-accent">
                 <p className="text-sm font-semibold text-amber-100">
@@ -588,6 +719,24 @@ export function AppHome() {
                 <h2 className="mt-2 text-2xl font-black">
                   Ayuda a otros jóvenes a conectar contigo.
                 </h2>
+                {profileCompletion ? (
+                  <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="text-sm font-black text-white">
+                        Perfil {profileCompletion.percentage}% completo
+                      </span>
+                      <span className="text-xs font-bold text-amber-100">
+                        {profileCompletion.completed}/{profileCompletion.total} datos
+                      </span>
+                    </div>
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-white/10">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-emerald-300 to-amber-200"
+                        style={{ width: `${profileCompletion.percentage}%` }}
+                      />
+                    </div>
+                  </div>
+                ) : null}
                 <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
                   Agrega ciudad, país, iglesia y una bio breve. Así la Red se
                   siente más cercana y segura.
