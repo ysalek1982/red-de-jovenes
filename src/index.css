@@ -32,6 +32,7 @@ input,
 textarea,
 select {
   font: inherit;
+  touch-action: manipulation;
 }
 
 img {
@@ -148,6 +149,14 @@ main,
 
     .app-bottom-safe {
       padding-bottom: 7rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    input,
+    textarea,
+    select {
+      font-size: 16px;
     }
   }
 }
