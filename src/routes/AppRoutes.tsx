@@ -1,5 +1,6 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { lazy, Suspense, type ReactNode } from 'react'
+import { AppErrorBoundary } from '../components/errors/AppErrorBoundary'
 import { Layout } from '../components/layout/Layout'
 import { useAuth } from '../features/auth/useAuth'
 
@@ -121,11 +122,13 @@ function RouteLoading({ moduleName = 'modulo' }: { moduleName?: string }) {
   )
 }
 
-function withSuspense(children: ReactNode, moduleName?: string) {
+function withSuspense(children: ReactNode, moduleName?: string, resetKey = '') {
   return (
-    <Suspense fallback={<RouteLoading moduleName={moduleName} />}>
-      {children}
-    </Suspense>
+    <AppErrorBoundary moduleName={moduleName} resetKey={resetKey}>
+      <Suspense fallback={<RouteLoading moduleName={moduleName} />}>
+        {children}
+      </Suspense>
+    </AppErrorBoundary>
   )
 }
 
@@ -154,47 +157,50 @@ function AppEntryRoute() {
 }
 
 export function AppRoutes() {
+  const location = useLocation()
+  const routeResetKey = `${location.pathname}${location.search}`
+
   return (
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<AppEntryRoute />} />
-        <Route path="landing" element={withSuspense(<Home />, 'landing')} />
-        <Route path="entrar" element={withSuspense(<SignInPage />, 'entrada')} />
-        <Route path="recuperar" element={withSuspense(<RecoverPasswordPage />, 'recuperacion')} />
+        <Route path="landing" element={withSuspense(<Home />, 'landing', routeResetKey)} />
+        <Route path="entrar" element={withSuspense(<SignInPage />, 'entrada', routeResetKey)} />
+        <Route path="recuperar" element={withSuspense(<RecoverPasswordPage />, 'recuperacion', routeResetKey)} />
         <Route
           path="actualizar-contrasena"
-          element={withSuspense(<UpdatePasswordPage />, 'actualizacion')}
+          element={withSuspense(<UpdatePasswordPage />, 'actualizacion', routeResetKey)}
         />
         <Route
           path="crear-cuenta"
-          element={withSuspense(<CreateAccountPage />, 'registro')}
+          element={withSuspense(<CreateAccountPage />, 'registro', routeResetKey)}
         />
         <Route
           path="app"
           element={
             <ProtectedRoute>
-              {withSuspense(<AppShell />, 'la app')}
+              {withSuspense(<AppShell />, 'la app', routeResetKey)}
             </ProtectedRoute>
           }
         >
-          <Route index element={withSuspense(<AppHome />, 'inicio')} />
-          <Route path="perfil" element={withSuspense(<AppProfile />, 'perfil')} />
-          <Route path="biblia" element={withSuspense(<BiblePage />, 'Biblia')} />
-          <Route path="oracion" element={withSuspense(<PrayerRoomPage />, 'oracion')} />
+          <Route index element={withSuspense(<AppHome />, 'inicio', routeResetKey)} />
+          <Route path="perfil" element={withSuspense(<AppProfile />, 'perfil', routeResetKey)} />
+          <Route path="biblia" element={withSuspense(<BiblePage />, 'Biblia', routeResetKey)} />
+          <Route path="oracion" element={withSuspense(<PrayerRoomPage />, 'oracion', routeResetKey)} />
           <Route path="orar" element={<Navigate to="/app/oracion" replace />} />
           <Route path="comunidad" element={<Navigate to="/app/mapa" replace />} />
-          <Route path="foros" element={withSuspense(<CommunityFeedPage />, 'foros')} />
-          <Route path="devocional" element={withSuspense(<DevotionalPage />, 'devocional')} />
-          <Route path="juegos" element={withSuspense(<FaithGamesPage />, 'juegos')} />
-          <Route path="mapa" element={withSuspense(<WorldMapPage />, 'comunidad')} />
-          <Route path="eventos" element={withSuspense(<EventsPage />, 'eventos')} />
-          <Route path="discipulado" element={withSuspense(<DiscipleshipPage />, 'discipulado')} />
-          <Route path="mensajes" element={withSuspense(<MessagesPage />, 'mensajes')} />
-          <Route path="construir" element={withSuspense(<BuildNetworkPage />, 'Construir la Red')} />
-          <Route path="seguridad" element={withSuspense(<SafetyPage />, 'cuidado comunitario')} />
-          <Route path="admin" element={withSuspense(<AdminHome />, 'administracion')} />
+          <Route path="foros" element={withSuspense(<CommunityFeedPage />, 'foros', routeResetKey)} />
+          <Route path="devocional" element={withSuspense(<DevotionalPage />, 'devocional', routeResetKey)} />
+          <Route path="juegos" element={withSuspense(<FaithGamesPage />, 'juegos', routeResetKey)} />
+          <Route path="mapa" element={withSuspense(<WorldMapPage />, 'comunidad', routeResetKey)} />
+          <Route path="eventos" element={withSuspense(<EventsPage />, 'eventos', routeResetKey)} />
+          <Route path="discipulado" element={withSuspense(<DiscipleshipPage />, 'discipulado', routeResetKey)} />
+          <Route path="mensajes" element={withSuspense(<MessagesPage />, 'mensajes', routeResetKey)} />
+          <Route path="construir" element={withSuspense(<BuildNetworkPage />, 'Construir la Red', routeResetKey)} />
+          <Route path="seguridad" element={withSuspense(<SafetyPage />, 'cuidado comunitario', routeResetKey)} />
+          <Route path="admin" element={withSuspense(<AdminHome />, 'administracion', routeResetKey)} />
         </Route>
-        <Route path="demo" element={withSuspense(<DemoPage />, 'demo')} />
+        <Route path="demo" element={withSuspense(<DemoPage />, 'demo', routeResetKey)} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>
