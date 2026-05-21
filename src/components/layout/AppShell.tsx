@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   BookOpen,
   BookOpenCheck,
@@ -21,6 +21,7 @@ import {
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { hasRole } from '../../features/auth/roleService'
 import { useAuth } from '../../features/auth/useAuth'
+import { scrollToPageTop } from '../../lib/scroll'
 import { cn } from '../../lib/utils'
 import { NotificationBell } from '../notifications/NotificationBell'
 import { PilotFeedbackDialog } from '../pilot/PilotFeedbackDialog'
@@ -64,6 +65,7 @@ export function AppShell() {
   const navigate = useNavigate()
   const location = useLocation()
   const { signOut } = useAuth()
+  const morePanelRef = useRef<HTMLDivElement>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [isMoreOpen, setIsMoreOpen] = useState(false)
 
@@ -90,7 +92,14 @@ export function AppShell() {
     location.pathname.startsWith(item.to),
   )
 
+  function resetPrivateNavigation() {
+    setIsMoreOpen(false)
+    morePanelRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    scrollToPageTop({ behavior: 'auto', focus: false })
+  }
+
   async function handleSignOut() {
+    resetPrivateNavigation()
     await signOut()
     navigate('/')
   }
@@ -101,7 +110,10 @@ export function AppShell() {
         <div className="mx-auto flex max-w-7xl items-center gap-3">
           <button
             type="button"
-            onClick={() => navigate('/app')}
+            onClick={() => {
+              resetPrivateNavigation()
+              navigate('/app')
+            }}
             className="flex min-w-0 items-center gap-3 rounded-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-200"
             aria-label="Ir al inicio de mi red"
           >
@@ -145,6 +157,8 @@ export function AppShell() {
             onClick={() => setIsMoreOpen(false)}
           />
           <div
+            ref={morePanelRef}
+            data-scroll-root
             className="fixed inset-x-3 z-50 max-h-[68dvh] overflow-y-auto rounded-2xl border border-white/10 bg-slate-950/95 p-3 text-white shadow-2xl shadow-black/45 backdrop-blur-xl lg:hidden"
             style={{
               bottom:
@@ -179,7 +193,7 @@ export function AppShell() {
                   key={item.to}
                   to={item.to}
                   end={item.to === '/app'}
-                  onClick={() => setIsMoreOpen(false)}
+                  onClick={resetPrivateNavigation}
                   className={({ isActive }) =>
                     cn(
                       'flex min-h-14 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-3 text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white',
@@ -226,6 +240,7 @@ export function AppShell() {
                 to={item.to}
                 end={item.end}
                 aria-label={item.label}
+                onClick={resetPrivateNavigation}
                 className={({ isActive }) => navigationItemClass(isActive)}
               >
                 <Icon className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
@@ -259,6 +274,7 @@ export function AppShell() {
                 to={item.to}
                 end={item.end}
                 aria-label={item.label}
+                onClick={resetPrivateNavigation}
                 className={({ isActive }) =>
                   cn(navigationItemClass(isActive), 'min-w-[5.6rem] flex-1')
                 }
