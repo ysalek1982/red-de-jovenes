@@ -19,6 +19,7 @@ Mejorar la experiencia movil y administrativa sin agregar modulos nuevos ni toca
 - Se mejoro el formulario "Sugerir comunidad" con labels persistentes, autocompletado y campos mas claros.
 - Se mejoro el formulario admin de eventos como carga CMS, incluyendo selector visible de modalidad.
 - Se agrego edicion y desactivacion no destructiva de eventos activos para administradores.
+- Se extendio la actualizacion de eventos para mantener titulo, descripcion, modalidad, pais, ciudad y fecha desde el formulario CMS.
 - Se agrego cierre por Escape y click fuera al dialogo de feedback.
 - Se ajusto el padding inferior seguro de la ruta interna de reportes/seguridad sin hacerla visible en la navegacion.
 - Se mantuvo la informacion real de Supabase; no se agregaron datos ficticios.
@@ -43,6 +44,12 @@ Mejorar la experiencia movil y administrativa sin agregar modulos nuevos ni toca
 - `npm run build`: OK.
 - `npm run smoke:build`: OK, `SMOKE_BUILD_OK`.
 - `npm run qa:mobile-scroll`: OK, `QA_MOBILE_SCROLL_OK` en validacion estatica local.
+- Nueva corrida posterior a edicion/desactivacion de eventos:
+  - `npm run lint`: OK.
+  - `npm run build`: OK.
+  - `npm run smoke:build`: OK.
+  - `npm run qa:mobile-scroll`: OK.
+  - `npm run qa:events`: BLOQUEADO por DNS externo de Supabase.
 - `npm run qa:functional`: BLOQUEADO por DNS externo de Supabase (`ENOTFOUND ntlzlfbztryasbmjnynq.supabase.co`).
 - `npm run qa:admin`: BLOQUEADO por el mismo DNS externo de Supabase.
 - `npm run qa:journeys`: BLOQUEADO por el mismo DNS externo de Supabase.
