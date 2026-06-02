@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { MessageCircle, Send, X } from 'lucide-react'
 import { useAuth } from '../../features/auth/useAuth'
 import {
@@ -66,7 +66,7 @@ export function PilotFeedbackDialog({
       return
     }
     if (!canSubmit) {
-      setMessage('Cuéntanos con un poco mas de detalle que paso.')
+      setMessage('Cuentanos con un poco mas de detalle que paso.')
       return
     }
 
@@ -94,6 +94,17 @@ export function PilotFeedbackDialog({
     }
   }
 
+  useEffect(() => {
+    if (!isOpen) return
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setIsOpen(false)
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen])
+
   return (
     <>
       <button
@@ -109,7 +120,12 @@ export function PilotFeedbackDialog({
       </button>
 
       {isOpen ? (
-        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/70 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-16 backdrop-blur sm:items-center sm:p-6">
+        <div
+          className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/70 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-16 backdrop-blur sm:items-center sm:p-6"
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setIsOpen(false)
+          }}
+        >
           <form
             onSubmit={(event) => void handleSubmit(event)}
             className="max-h-[88dvh] w-full max-w-xl overflow-auto overscroll-contain rounded-[1.5rem] border border-white/10 bg-slate-950 p-5 text-white shadow-2xl shadow-black/50"

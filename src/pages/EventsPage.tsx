@@ -223,15 +223,44 @@ export function EventsPage() {
           ))}
         </div>
         {isAdmin ? (
-          <form onSubmit={(event) => void handleCreateEvent(event)} className="app-card mt-8">
-            <h2 className="text-2xl font-black">Crear evento</h2>
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
-              <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Titulo" className="app-input" required />
-              <input type="datetime-local" value={form.startsAt} onChange={(event) => setForm({ ...form, startsAt: event.target.value })} className="app-input" required />
-              <input value={form.city} onChange={(event) => setForm({ ...form, city: event.target.value })} placeholder="Ciudad" className="app-input" />
-              <input value={form.country} onChange={(event) => setForm({ ...form, country: event.target.value })} placeholder="Pais" className="app-input" />
+          <form id="crear-evento" onSubmit={(event) => void handleCreateEvent(event)} className="app-card mt-8">
+            <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-200">
+              CMS de eventos
+            </p>
+            <h2 className="mt-2 text-2xl font-black">Crear evento</h2>
+            <p className="mt-2 text-sm leading-6 text-white/60">
+              Publica encuentros para la Red. Completa fecha, modalidad y lugar para que los jovenes sepan como participar.
+            </p>
+            <div className="mt-5 grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2">
+                <span className="text-sm font-black text-white">Titulo del evento</span>
+                <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Ej. Noche de oracion juvenil" className="app-input" required />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-black text-white">Fecha y hora</span>
+                <input type="datetime-local" value={form.startsAt} onChange={(event) => setForm({ ...form, startsAt: event.target.value })} className="app-input" required />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-black text-white">Modalidad</span>
+                <select value={form.modality} onChange={(event) => setForm({ ...form, modality: event.target.value })} className="app-select">
+                  <option value="presencial">Presencial</option>
+                  <option value="online">Online</option>
+                  <option value="hibrida">Hibrida</option>
+                </select>
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-black text-white">Ciudad</span>
+                <input value={form.city} onChange={(event) => setForm({ ...form, city: event.target.value })} placeholder="Ej. La Paz" autoComplete="address-level2" className="app-input" />
+              </label>
+              <label className="grid gap-2 md:col-span-2">
+                <span className="text-sm font-black text-white">Pais</span>
+                <input value={form.country} onChange={(event) => setForm({ ...form, country: event.target.value })} placeholder="Ej. Bolivia" autoComplete="country-name" className="app-input" />
+              </label>
             </div>
-            <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Descripcion" rows={3} className="app-input mt-3" />
+            <label className="mt-4 grid gap-2">
+              <span className="text-sm font-black text-white">Descripcion</span>
+              <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Cuenta brevemente que pasara y a quien va dirigido." rows={3} className="app-input" />
+            </label>
             <button type="submit" disabled={isCreating} className="app-button-primary mt-4 bg-emerald-200 hover:bg-emerald-100">
               {isCreating ? 'Creando...' : 'Crear evento'}
             </button>

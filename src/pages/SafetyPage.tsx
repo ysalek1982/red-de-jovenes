@@ -123,7 +123,7 @@ export function SafetyPage() {
   }
 
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-24 pt-32 text-white">
+    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-[calc(8rem+env(safe-area-inset-bottom))] pt-32 text-white">
       <div className="pointer-events-none fixed left-0 top-20 h-96 w-96 rounded-full bg-emerald-300/10 blur-3xl" />
       <div className="pointer-events-none fixed bottom-20 right-0 h-96 w-96 rounded-full bg-amber-300/10 blur-3xl" />
 

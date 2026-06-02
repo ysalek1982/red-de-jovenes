@@ -16,6 +16,10 @@ Mejorar la experiencia movil y administrativa sin agregar modulos nuevos ni toca
 - Se agrego contencion de scroll y safe-area en el menu Mas y en el formulario de feedback.
 - Se aumento el tamano tactil de botones pequenos reutilizables.
 - Se agrego proteccion contra textos largos en Foros, Oracion y Comunidad/Mapa.
+- Se mejoro el formulario "Sugerir comunidad" con labels persistentes, autocompletado y campos mas claros.
+- Se mejoro el formulario admin de eventos como carga CMS, incluyendo selector visible de modalidad.
+- Se agrego cierre por Escape y click fuera al dialogo de feedback.
+- Se ajusto el padding inferior seguro de la ruta interna de reportes/seguridad sin hacerla visible en la navegacion.
 - Se mantuvo la informacion real de Supabase; no se agregaron datos ficticios.
 
 ## Seguridad y alcance
@@ -41,6 +45,8 @@ Mejorar la experiencia movil y administrativa sin agregar modulos nuevos ni toca
 - `npm run qa:functional`: BLOQUEADO por DNS externo de Supabase (`ENOTFOUND ntlzlfbztryasbmjnynq.supabase.co`).
 - `npm run qa:admin`: BLOQUEADO por el mismo DNS externo de Supabase.
 - `npm run qa:journeys`: BLOQUEADO por el mismo DNS externo de Supabase.
+- `npm run qa:map`: BLOQUEADO por el mismo DNS externo de Supabase.
+- `npm run qa:events`: BLOQUEADO por el mismo DNS externo de Supabase.
 
 ## Pendientes
 

@@ -732,112 +732,144 @@ export function WorldMapPage() {
               <p className="mt-3 text-sm leading-6 text-white/65">
                 Si tu iglesia o grupo juvenil no aparece, envialo para revision.
               </p>
-              <div className="mt-5 grid gap-3">
-                <input
-                  value={suggestion.name}
-                  onChange={(event) =>
-                    setSuggestion((current) => ({
-                      ...current,
-                      name: event.target.value,
-                    }))
-                  }
-                  placeholder="Nombre del grupo"
-                  className="app-input h-11 py-0"
-                />
+              <div className="mt-5 grid gap-4">
+                <label className="grid gap-2">
+                  <span className="text-sm font-black text-white">Nombre del grupo</span>
+                  <input
+                    value={suggestion.name}
+                    onChange={(event) =>
+                      setSuggestion((current) => ({
+                        ...current,
+                        name: event.target.value,
+                      }))
+                    }
+                    placeholder="Ej. Jovenes de la iglesia central"
+                    autoComplete="organization"
+                    className="app-input h-11 py-0"
+                  />
+                </label>
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <input
-                    value={suggestion.country}
-                    onChange={(event) =>
-                      setSuggestion((current) => ({
-                        ...current,
-                        country: event.target.value,
-                      }))
-                    }
-                    placeholder="Pais"
-                    className="app-input h-11 py-0"
-                  />
-                  <input
-                    value={suggestion.city}
-                    onChange={(event) =>
-                      setSuggestion((current) => ({
-                        ...current,
-                        city: event.target.value,
-                      }))
-                    }
-                    placeholder="Ciudad"
-                    className="app-input h-11 py-0"
-                  />
+                  <label className="grid gap-2">
+                    <span className="text-sm font-black text-white">Pais</span>
+                    <input
+                      value={suggestion.country}
+                      onChange={(event) =>
+                        setSuggestion((current) => ({
+                          ...current,
+                          country: event.target.value,
+                        }))
+                      }
+                      placeholder="Ej. Bolivia"
+                      autoComplete="country-name"
+                      className="app-input h-11 py-0"
+                    />
+                  </label>
+                  <label className="grid gap-2">
+                    <span className="text-sm font-black text-white">Ciudad</span>
+                    <input
+                      value={suggestion.city}
+                      onChange={(event) =>
+                        setSuggestion((current) => ({
+                          ...current,
+                          city: event.target.value,
+                        }))
+                      }
+                      placeholder="Ej. Santa Cruz"
+                      autoComplete="address-level2"
+                      className="app-input h-11 py-0"
+                    />
+                  </label>
                 </div>
-                <input
-                  value={suggestion.churchName}
-                  onChange={(event) =>
-                    setSuggestion((current) => ({
-                      ...current,
-                      churchName: event.target.value,
-                    }))
-                  }
-                  placeholder="Iglesia o comunidad"
-                  className="app-input h-11 py-0"
-                />
-                <select
-                  value={suggestion.modality}
-                  onChange={(event) =>
-                    setSuggestion((current) => ({
-                      ...current,
-                      modality: event.target.value,
-                    }))
-                  }
-                  className="app-select"
-                  aria-label="Modalidad de la comunidad"
-                >
-                  <option value="presencial">Presencial</option>
-                  <option value="online">Online</option>
-                  <option value="hibrida">Hibrida</option>
-                </select>
-                <input
-                  value={suggestion.contactUrl}
-                  onChange={(event) =>
-                    setSuggestion((current) => ({
-                      ...current,
-                      contactUrl: event.target.value,
-                    }))
-                  }
-                  placeholder="Link de contacto, opcional"
-                  className="app-input h-11 py-0"
-                />
-                <textarea
-                  value={suggestion.meetingInfo}
-                  onChange={(event) =>
-                    setSuggestion((current) => ({
-                      ...current,
-                      meetingInfo: event.target.value,
-                    }))
-                  }
-                  placeholder="Informacion de reuniones"
-                  className="app-input min-h-24"
-                />
-                <textarea
-                  value={suggestion.description}
-                  onChange={(event) =>
-                    setSuggestion((current) => ({
-                      ...current,
-                      description: event.target.value,
-                    }))
-                  }
-                  placeholder="Descripcion breve, opcional"
-                  className="app-input min-h-20"
-                />
-                <textarea
-                  value={suggestion.moderatorNote}
-                  onChange={(event) =>
-                    setSuggestion((current) => ({
-                      ...current,
-                      moderatorNote: event.target.value,
-                    }))
-                  }
-                  placeholder="Nota para el moderador, opcional"
-                  className="app-input min-h-20"
-                />
+                <label className="grid gap-2">
+                  <span className="text-sm font-black text-white">Iglesia o comunidad</span>
+                  <input
+                    value={suggestion.churchName}
+                    onChange={(event) =>
+                      setSuggestion((current) => ({
+                        ...current,
+                        churchName: event.target.value,
+                      }))
+                    }
+                    placeholder="Ej. Iglesia El Camino"
+                    autoComplete="organization"
+                    className="app-input h-11 py-0"
+                  />
+                </label>
+                <label className="grid gap-2">
+                  <span className="text-sm font-black text-white">Modalidad</span>
+                  <select
+                    value={suggestion.modality}
+                    onChange={(event) =>
+                      setSuggestion((current) => ({
+                        ...current,
+                        modality: event.target.value,
+                      }))
+                    }
+                    className="app-select"
+                  >
+                    <option value="presencial">Presencial</option>
+                    <option value="online">Online</option>
+                    <option value="hibrida">Hibrida</option>
+                  </select>
+                </label>
+                <label className="grid gap-2">
+                  <span className="text-sm font-black text-white">Link de contacto</span>
+                  <input
+                    value={suggestion.contactUrl}
+                    onChange={(event) =>
+                      setSuggestion((current) => ({
+                        ...current,
+                        contactUrl: event.target.value,
+                      }))
+                    }
+                    placeholder="Opcional, debe iniciar con https://"
+                    inputMode="url"
+                    autoComplete="url"
+                    className="app-input h-11 py-0"
+                  />
+                </label>
+                <label className="grid gap-2">
+                  <span className="text-sm font-black text-white">Informacion de reuniones</span>
+                  <textarea
+                    value={suggestion.meetingInfo}
+                    onChange={(event) =>
+                      setSuggestion((current) => ({
+                        ...current,
+                        meetingInfo: event.target.value,
+                      }))
+                    }
+                    placeholder="Dia, hora, lugar o enlace de reunion."
+                    className="app-input min-h-24"
+                  />
+                </label>
+                <label className="grid gap-2">
+                  <span className="text-sm font-black text-white">Descripcion breve</span>
+                  <textarea
+                    value={suggestion.description}
+                    onChange={(event) =>
+                      setSuggestion((current) => ({
+                        ...current,
+                        description: event.target.value,
+                      }))
+                    }
+                    placeholder="Opcional: cuenta como es el grupo."
+                    className="app-input min-h-20"
+                  />
+                </label>
+                <label className="grid gap-2">
+                  <span className="text-sm font-black text-white">Nota para moderacion</span>
+                  <textarea
+                    value={suggestion.moderatorNote}
+                    onChange={(event) =>
+                      setSuggestion((current) => ({
+                        ...current,
+                        moderatorNote: event.target.value,
+                      }))
+                    }
+                    placeholder="Opcional: contexto para el equipo admin."
+                    className="app-input min-h-20"
+                  />
+                </label>
               </div>
               <button
                 type="submit"
