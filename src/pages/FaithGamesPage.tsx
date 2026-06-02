@@ -55,13 +55,19 @@ export function FaithGamesPage() {
   const { user } = useAuth()
   const gameAreaRef = useRef<HTMLElement>(null)
   const resultRef = useRef<HTMLDivElement>(null)
+  const finishTimerRef = useRef<number | null>(null)
+  const flipTimerRef = useRef<number | null>(null)
+  const gameRunIdRef = useRef(0)
+  const savingRunRef = useRef<number | null>(null)
   const [activeGameKey, setActiveGameKey] = useState(faithGames[0].key)
   const [questionIndex, setQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState('')
   const [score, setScore] = useState(0)
   const [isFinished, setIsFinished] = useState(false)
   const [isScoreSaved, setIsScoreSaved] = useState(false)
+  const [gameRunId, setGameRunId] = useState(0)
   const [scoreMessage, setScoreMessage] = useState('')
+  const [scoreMessageTone, setScoreMessageTone] = useState<'success' | 'error'>('success')
   const [scoreHistory, setScoreHistory] = useState<GameScore[]>([])
   const [memoryCards, setMemoryCards] = useState<MemoryCard[]>(() =>
     createMemoryCards(faithGames[0]),
@@ -115,6 +121,10 @@ export function FaithGamesPage() {
   )
 
   function resetGame(nextGameKey = activeGameKey) {
+    if (finishTimerRef.current) window.clearTimeout(finishTimerRef.current)
+    if (flipTimerRef.current) window.clearTimeout(flipTimerRef.current)
+    gameRunIdRef.current += 1
+    savingRunRef.current = null
     const nextGame =
       faithGames.find((game) => game.key === nextGameKey) ?? faithGames[0]
     setActiveGameKey(nextGame.key)
@@ -123,7 +133,9 @@ export function FaithGamesPage() {
     setScore(0)
     setIsFinished(false)
     setIsScoreSaved(false)
+    setGameRunId(gameRunIdRef.current)
     setScoreMessage('')
+    setScoreMessageTone('success')
     setFlippedCardIds([])
     setMatchedPairIds([])
     setMemoryAttempts(0)
@@ -188,37 +200,74 @@ export function FaithGamesPage() {
 
       if (nextMatchedCount === activeTotal) {
         setScore(activeTotal)
-        window.setTimeout(() => setIsFinished(true), 700)
+        const runId = gameRunIdRef.current
+        finishTimerRef.current = window.setTimeout(() => {
+          if (gameRunIdRef.current === runId) setIsFinished(true)
+        }, 700)
       }
     }
 
-    window.setTimeout(() => setFlippedCardIds([]), 700)
+    const runId = gameRunIdRef.current
+    if (flipTimerRef.current) window.clearTimeout(flipTimerRef.current)
+    flipTimerRef.current = window.setTimeout(() => {
+      if (gameRunIdRef.current === runId) setFlippedCardIds([])
+    }, 700)
   }
+
+  useEffect(() => {
+    return () => {
+      if (finishTimerRef.current) window.clearTimeout(finishTimerRef.current)
+      if (flipTimerRef.current) window.clearTimeout(flipTimerRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     if (!user?.id) return
 
     getMyGameScores(user.id)
       .then(setScoreHistory)
-      .catch(() => setScoreMessage('No pudimos cargar tu historial.'))
+      .catch(() => {
+        setScoreMessageTone('error')
+        setScoreMessage('No pudimos cargar tu historial.')
+      })
   }, [user?.id])
 
   useEffect(() => {
-    if (!user?.id || !isFinished || isScoreSaved || !activeTotal) return
+    if (
+      !user?.id ||
+      !isFinished ||
+      isScoreSaved ||
+      !activeTotal ||
+      savingRunRef.current === gameRunId
+    ) {
+      return
+    }
 
+    const runId = gameRunId
+    const scoreToSave = score
+    const totalToSave = activeTotal
+    const gameKeyToSave = activeGame.key
+    savingRunRef.current = runId
     saveGameScore({
       userId: user.id,
-      gameKey: activeGame.key,
-      score,
-      total: activeTotal,
+      gameKey: gameKeyToSave,
+      score: scoreToSave,
+      total: totalToSave,
     })
       .then((savedScore) => {
+        if (gameRunIdRef.current !== runId) return
         setScoreHistory((current) => [savedScore, ...current].slice(0, 30))
         setIsScoreSaved(true)
+        setScoreMessageTone('success')
         setScoreMessage('Puntaje guardado en tu progreso.')
       })
-      .catch(() => setScoreMessage('No pudimos guardar tu puntaje.'))
-  }, [activeGame.key, activeTotal, isFinished, isScoreSaved, score, user?.id])
+      .catch(() => {
+        if (gameRunIdRef.current !== runId) return
+        savingRunRef.current = null
+        setScoreMessageTone('error')
+        setScoreMessage('No pudimos guardar tu puntaje.')
+      })
+  }, [activeGame.key, activeTotal, gameRunId, isFinished, isScoreSaved, score, user?.id])
 
   useEffect(() => {
     if (!isFinished) return
@@ -265,6 +314,11 @@ export function FaithGamesPage() {
             </div>
             <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-950/45">
               <div
+                role="progressbar"
+                aria-label="Progreso del juego"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.min(progress, 100)}
                 className="h-full rounded-full bg-gradient-to-r from-emerald-300 to-amber-300 transition-all"
                 style={{ width: `${Math.min(progress, 100)}%` }}
               />
@@ -281,6 +335,7 @@ export function FaithGamesPage() {
                   key={game.key}
                   type="button"
                   onClick={() => resetGame(game.key)}
+                  aria-pressed={isActive}
                   className={`w-full rounded-2xl border p-5 text-left shadow-2xl shadow-black/20 backdrop-blur transition ${
                     isActive
                       ? 'border-amber-300/30 bg-amber-300/10'
@@ -305,8 +360,18 @@ export function FaithGamesPage() {
             <article className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/20 backdrop-blur">
               <h2 className="font-black text-white">Tu progreso</h2>
               <p className="mt-2 text-sm text-white/60">
-                {totalPoints} puntos guardados en {scoreHistory.length} partidas.
+                {totalPoints} puntos en {scoreHistory.length} partidas cargadas.
               </p>
+              {scoreMessage && !isFinished ? (
+                <p
+                  className={`mt-3 text-sm font-semibold ${
+                    scoreMessageTone === 'error' ? 'text-amber-100' : 'text-emerald-200'
+                  }`}
+                  role={scoreMessageTone === 'error' ? 'alert' : 'status'}
+                >
+                  {scoreMessage}
+                </p>
+              ) : null}
               {!scoreHistory.length ? (
                 <div className="app-card-soft mt-4 p-3">
                   <p className="text-sm font-black text-amber-200">
@@ -340,7 +405,7 @@ export function FaithGamesPage() {
 
           <article ref={gameAreaRef} className="app-card md:p-8">
             {isFinished ? (
-              <div ref={resultRef} className="flex min-h-[30rem] flex-col items-center justify-center text-center">
+              <div ref={resultRef} className="flex min-h-[30rem] flex-col items-center justify-center text-center" aria-live="polite">
                 <span className="flex h-20 w-20 items-center justify-center rounded-[2rem] bg-gradient-to-br from-emerald-300 to-amber-300 text-slate-950 shadow-2xl shadow-amber-500/20">
                   <Trophy className="h-10 w-10" aria-hidden="true" />
                 </span>
@@ -355,7 +420,12 @@ export function FaithGamesPage() {
                   Repite el juego o prueba otro desafio.
                 </p>
                 {scoreMessage ? (
-                  <p className="mt-4 text-sm font-semibold text-emerald-200">
+                  <p
+                    className={`mt-4 text-sm font-semibold ${
+                      scoreMessageTone === 'error' ? 'text-amber-100' : 'text-emerald-200'
+                    }`}
+                    role={scoreMessageTone === 'error' ? 'alert' : 'status'}
+                  >
                     {scoreMessage}
                   </p>
                 ) : null}
@@ -395,7 +465,7 @@ export function FaithGamesPage() {
                         type="button"
                         onClick={() => handleMemoryCardClick(card)}
                         disabled={isVisible && matchedPairIds.includes(card.pairId)}
-                         className={`min-h-28 rounded-2xl border p-3 text-center text-sm font-black transition ${
+                         className={`aspect-[4/3] min-h-28 break-words rounded-2xl border p-3 text-center text-xs font-black leading-5 transition sm:text-sm ${
                           isVisible
                             ? 'border-emerald-300/30 bg-emerald-300/15 text-emerald-100'
                             : 'border-white/10 bg-slate-950/55 text-white/55 hover:bg-white/10'

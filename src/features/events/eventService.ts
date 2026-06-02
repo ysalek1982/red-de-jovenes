@@ -7,12 +7,15 @@ export type EventWithRsvps = AppEvent & {
   myRsvp: EventRsvp | null
 }
 
-function mapEvent(event: AppEvent & { event_rsvps?: EventRsvp[] }, userId?: string) {
-  const rsvps = event.event_rsvps ?? []
+function mapEvent(
+  event: AppEvent,
+  rsvpCount = 0,
+  myRsvp: EventRsvp | null = null,
+) {
   return {
     ...event,
-    rsvpCount: rsvps.length,
-    myRsvp: userId ? rsvps.find((rsvp) => rsvp.user_id === userId) ?? null : null,
+    rsvpCount,
+    myRsvp,
   } satisfies EventWithRsvps
 }
 
@@ -37,19 +40,56 @@ export async function getUpcomingEvents(userId?: string) {
         'is_active',
         'created_at',
         'updated_at',
-        'event_rsvps(id, event_id, user_id, status, created_at)',
       ].join(', '),
     )
     .eq('is_active', true)
     .gte('starts_at', new Date(Date.now() - 86_400_000).toISOString())
     .order('starts_at', { ascending: true })
     .limit(30)
-    .limit(80, { referencedTable: 'event_rsvps' })
 
   if (error) throw error
-  return ((data ?? []) as unknown as Array<
-    AppEvent & { event_rsvps?: EventRsvp[] }
-  >).map((event) => mapEvent(event, userId))
+  const events = (data ?? []) as unknown as AppEvent[]
+  const eventIds = events.map((event) => event.id)
+  if (!eventIds.length) return []
+
+  const [rsvpRowsResult, myRsvpsResult] = await Promise.all([
+    supabase
+      .from('event_rsvps')
+      .select('event_id')
+      .eq('status', 'going')
+      .in('event_id', eventIds)
+      .limit(10_000),
+    userId
+      ? supabase
+          .from('event_rsvps')
+          .select('id, event_id, user_id, status, created_at')
+          .eq('user_id', userId)
+          .in('event_id', eventIds)
+      : Promise.resolve({ data: [], error: null }),
+  ])
+
+  if (rsvpRowsResult.error) throw rsvpRowsResult.error
+  if (myRsvpsResult.error) throw myRsvpsResult.error
+
+  const countsByEvent = new Map<string, number>()
+  for (const row of rsvpRowsResult.data ?? []) {
+    countsByEvent.set(row.event_id, (countsByEvent.get(row.event_id) ?? 0) + 1)
+  }
+
+  const myRsvpsByEvent = new Map(
+    ((myRsvpsResult.data ?? []) as EventRsvp[]).map((rsvp) => [
+      rsvp.event_id,
+      rsvp,
+    ]),
+  )
+
+  return events.map((event) =>
+    mapEvent(
+      event,
+      countsByEvent.get(event.id) ?? 0,
+      myRsvpsByEvent.get(event.id) ?? null,
+    ),
+  )
 }
 
 export async function createEvent(input: {

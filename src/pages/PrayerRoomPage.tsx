@@ -117,7 +117,14 @@ export function PrayerRoomPage() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!user || !title.trim() || !body.trim()) return
+    if (!user) {
+      setError('Inicia sesión para compartir una petición de oración.')
+      return
+    }
+    if (!title.trim() || !body.trim()) {
+      setError('Completa el título y la petición para que podamos orar contigo.')
+      return
+    }
 
     setIsSubmitting(true)
     setError('')
@@ -147,7 +154,10 @@ export function PrayerRoomPage() {
   }
 
   async function handleMarkAnswered(prayerId: string) {
-    if (!user) return
+    if (!user) {
+      setError('Inicia sesión para marcar una petición como respondida.')
+      return
+    }
     setBusyPrayerId(prayerId)
     setError('')
     setActionMessage('')
@@ -168,7 +178,11 @@ export function PrayerRoomPage() {
   }
 
   async function handleDelete(prayerId: string) {
-    if (!user) return
+    if (!user) {
+      setError('Inicia sesión para eliminar una petición propia.')
+      return
+    }
+    if (!window.confirm('¿Eliminar esta petición de oración?')) return
     setBusyPrayerId(prayerId)
     setError('')
     setActionMessage('')
@@ -176,7 +190,7 @@ export function PrayerRoomPage() {
       await deleteOwnPrayerRequest({ prayerId, userId: user.id })
       await loadPrayers(false)
       revealNode(listTopRef.current)
-      setActionMessage('Peticion eliminada.')
+      setActionMessage('Petición eliminada.')
     } catch {
       setError('Solo puedes eliminar tus propias peticiones.')
     } finally {
@@ -185,7 +199,10 @@ export function PrayerRoomPage() {
   }
 
   async function handlePrayerSupport(prayer: PrayerRequestWithAuthor) {
-    if (!user) return
+    if (!user) {
+      setError('Inicia sesión para acompañar esta petición en oración.')
+      return
+    }
     setBusyPrayerId(prayer.id)
     setError('')
     setActionMessage('')
@@ -210,7 +227,10 @@ export function PrayerRoomPage() {
   }
 
   async function handleReportPrayer(prayerId: string) {
-    if (!user) return
+    if (!user) {
+      setError('Inicia sesión para reportar una petición.')
+      return
+    }
 
     setBusyPrayerId(prayerId)
     setError('')
@@ -222,7 +242,7 @@ export function PrayerRoomPage() {
         targetId: prayerId,
         reason: 'Revisión pastoral solicitada',
       })
-      setActionMessage('Reporte enviado para revision. Gracias por cuidar la sala.')
+      setActionMessage('Reporte enviado para revisión. Gracias por cuidar la sala.')
     } catch {
       setError('No pudimos enviar el reporte.')
     } finally {
@@ -247,6 +267,14 @@ export function PrayerRoomPage() {
     (total, prayer) => total + prayer.supportsCount,
     0,
   )
+  const emptyPrayerMessages: Record<PrayerFilter, string> = {
+    all: 'Todavía no hay peticiones públicas. Puedes ser el primero en compartir una necesidad de oración.',
+    active: 'No hay peticiones activas ahora. Revisa las respondidas o comparte una nueva petición.',
+    answered: 'Todavía no hay testimonios respondidos en esta vista.',
+    mine: 'Aún no has compartido una petición. Puedes hacerlo sin bloquear tu uso de la app.',
+    supporting: 'Aún no marcaste peticiones como “Estoy orando”. Acompaña a alguien para verla aquí.',
+    myCommunity: 'No hay peticiones vinculadas a tus comunidades por ahora.',
+  }
 
   return (
     <section className="app-page">
@@ -292,10 +320,10 @@ export function PrayerRoomPage() {
             {!prayers.length ? (
               <div className="app-card-soft mt-5">
                 <p className="text-sm font-black text-amber-200">
-                  Primer paso en oracion
+                  Primer paso en oración
                 </p>
                 <p className="mt-2 text-sm leading-6 text-white/65">
-                  Puedes pedir oracion por algo concreto o acompanar a alguien
+                  Puedes pedir oración por algo concreto o acompañar a alguien
                   marcando "Estoy orando".
                 </p>
               </div>
@@ -329,7 +357,7 @@ export function PrayerRoomPage() {
               <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
                 <div>
                   <label className="text-sm font-semibold" htmlFor="prayerCategory">
-                    Categoria
+                    Categoría
                   </label>
                   <select
                     id="prayerCategory"
@@ -351,7 +379,7 @@ export function PrayerRoomPage() {
                     onChange={(event) => setIsAnonymous(event.target.checked)}
                     className="h-4 w-4 accent-amber-300"
                   />
-                  Mostrar anonima
+                  Mostrar anónima
                 </label>
               </div>
               <div>
@@ -408,7 +436,7 @@ export function PrayerRoomPage() {
                 ['all', 'Todas'],
                 ['active', 'En oración'],
                 ['answered', 'Respondidas'],
-                ['mine', 'Mias'],
+                ['mine', 'Mías'],
                 ['supporting', 'Estoy orando'],
                 ['myCommunity', 'Mi comunidad'],
               ].map(([value, label]) => (
@@ -514,7 +542,7 @@ export function PrayerRoomPage() {
                         {isOwner ? (
                           <>
                           {!prayer.is_answered ? (
-                            <div className="flex min-w-52 flex-col gap-2">
+                            <div className="flex w-full flex-col gap-2 sm:min-w-52">
                               <Input
                                 value={answeredTestimony[prayer.id] ?? ''}
                                 onChange={(event) =>
@@ -566,8 +594,16 @@ export function PrayerRoomPage() {
               </div>
             ) : (
               <div className="app-empty mt-8">
-                Todavía no hay peticiones públicas. Puedes ser el primero en
-                compartir una necesidad de oración.
+                {emptyPrayerMessages[statusFilter]}
+                {statusFilter !== 'all' ? (
+                  <button
+                    type="button"
+                    onClick={() => handleStatusFilter('all')}
+                    className="app-button-secondary mt-4"
+                  >
+                    Ver todas
+                  </button>
+                ) : null}
               </div>
             )}
           </div>

@@ -1,7 +1,11 @@
 import { supabase } from '../../lib/supabase'
 
 function getTodayDate() {
-  return new Date().toISOString().slice(0, 10)
+  const now = new Date()
+  const year = now.getFullYear()
+  const month = String(now.getMonth() + 1).padStart(2, '0')
+  const day = String(now.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
 }
 
 export async function getTodayDevotional() {
@@ -153,7 +157,12 @@ export async function getFavoriteDevotionals(userId: string, limit = 5) {
     .eq('is_active', true)
 
   if (error) throw error
-  return data ?? []
+
+  const devotionalsById = new Map((data ?? []).map((item) => [item.id, item]))
+  return ids.flatMap((id) => {
+    const devotional = devotionalsById.get(id)
+    return devotional ? [devotional] : []
+  })
 }
 
 export async function getFavoriteDevotionalsCount(userId: string) {

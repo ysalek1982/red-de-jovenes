@@ -64,6 +64,14 @@ function normalize(value: string | null) {
   return value?.trim() || 'Sin dato'
 }
 
+function normalizeSearchValue(value: string | null | undefined) {
+  return (value ?? '')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .trim()
+}
+
 const modalityLabels: Record<string, string> = {
   presencial: 'Presencial',
   online: 'Online',
@@ -190,14 +198,14 @@ export function WorldMapPage() {
   )
 
   const filteredGroups = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase()
+    const term = normalizeSearchValue(searchTerm)
 
     return groups.filter((group) => {
       const matchesCountry =
         countryFilter === 'todos' || normalize(group.country) === countryFilter
       const matchesCity =
         cityFilter === 'todos' || normalize(group.city) === cityFilter
-      const searchable = [
+      const searchableText = [
         group.name,
         group.city,
         group.country,
@@ -208,11 +216,20 @@ export function WorldMapPage() {
       ]
         .filter(Boolean)
         .join(' ')
-        .toLowerCase()
+      const searchable = normalizeSearchValue(searchableText)
 
       return matchesCountry && matchesCity && (!term || searchable.includes(term))
     })
   }, [cityFilter, countryFilter, groups, searchTerm])
+
+  const visibleSelectedGroup = useMemo(
+    () =>
+      selectedGroup &&
+      filteredGroups.some((group) => group.id === selectedGroup.id)
+        ? selectedGroup
+        : null,
+    [filteredGroups, selectedGroup],
+  )
 
   function clearFilters() {
     setCountryFilter('todos')
@@ -290,6 +307,7 @@ export function WorldMapPage() {
 
   async function handleMembership(group: GroupWithMembership) {
     if (!userId) return
+    if (group.isMember && !window.confirm(`Salir de ${group.name}?`)) return
 
     setBusyGroupId(group.id)
     setError('')
@@ -592,7 +610,7 @@ export function WorldMapPage() {
               ))}
             </div>
 
-            {selectedGroup ? (
+            {visibleSelectedGroup ? (
               <article ref={detailRef} className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
@@ -600,19 +618,19 @@ export function WorldMapPage() {
                       Comunidad seleccionada
                     </p>
                     <h3 className="mt-2 text-2xl font-black">
-                      {selectedGroup.name}
+                      {visibleSelectedGroup.name}
                     </h3>
                     <p className="mt-2 text-sm text-white/65">
-                      {normalize(selectedGroup.city)}, {normalize(selectedGroup.country)}
+                      {normalize(visibleSelectedGroup.city)}, {normalize(visibleSelectedGroup.country)}
                     </p>
                   </div>
                   <span className="w-fit rounded-full border border-white/10 bg-slate-950/45 px-4 py-2 text-sm font-bold text-white/70">
-                    {selectedGroup.membersCount} miembros
+                    {visibleSelectedGroup.membersCount} miembros
                   </span>
                 </div>
                 <p className="mt-4 leading-7 text-white/70">
-                  {selectedGroup.description ||
-                    selectedGroup.meeting_info ||
+                  {visibleSelectedGroup.description ||
+                    visibleSelectedGroup.meeting_info ||
                     'Comunidad juvenil conectada a la Red.'}
                 </p>
                 <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -621,7 +639,7 @@ export function WorldMapPage() {
                       Reunion
                     </p>
                     <p className="mt-2 text-sm leading-6 text-white/70">
-                      {selectedGroup.meeting_info || 'Informacion pendiente.'}
+                      {visibleSelectedGroup.meeting_info || 'Informacion pendiente.'}
                     </p>
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
@@ -629,18 +647,18 @@ export function WorldMapPage() {
                       Modalidad
                     </p>
                     <p className="mt-2 text-sm font-bold text-white/75">
-                      {modalityLabels[selectedGroup.modality] ?? 'Presencial'}
+                      {modalityLabels[visibleSelectedGroup.modality] ?? 'Presencial'}
                     </p>
                   </div>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   <button
                     type="button"
-                    onClick={() => void handleMembership(selectedGroup)}
-                    disabled={busyGroupId === selectedGroup.id}
+                    onClick={() => void handleMembership(visibleSelectedGroup)}
+                    disabled={busyGroupId === visibleSelectedGroup.id}
                     className="app-button-primary min-h-10 px-4 disabled:opacity-60"
                   >
-                    {selectedGroup.isMember ? 'Salir de comunidad' : 'Unirme'}
+                    {visibleSelectedGroup.isMember ? 'Salir de comunidad' : 'Unirme'}
                   </button>
                   <Link
                     to="/app/foros"
@@ -867,9 +885,13 @@ export function WorldMapPage() {
                           onClick={() => {
                             const approvedGroup = groups.find(
                               (group) =>
-                                group.name === item.name &&
-                                group.country === item.country &&
-                                (group.city ?? '') === (item.city ?? ''),
+                                group.created_from_suggestion_id === item.id ||
+                                (normalizeSearchValue(group.name) ===
+                                  normalizeSearchValue(item.name) &&
+                                  normalizeSearchValue(group.country) ===
+                                    normalizeSearchValue(item.country) &&
+                                  normalizeSearchValue(group.city) ===
+                                    normalizeSearchValue(item.city)),
                             )
                             if (approvedGroup) selectGroup(approvedGroup)
                           }}

@@ -60,6 +60,7 @@ export function CommunityFeedPage() {
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({})
   const [commentEdits, setCommentEdits] = useState<Record<string, string>>({})
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
+  const [editingOriginalGroupId, setEditingOriginalGroupId] = useState<string | null>(null)
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
   const [postFilter, setPostFilter] = useState<PostFilter>('recent')
   const [isLoading, setIsLoading] = useState(true)
@@ -152,6 +153,7 @@ export function CommunityFeedPage() {
 
   function startEditingPost(post: PostWithAuthor) {
     setEditingPostId(post.id)
+    setEditingOriginalGroupId(post.group_id)
     setBody(post.body)
     setVerseReference(post.verse_reference ?? '')
     setVerseText(post.verse_text ?? '')
@@ -171,15 +173,20 @@ export function CommunityFeedPage() {
     setError('')
     setActionMessage('')
     try {
+      const shouldPreserveHiddenGroup = Boolean(
+        editingOriginalGroupId &&
+          !groups.some((group) => group.id === editingOriginalGroupId),
+      )
       await updateOwnPost({
         postId: editingPostId,
         userId: user.id,
         body: body.trim(),
         verseReference: verseReference.trim() || undefined,
         verseText: verseText.trim() || undefined,
-        groupId: groupId || null,
+        groupId: groupId || (shouldPreserveHiddenGroup ? editingOriginalGroupId : null),
       })
       setEditingPostId(null)
+      setEditingOriginalGroupId(null)
       setBody('')
       setVerseReference('')
       setVerseText('')
@@ -461,6 +468,7 @@ export function CommunityFeedPage() {
                   type="button"
                   onClick={() => {
                     setEditingPostId(null)
+                    setEditingOriginalGroupId(null)
                     setBody('')
                     setVerseReference('')
                     setVerseText('')
@@ -744,6 +752,21 @@ export function CommunityFeedPage() {
                                   }
                                 >
                                   Guardar
+                                </Button>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setEditingCommentId(null)
+                                    setCommentEdits((current) => ({
+                                      ...current,
+                                      [comment.id]: '',
+                                    }))
+                                  }}
+                                  disabled={busyPostId === comment.id}
+                                >
+                                  Cancelar
                                 </Button>
                               </div>
                             ) : (

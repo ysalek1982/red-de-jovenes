@@ -147,6 +147,15 @@ function formatRelative(value: string | null) {
   if (!value) return 'hoy'
   const date = new Date(value)
   const diffMs = Date.now() - date.getTime()
+  if (diffMs < 0) {
+    const futureMs = Math.abs(diffMs)
+    const futureHours = Math.ceil(futureMs / 3_600_000)
+    if (futureHours < 1) return 'en unos minutos'
+    if (futureHours < 24) return `en ${futureHours} h`
+    const futureDays = Math.ceil(futureHours / 24)
+    if (futureDays === 1) return 'mañana'
+    return `en ${futureDays} dias`
+  }
   const diffHours = Math.floor(diffMs / 3_600_000)
   if (diffHours < 1) return 'hace unos minutos'
   if (diffHours < 24) return `hace ${diffHours} h`
@@ -170,6 +179,8 @@ export function AppHome() {
   const [isOnboardingCollapsed, setIsOnboardingCollapsed] = useState(false)
   const [quickPost, setQuickPost] = useState('')
   const [quickStatus, setQuickStatus] = useState('')
+  const [quickError, setQuickError] = useState('')
+  const [isQuickPosting, setIsQuickPosting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -277,11 +288,26 @@ export function AppHome() {
   ].slice(0, 6)
 
   async function handleQuickPost() {
-    if (!userId || !quickPost.trim()) return
-    await createPost({ userId, body: quickPost.trim() })
-    setQuickPost('')
-    setQuickStatus('Tu publicacion quedo en Foros con la Palabra.')
-    await loadData()
+    if (!userId) return
+    const body = quickPost.trim()
+    if (!body) {
+      setQuickError('Escribe una reflexion breve antes de publicar.')
+      return
+    }
+
+    setIsQuickPosting(true)
+    setQuickStatus('')
+    setQuickError('')
+    try {
+      await createPost({ userId, body })
+      setQuickPost('')
+      setQuickStatus('Tu publicacion quedo en Foros con la Palabra.')
+      await loadData()
+    } catch {
+      setQuickError('No pudimos publicar ahora. Intenta de nuevo en un momento.')
+    } finally {
+      setIsQuickPosting(false)
+    }
   }
 
   function handleToggleOnboarding() {
@@ -500,19 +526,26 @@ export function AppHome() {
                   onChange={(event) => setQuickPost(event.target.value)}
                   rows={3}
                   placeholder="Escribe una reflexion, testimonio o pregunta..."
+                  disabled={isQuickPosting}
                   className="app-input mt-4"
                 />
                 <div className="mt-3 flex flex-wrap items-center gap-3">
                   <button
                     type="button"
                     onClick={() => void handleQuickPost()}
+                    disabled={isQuickPosting}
                     className="app-button-primary bg-emerald-200 hover:bg-emerald-100"
                   >
-                    Publicar en Foros
+                    {isQuickPosting ? 'Publicando...' : 'Publicar en Foros'}
                   </button>
                   {quickStatus ? (
                     <p className="text-sm font-semibold text-emerald-200">
                       {quickStatus}
+                    </p>
+                  ) : null}
+                  {quickError ? (
+                    <p className="text-sm font-semibold text-amber-100">
+                      {quickError}
                     </p>
                   ) : null}
                 </div>
@@ -544,6 +577,7 @@ export function AppHome() {
               })}
             </div>
 
+            {!onboarding || onboarding.isActivated ? (
             <article className="app-card-accent">
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
@@ -574,6 +608,7 @@ export function AppHome() {
                 ))}
               </div>
             </article>
+            ) : null}
 
             {progress ? (
               <article className="rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6">

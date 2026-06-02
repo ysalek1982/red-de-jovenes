@@ -422,6 +422,17 @@ export function AppProfile() {
                 </div>
               ) : null}
 
+              <div className="app-card-soft mt-6 border-amber-300/20 bg-amber-300/10">
+                <p className="text-sm font-black text-amber-100">
+                  Cuida tus datos personales
+                </p>
+                <p className="mt-2 text-sm leading-6 text-white/65">
+                  Tu nombre, ciudad, pais, iglesia y bio pueden ser visibles
+                  para miembros autenticados de la Red. Comparte solo lo que
+                  te sientas comodo mostrando.
+                </p>
+              </div>
+
               <div className="mt-6 grid gap-5 md:grid-cols-2">
                 <div className="md:col-span-2">
                   <label

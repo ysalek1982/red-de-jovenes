@@ -56,7 +56,7 @@ main,
 
 @layer components {
   .app-page {
-    @apply min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pt-28 text-white;
+    @apply min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 pt-28 text-white;
     padding-bottom: calc(8rem + env(safe-area-inset-bottom));
   }
 

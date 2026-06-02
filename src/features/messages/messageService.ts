@@ -6,7 +6,20 @@ export type ConversationWithMembers = Conversation & {
   messages?: Message[]
 }
 
-export async function getMyConversations() {
+export async function getMyConversations(userId: string) {
+  const { data: memberships, error: membershipError } = await supabase
+    .from('conversation_members')
+    .select('conversation_id')
+    .eq('user_id', userId)
+    .limit(100)
+
+  if (membershipError) throw membershipError
+
+  const conversationIds = Array.from(
+    new Set((memberships ?? []).map((membership) => membership.conversation_id)),
+  )
+  if (!conversationIds.length) return []
+
   const { data, error } = await supabase
     .from('conversations')
     .select(
@@ -19,16 +32,39 @@ export async function getMyConversations() {
         'created_at',
         'updated_at',
         'conversation_members(id, conversation_id, user_id, role, joined_at)',
-        'messages(id, conversation_id, sender_id, body, created_at, edited_at, deleted_at)',
       ].join(', '),
     )
+    .in('id', conversationIds)
     .order('updated_at', { ascending: false })
-    .order('created_at', { referencedTable: 'messages', ascending: false })
     .limit(25)
-    .limit(40, { referencedTable: 'messages' })
 
   if (error) throw error
-  return (data ?? []) as unknown as ConversationWithMembers[]
+
+  const conversations = (data ?? []) as unknown as ConversationWithMembers[]
+  const scopedIds = conversations.map((conversation) => conversation.id)
+  if (!scopedIds.length) return conversations
+
+  const { data: messages, error: messagesError } = await supabase
+    .from('messages')
+    .select('id, conversation_id, sender_id, body, created_at, edited_at, deleted_at')
+    .in('conversation_id', scopedIds)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false })
+    .limit(200)
+
+  if (messagesError) throw messagesError
+
+  const messagesByConversation = new Map<string, Message[]>()
+  ;((messages ?? []) as Message[]).forEach((message) => {
+    const current = messagesByConversation.get(message.conversation_id) ?? []
+    current.push(message)
+    messagesByConversation.set(message.conversation_id, current)
+  })
+
+  return conversations.map((conversation) => ({
+    ...conversation,
+    messages: messagesByConversation.get(conversation.id) ?? [],
+  }))
 }
 
 export async function createDirectConversation(input: {
@@ -60,7 +96,15 @@ export async function createDirectConversation(input: {
     },
   ])
 
-  if (memberError) throw memberError
+  if (memberError) {
+    const { error: cleanupError } = await supabase
+      .from('conversations')
+      .delete()
+      .eq('id', conversationId)
+
+    if (cleanupError) throw cleanupError
+    throw memberError
+  }
   const { data, error: readError } = await supabase
     .from('conversations')
     .select('*')
@@ -97,7 +141,15 @@ export async function createGroupConversation(input: {
       role: 'owner',
     })
 
-  if (memberError) throw memberError
+  if (memberError) {
+    const { error: cleanupError } = await supabase
+      .from('conversations')
+      .delete()
+      .eq('id', conversationId)
+
+    if (cleanupError) throw cleanupError
+    throw memberError
+  }
   const { data, error: readError } = await supabase
     .from('conversations')
     .select('*')

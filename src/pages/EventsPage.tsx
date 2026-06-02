@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
-import { CalendarDays, MapPin, UsersRound } from 'lucide-react'
+import { AlertCircle, CalendarDays, MapPin, UsersRound } from 'lucide-react'
 import {
   cancelEventRsvp,
   createEvent,
@@ -11,6 +11,10 @@ import { hasRole } from '../features/auth/roleService'
 import { useAuth } from '../features/auth/useAuth'
 import { scrollElementIntoView } from '../lib/scroll'
 
+function isPastEventDate(date: Date) {
+  return date.getTime() < Date.now() - 60_000
+}
+
 export function EventsPage() {
   const { user } = useAuth()
   const userId = user?.id
@@ -19,7 +23,10 @@ export function EventsPage() {
   const [filter, setFilter] = useState('todos')
   const [isAdmin, setIsAdmin] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isCreating, setIsCreating] = useState(false)
+  const [busyEventId, setBusyEventId] = useState<string | null>(null)
   const [status, setStatus] = useState('')
+  const [error, setError] = useState('')
   const [weekLimit] = useState(() => Date.now() + 7 * 86_400_000)
   const [form, setForm] = useState({
     title: '',
@@ -32,9 +39,16 @@ export function EventsPage() {
 
   const loadEvents = useCallback(async () => {
     setIsLoading(true)
+    setError('')
     try {
-      setEvents(await getUpcomingEvents(userId))
-      setIsAdmin(await hasRole('admin'))
+      const [eventData, adminStatus] = await Promise.all([
+        getUpcomingEvents(userId),
+        hasRole('admin'),
+      ])
+      setEvents(eventData)
+      setIsAdmin(adminStatus)
+    } catch {
+      setError('No pudimos cargar los eventos. Intenta nuevamente en un momento.')
     } finally {
       setIsLoading(false)
     }
@@ -56,36 +70,78 @@ export function EventsPage() {
     if (filter === 'confirmados') return events.filter((event) => event.myRsvp)
     return events
   }, [events, filter, weekLimit])
+  const confirmedEvents = events.filter((event) => event.myRsvp).length
+  const onlineEvents = events.filter((event) => event.modality === 'online').length
 
   async function handleRsvp(event: EventWithRsvps) {
-    if (!userId) return
-    if (event.myRsvp) {
-      await cancelEventRsvp({ eventId: event.id, userId })
-      setStatus('Asistencia cancelada.')
-    } else {
-      await setEventRsvp({ eventId: event.id, userId, status: 'going' })
-      setStatus('Confirmaste tu asistencia.')
+    if (!userId) {
+      setError('Inicia sesión para confirmar asistencia a un evento.')
+      return
     }
-    await loadEvents()
-    window.requestAnimationFrame(() => scrollElementIntoView(listTopRef.current))
+    setBusyEventId(event.id)
+    setError('')
+    setStatus('')
+    try {
+      if (event.myRsvp) {
+        await cancelEventRsvp({ eventId: event.id, userId })
+        setStatus('Asistencia cancelada.')
+      } else {
+        await setEventRsvp({ eventId: event.id, userId, status: 'going' })
+        setStatus('Confirmaste tu asistencia.')
+      }
+      await loadEvents()
+      window.requestAnimationFrame(() => scrollElementIntoView(listTopRef.current))
+    } catch {
+      setError('No pudimos actualizar tu asistencia. Intenta de nuevo.')
+    } finally {
+      setBusyEventId(null)
+    }
   }
 
   async function handleCreateEvent(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    if (!userId || !form.title.trim() || !form.startsAt) return
-    await createEvent({
-      userId,
-      title: form.title,
-      description: form.description,
-      modality: form.modality,
-      city: form.city,
-      country: form.country,
-      startsAt: new Date(form.startsAt).toISOString(),
-    })
-    setStatus('Evento creado.')
-    setForm({ title: '', description: '', modality: 'presencial', city: '', country: '', startsAt: '' })
-    await loadEvents()
-    window.requestAnimationFrame(() => scrollElementIntoView(listTopRef.current))
+    if (!userId) {
+      setError('Inicia sesión como administrador para crear eventos.')
+      return
+    }
+    if (!form.title.trim() || !form.startsAt) {
+      setError('Completa el título y la fecha del evento.')
+      return
+    }
+
+    const startsAt = new Date(form.startsAt)
+    if (Number.isNaN(startsAt.getTime())) {
+      setError('La fecha del evento no es válida.')
+      return
+    }
+
+    if (isPastEventDate(startsAt)) {
+      setError('Elige una fecha futura para el evento.')
+      return
+    }
+
+    setIsCreating(true)
+    setError('')
+    setStatus('')
+    try {
+      await createEvent({
+        userId,
+        title: form.title.trim(),
+        description: form.description.trim(),
+        modality: form.modality,
+        city: form.city.trim(),
+        country: form.country.trim(),
+        startsAt: startsAt.toISOString(),
+      })
+      setStatus('Evento creado y visible para la Red.')
+      setForm({ title: '', description: '', modality: 'presencial', city: '', country: '', startsAt: '' })
+      await loadEvents()
+      window.requestAnimationFrame(() => scrollElementIntoView(listTopRef.current))
+    } catch {
+      setError('No pudimos crear el evento. Revisa los datos e intenta nuevamente.')
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   return (
@@ -112,12 +168,28 @@ export function EventsPage() {
           </select>
         </div>
         {status ? <p className="app-alert mt-5">{status}</p> : null}
+        {error ? <p className="app-alert-warning mt-5">{error}</p> : null}
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="app-card-soft">
+            <p className="text-2xl font-black">{events.length}</p>
+            <p className="mt-1 text-sm text-white/60">eventos próximos</p>
+          </div>
+          <div className="app-card-soft">
+            <p className="text-2xl font-black">{confirmedEvents}</p>
+            <p className="mt-1 text-sm text-white/60">confirmados por ti</p>
+          </div>
+          <div className="app-card-soft">
+            <p className="text-2xl font-black">{onlineEvents}</p>
+            <p className="mt-1 text-sm text-white/60">disponibles online</p>
+          </div>
+        </div>
         <div ref={listTopRef} className="mt-8 grid gap-5 lg:grid-cols-2">
           {isLoading ? <p className="text-white/60">Cargando eventos...</p> : null}
           {!isLoading && !filteredEvents.length ? (
             <div className="app-empty">
-              Aun no hay eventos para este filtro. Cuando aparezca un encuentro,
-              podras confirmar asistencia con un toque.
+              <AlertCircle className="mx-auto mb-3 h-6 w-6 text-amber-200" aria-hidden="true" />
+              Aun no hay eventos para este filtro. Prueba con "Todos" o vuelve
+              pronto para confirmar asistencia a un encuentro de la Red.
             </div>
           ) : null}
           {filteredEvents.map((event) => (
@@ -135,8 +207,17 @@ export function EventsPage() {
                 <span className="inline-flex items-center gap-1 rounded-full border border-white/10 px-3 py-1"><UsersRound className="h-3 w-3" /> {event.rsvpCount} confirmados</span>
               </div>
               <p className="mt-4 text-sm font-semibold text-emerald-200">{new Date(event.starts_at).toLocaleString('es-BO')}</p>
-              <button type="button" onClick={() => void handleRsvp(event)} className="app-button-primary mt-5">
-                {event.myRsvp ? 'Cancelar asistencia' : 'Confirmar asistencia'}
+              <button
+                type="button"
+                onClick={() => void handleRsvp(event)}
+                disabled={busyEventId === event.id}
+                className="app-button-primary mt-5"
+              >
+                {busyEventId === event.id
+                  ? 'Actualizando...'
+                  : event.myRsvp
+                    ? 'Cancelar asistencia'
+                    : 'Confirmar asistencia'}
               </button>
             </article>
           ))}
@@ -145,13 +226,15 @@ export function EventsPage() {
           <form onSubmit={(event) => void handleCreateEvent(event)} className="app-card mt-8">
             <h2 className="text-2xl font-black">Crear evento</h2>
             <div className="mt-5 grid gap-3 md:grid-cols-2">
-              <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Titulo" className="app-input" />
-              <input type="datetime-local" value={form.startsAt} onChange={(event) => setForm({ ...form, startsAt: event.target.value })} className="app-input" />
+              <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Titulo" className="app-input" required />
+              <input type="datetime-local" value={form.startsAt} onChange={(event) => setForm({ ...form, startsAt: event.target.value })} className="app-input" required />
               <input value={form.city} onChange={(event) => setForm({ ...form, city: event.target.value })} placeholder="Ciudad" className="app-input" />
               <input value={form.country} onChange={(event) => setForm({ ...form, country: event.target.value })} placeholder="Pais" className="app-input" />
             </div>
             <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Descripcion" rows={3} className="app-input mt-3" />
-            <button type="submit" className="app-button-primary mt-4 bg-emerald-200 hover:bg-emerald-100">Crear</button>
+            <button type="submit" disabled={isCreating} className="app-button-primary mt-4 bg-emerald-200 hover:bg-emerald-100">
+              {isCreating ? 'Creando...' : 'Crear evento'}
+            </button>
           </form>
         ) : null}
       </div>

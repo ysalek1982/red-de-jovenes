@@ -1,32 +1,78 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Search, X } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { globalSearch, type SearchResult } from '../../features/search/searchService'
 import { useAuth } from '../../features/auth/useAuth'
 
 export function GlobalSearch() {
   const { user } = useAuth()
+  const location = useLocation()
+  const searchRootRef = useRef<HTMLDivElement>(null)
+  const requestIdRef = useRef(0)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<SearchResult[]>([])
   const [isOpen, setIsOpen] = useState(false)
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      if (query.trim().length < 2) {
+      const querySnapshot = query.trim()
+      if (querySnapshot.length < 2) {
+        requestIdRef.current += 1
         setResults([])
         return
       }
 
-      globalSearch(query, user?.id)
-        .then(setResults)
-        .catch(() => setResults([]))
+      const requestId = requestIdRef.current + 1
+      requestIdRef.current = requestId
+      globalSearch(querySnapshot, user?.id)
+        .then((nextResults) => {
+          if (requestId === requestIdRef.current) {
+            setResults(nextResults)
+          }
+        })
+        .catch(() => {
+          if (requestId === requestIdRef.current) {
+            setResults([])
+          }
+        })
     }, 220)
 
     return () => window.clearTimeout(timer)
   }, [query, user?.id])
 
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIsOpen(false), 0)
+    return () => window.clearTimeout(timer)
+  }, [location.pathname, location.search])
+
+  useEffect(() => {
+    if (!isOpen) return undefined
+
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target
+      if (
+        target instanceof Node &&
+        searchRootRef.current &&
+        !searchRootRef.current.contains(target)
+      ) {
+        setIsOpen(false)
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setIsOpen(false)
+    }
+
+    document.addEventListener('pointerdown', handlePointerDown)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown)
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isOpen])
+
   return (
-    <div className="relative min-w-0 flex-1 lg:max-w-md">
+    <div ref={searchRootRef} className="relative min-w-0 flex-1 lg:max-w-md">
       <label className="relative flex h-11 items-center rounded-full border border-white/10 bg-white/[0.06] px-4 text-sm text-white/55">
         <Search className="mr-2 h-4 w-4 flex-none text-white/40" aria-hidden="true" />
         <input
@@ -45,6 +91,7 @@ export function GlobalSearch() {
             onClick={() => {
               setQuery('')
               setResults([])
+              setIsOpen(false)
             }}
             className="ml-2 flex h-8 w-8 items-center justify-center rounded-full text-white/50 transition hover:bg-white/10 hover:text-white"
             aria-label="Limpiar busqueda"
@@ -55,7 +102,7 @@ export function GlobalSearch() {
       </label>
       {isOpen && query.trim().length >= 2 ? (
         <div
-          className="absolute right-0 top-13 z-50 max-h-96 w-[min(24rem,calc(100vw-2rem))] overflow-y-auto rounded-[1.25rem] border border-white/10 bg-slate-950/97 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl"
+          className="absolute right-0 top-[3.25rem] z-50 max-h-96 w-[min(24rem,calc(100vw-2rem))] overflow-y-auto rounded-[1.25rem] border border-white/10 bg-slate-950/97 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl"
           role="listbox"
           aria-label="Resultados de busqueda"
         >

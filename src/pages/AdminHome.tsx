@@ -1681,7 +1681,7 @@ export function AdminHome() {
                   title={report.reason}
                   detail={`${report.target_type} · ${formatDate(report.created_at)}`}
                   action={
-                    <div className="flex min-w-48 flex-col gap-2">
+                    <div className="flex w-full flex-col gap-2 sm:min-w-48">
                       <input
                         value={reportNotes[report.id] ?? ''}
                         onChange={(event) =>
@@ -1731,7 +1731,7 @@ export function AdminHome() {
                   title={suggestion.name}
                   detail={`${suggestion.city ?? 'sin ciudad'} · ${suggestion.country}`}
                   action={
-                    <div className="flex min-w-44 flex-col gap-2">
+                    <div className="flex w-full flex-col gap-2 sm:min-w-44">
                       <input
                         value={suggestionNotes[suggestion.id] ?? ''}
                         onChange={(event) =>
@@ -1858,12 +1858,12 @@ function AdminListItem({
   action?: ReactNode
 }) {
   return (
-    <div className="app-card-soft flex items-center justify-between gap-3">
+    <div className="app-card-soft flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="min-w-0">
         <p className="truncate font-bold">{title}</p>
         <p className="mt-1 truncate text-xs text-white/45">{detail}</p>
       </div>
-      {action}
+      {action ? <div className="w-full sm:w-auto">{action}</div> : null}
     </div>
   )
 }

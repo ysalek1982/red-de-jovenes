@@ -74,6 +74,7 @@ export function BiblePage() {
   const [selectedPlan, setSelectedPlan] = useState(bibleReadingPlans[0].key)
   const [selectedPlanDayId, setSelectedPlanDayId] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
+  const [searchScope, setSearchScope] = useState<'all' | 'book'>('all')
   const [note, setNote] = useState('')
   const [planNote, setPlanNote] = useState('')
   const [status, setStatus] = useState('')
@@ -205,7 +206,7 @@ export function BiblePage() {
     const results = await searchBibleVerses({
       query: searchQuery.trim(),
       translationCode: selectedTranslation,
-      bookCode: selectedBook || null,
+      bookCode: searchScope === 'book' ? selectedBook || null : null,
     })
     setSearchResults(results)
     setStatus(results.length ? 'Busqueda completada.' : 'No encontramos resultados para esa busqueda.')
@@ -439,7 +440,7 @@ export function BiblePage() {
 
           <article ref={readerRef} className="app-card">
             <p className="text-sm font-semibold text-emerald-200">Leer por capitulo</p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-4">
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <select value={selectedTranslation} onChange={(event) => { setSelectedTranslation(event.target.value); revealReader() }} className="app-select">
                 {translations.map((translation) => (
                   <option key={translation.code} value={translation.code}>{translation.code}</option>
@@ -510,6 +511,15 @@ export function BiblePage() {
               placeholder="Ej. amor, Juan 3:16, Salmo 23"
               className="app-input h-12 flex-1 py-0"
             />
+            <select
+              value={searchScope}
+              onChange={(event) => setSearchScope(event.target.value as 'all' | 'book')}
+              className="app-select h-12 rounded-full lg:w-52"
+              aria-label="Alcance de búsqueda bíblica"
+            >
+              <option value="all">Toda la Biblia</option>
+              <option value="book">Libro actual</option>
+            </select>
             <button
               type="button"
               onClick={() => void handleSearch()}

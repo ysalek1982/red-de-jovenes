@@ -102,13 +102,15 @@ export async function createPost(input: CreatePostInput) {
 }
 
 export async function deleteOwnPost(input: { postId: string; userId: string }) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('posts')
     .delete()
     .eq('id', input.postId)
     .eq('user_id', input.userId)
+    .select('id')
 
   if (error) throw error
+  if (!data?.length) throw new Error('POST_NOT_FOUND')
 }
 
 export async function updateOwnPost(input: {
@@ -176,13 +178,15 @@ export async function deleteOwnPostComment(input: {
   commentId: string
   userId: string
 }) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('post_comments')
     .delete()
     .eq('id', input.commentId)
     .eq('user_id', input.userId)
+    .select('id')
 
   if (error) throw error
+  if (!data?.length) throw new Error('COMMENT_NOT_FOUND')
 }
 
 export async function toggleAmenReaction(input: {

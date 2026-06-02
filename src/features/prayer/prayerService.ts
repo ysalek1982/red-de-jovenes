@@ -27,45 +27,112 @@ export interface PrayerGroup {
 export type PrayerRequestWithAuthor = PrayerRequest & {
   profiles: PrayerAuthor | null
   groups: PrayerGroup | null
-  prayer_supports?: Array<{ id: string; user_id: string }>
   supportsCount: number
   supportedByMe: boolean
 }
 
 function mapPrayerRequest(
   prayer: PrayerRequest & {
-    profiles: PrayerAuthor | null
     groups: PrayerGroup | null
-    prayer_supports?: Array<{ id: string; user_id: string }>
   },
+  profilesById: Map<string, PrayerAuthor>,
+  supportCounts: Map<string, number>,
+  supportedPrayerIds: Set<string>,
   userId?: string,
 ): PrayerRequestWithAuthor {
-  const supports = prayer.prayer_supports ?? []
+  const isAnonymousForViewer = prayer.is_anonymous && prayer.user_id !== userId
+
   return {
     ...prayer,
-    supportsCount: supports.length,
-    supportedByMe: Boolean(userId && supports.some((item) => item.user_id === userId)),
+    user_id: isAnonymousForViewer ? null : prayer.user_id,
+    profiles: prayer.is_anonymous
+      ? null
+      : profilesById.get(prayer.user_id ?? '') ?? null,
+    supportsCount: supportCounts.get(prayer.id) ?? 0,
+    supportedByMe: supportedPrayerIds.has(prayer.id),
   }
 }
 
 export async function getPublicPrayerRequests(userId?: string) {
   const { data, error } = await supabase
     .from('prayer_requests')
-    .select(
-      '*, profiles:user_id(full_name, username, city, country), groups:group_id(id, name, city, country), prayer_supports(id, user_id)',
-    )
+    .select('*, groups:group_id(id, name, city, country)')
     .eq('visibility', 'public')
     .order('created_at', { ascending: false })
     .limit(20)
 
   if (error) throw error
-  return ((data ?? []) as Array<
+
+  const prayers = (data ?? []) as Array<
     PrayerRequest & {
-      profiles: PrayerAuthor | null
       groups: PrayerGroup | null
-      prayer_supports?: Array<{ id: string; user_id: string }>
     }
-  >).map((prayer) => mapPrayerRequest(prayer, userId))
+  >
+  const prayerIds = prayers.map((prayer) => prayer.id)
+  const visibleAuthorIds = Array.from(
+    new Set(
+      prayers
+        .filter((prayer) => !prayer.is_anonymous && prayer.user_id)
+        .map((prayer) => prayer.user_id as string),
+    ),
+  )
+
+  const profilesById = new Map<string, PrayerAuthor>()
+  if (visibleAuthorIds.length) {
+    const { data: profiles, error: profilesError } = await supabase
+      .from('profiles')
+      .select('id, full_name, username, city, country')
+      .in('id', visibleAuthorIds)
+
+    if (profilesError) throw profilesError
+
+    ;(profiles ?? []).forEach((profile) => {
+      profilesById.set(profile.id, {
+        full_name: profile.full_name || 'Joven de la Red',
+        username: profile.username,
+        city: profile.city,
+        country: profile.country,
+      })
+    })
+  }
+
+  const supportCounts = new Map<string, number>()
+  const supportedPrayerIds = new Set<string>()
+  if (prayerIds.length) {
+    const { data: supports, error: supportsError } = await supabase
+      .from('prayer_supports')
+      .select('prayer_request_id')
+      .in('prayer_request_id', prayerIds)
+      .limit(10000)
+
+    if (supportsError) throw supportsError
+
+    ;(supports ?? []).forEach((support) => {
+      if (!support.prayer_request_id) return
+      supportCounts.set(
+        support.prayer_request_id,
+        (supportCounts.get(support.prayer_request_id) ?? 0) + 1,
+      )
+    })
+
+    if (userId) {
+      const { data: ownSupports, error: ownSupportsError } = await supabase
+        .from('prayer_supports')
+        .select('prayer_request_id')
+        .eq('user_id', userId)
+        .in('prayer_request_id', prayerIds)
+
+      if (ownSupportsError) throw ownSupportsError
+
+      ;(ownSupports ?? []).forEach((support) => {
+        if (support.prayer_request_id) supportedPrayerIds.add(support.prayer_request_id)
+      })
+    }
+  }
+
+  return prayers.map((prayer) =>
+    mapPrayerRequest(prayer, profilesById, supportCounts, supportedPrayerIds, userId),
+  )
 }
 
 export async function createPrayerRequest(input: CreatePrayerRequestInput) {
@@ -113,13 +180,15 @@ export async function deleteOwnPrayerRequest(input: {
   prayerId: string
   userId: string
 }) {
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('prayer_requests')
     .delete()
     .eq('id', input.prayerId)
     .eq('user_id', input.userId)
+    .select('id')
 
   if (error) throw error
+  if (!data?.length) throw new Error('PRAYER_REQUEST_NOT_FOUND')
 }
 
 export async function supportPrayer(input: { prayerId: string; userId: string }) {
