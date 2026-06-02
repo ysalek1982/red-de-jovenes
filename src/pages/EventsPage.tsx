@@ -5,6 +5,7 @@ import {
   createEvent,
   getUpcomingEvents,
   setEventRsvp,
+  updateEvent,
   type EventWithRsvps,
 } from '../features/events/eventService'
 import { hasRole } from '../features/auth/roleService'
@@ -13,6 +14,22 @@ import { scrollElementIntoView } from '../lib/scroll'
 
 function isPastEventDate(date: Date) {
   return date.getTime() < Date.now() - 60_000
+}
+
+function toDateTimeLocalInput(value: string) {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  const offsetMs = date.getTimezoneOffset() * 60_000
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16)
+}
+
+const initialEventForm = {
+  title: '',
+  description: '',
+  modality: 'presencial',
+  city: '',
+  country: '',
+  startsAt: '',
 }
 
 export function EventsPage() {
@@ -25,17 +42,11 @@ export function EventsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
   const [busyEventId, setBusyEventId] = useState<string | null>(null)
+  const [editingEventId, setEditingEventId] = useState<string | null>(null)
   const [status, setStatus] = useState('')
   const [error, setError] = useState('')
   const [weekLimit] = useState(() => Date.now() + 7 * 86_400_000)
-  const [form, setForm] = useState({
-    title: '',
-    description: '',
-    modality: 'presencial',
-    city: '',
-    country: '',
-    startsAt: '',
-  })
+  const [form, setForm] = useState(initialEventForm)
 
   const loadEvents = useCallback(async () => {
     setIsLoading(true)
@@ -98,7 +109,54 @@ export function EventsPage() {
     }
   }
 
-  async function handleCreateEvent(event: FormEvent<HTMLFormElement>) {
+  function resetEventForm() {
+    setForm(initialEventForm)
+    setEditingEventId(null)
+  }
+
+  function handleEditEvent(event: EventWithRsvps) {
+    setEditingEventId(event.id)
+    setForm({
+      title: event.title,
+      description: event.description ?? '',
+      modality: event.modality ?? 'presencial',
+      city: event.city ?? '',
+      country: event.country ?? '',
+      startsAt: toDateTimeLocalInput(event.starts_at),
+    })
+    window.requestAnimationFrame(() => scrollElementIntoView(document.getElementById('crear-evento')))
+  }
+
+  async function handleDeactivateEvent(event: EventWithRsvps) {
+    if (!window.confirm(`Desactivar "${event.title}"? Dejara de mostrarse, pero no se borrara.`)) {
+      return
+    }
+
+    setBusyEventId(event.id)
+    setError('')
+    setStatus('')
+    try {
+      await updateEvent({
+        eventId: event.id,
+        title: event.title,
+        description: event.description ?? '',
+        modality: event.modality ?? 'presencial',
+        city: event.city ?? '',
+        country: event.country ?? '',
+        startsAt: event.starts_at,
+        isActive: false,
+      })
+      setStatus('Evento desactivado. No se borro ningun dato.')
+      if (editingEventId === event.id) resetEventForm()
+      await loadEvents()
+    } catch {
+      setError('No pudimos desactivar el evento. Intenta nuevamente.')
+    } finally {
+      setBusyEventId(null)
+    }
+  }
+
+  async function handleEventSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!userId) {
       setError('Inicia sesión como administrador para crear eventos.')
@@ -115,7 +173,7 @@ export function EventsPage() {
       return
     }
 
-    if (isPastEventDate(startsAt)) {
+    if (!editingEventId && isPastEventDate(startsAt)) {
       setError('Elige una fecha futura para el evento.')
       return
     }
@@ -124,21 +182,34 @@ export function EventsPage() {
     setError('')
     setStatus('')
     try {
-      await createEvent({
-        userId,
+      const payload = {
         title: form.title.trim(),
         description: form.description.trim(),
         modality: form.modality,
         city: form.city.trim(),
         country: form.country.trim(),
         startsAt: startsAt.toISOString(),
-      })
-      setStatus('Evento creado y visible para la Red.')
-      setForm({ title: '', description: '', modality: 'presencial', city: '', country: '', startsAt: '' })
+      }
+
+      if (editingEventId) {
+        await updateEvent({
+          eventId: editingEventId,
+          ...payload,
+          isActive: true,
+        })
+        setStatus('Evento actualizado y visible para la Red.')
+      } else {
+        await createEvent({
+          userId,
+          ...payload,
+        })
+        setStatus('Evento creado y visible para la Red.')
+      }
+      resetEventForm()
       await loadEvents()
       window.requestAnimationFrame(() => scrollElementIntoView(listTopRef.current))
     } catch {
-      setError('No pudimos crear el evento. Revisa los datos e intenta nuevamente.')
+      setError('No pudimos guardar el evento. Revisa los datos e intenta nuevamente.')
     } finally {
       setIsCreating(false)
     }
@@ -219,17 +290,40 @@ export function EventsPage() {
                     ? 'Cancelar asistencia'
                     : 'Confirmar asistencia'}
               </button>
+              {isAdmin ? (
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={() => handleEditEvent(event)}
+                    className="app-button-secondary"
+                  >
+                    Editar evento
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void handleDeactivateEvent(event)}
+                    disabled={busyEventId === event.id}
+                    className="app-button-danger"
+                  >
+                    {busyEventId === event.id ? 'Desactivando...' : 'Desactivar'}
+                  </button>
+                </div>
+              ) : null}
             </article>
           ))}
         </div>
         {isAdmin ? (
-          <form id="crear-evento" onSubmit={(event) => void handleCreateEvent(event)} className="app-card mt-8">
+          <form id="crear-evento" onSubmit={(event) => void handleEventSubmit(event)} className="app-card mt-8">
             <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-200">
               CMS de eventos
             </p>
-            <h2 className="mt-2 text-2xl font-black">Crear evento</h2>
+            <h2 className="mt-2 text-2xl font-black">
+              {editingEventId ? 'Editar evento' : 'Crear evento'}
+            </h2>
             <p className="mt-2 text-sm leading-6 text-white/60">
-              Publica encuentros para la Red. Completa fecha, modalidad y lugar para que los jovenes sepan como participar.
+              {editingEventId
+                ? 'Actualiza la informacion visible del evento seleccionado. No se borran datos ni asistencias.'
+                : 'Publica encuentros para la Red. Completa fecha, modalidad y lugar para que los jovenes sepan como participar.'}
             </p>
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <label className="grid gap-2">
@@ -261,9 +355,24 @@ export function EventsPage() {
               <span className="text-sm font-black text-white">Descripcion</span>
               <textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} placeholder="Cuenta brevemente que pasara y a quien va dirigido." rows={3} className="app-input" />
             </label>
-            <button type="submit" disabled={isCreating} className="app-button-primary mt-4 bg-emerald-200 hover:bg-emerald-100">
-              {isCreating ? 'Creando...' : 'Crear evento'}
-            </button>
+            <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+              <button type="submit" disabled={isCreating} className="app-button-primary bg-emerald-200 hover:bg-emerald-100">
+                {isCreating
+                  ? 'Guardando...'
+                  : editingEventId
+                    ? 'Guardar cambios'
+                    : 'Crear evento'}
+              </button>
+              {editingEventId ? (
+                <button
+                  type="button"
+                  onClick={resetEventForm}
+                  className="app-button-secondary"
+                >
+                  Cancelar edicion
+                </button>
+              ) : null}
+            </div>
           </form>
         ) : null}
       </div>

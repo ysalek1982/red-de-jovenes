@@ -18,6 +18,7 @@ Mejorar la experiencia movil y administrativa sin agregar modulos nuevos ni toca
 - Se agrego proteccion contra textos largos en Foros, Oracion y Comunidad/Mapa.
 - Se mejoro el formulario "Sugerir comunidad" con labels persistentes, autocompletado y campos mas claros.
 - Se mejoro el formulario admin de eventos como carga CMS, incluyendo selector visible de modalidad.
+- Se agrego edicion y desactivacion no destructiva de eventos activos para administradores.
 - Se agrego cierre por Escape y click fuera al dialogo de feedback.
 - Se ajusto el padding inferior seguro de la ruta interna de reportes/seguridad sin hacerla visible en la navegacion.
 - Se mantuvo la informacion real de Supabase; no se agregaron datos ficticios.

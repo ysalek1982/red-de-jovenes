@@ -134,6 +134,9 @@ export async function updateEvent(input: {
   eventId: string
   title: string
   description?: string
+  modality?: string
+  country?: string
+  city?: string
   startsAt: string
   isActive: boolean
 }) {
@@ -142,6 +145,9 @@ export async function updateEvent(input: {
     .update({
       title: input.title,
       description: input.description || null,
+      modality: input.modality || 'presencial',
+      country: input.country || null,
+      city: input.city || null,
       starts_at: input.startsAt,
       is_active: input.isActive,
     })
