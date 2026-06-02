@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Bell, CheckCheck } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import {
   getMyNotifications,
   markAllNotificationsRead,
@@ -11,9 +11,11 @@ import type { Notification } from '../../types/database'
 
 export function NotificationBell() {
   const { user } = useAuth()
+  const location = useLocation()
   const userId = user?.id
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isOpen, setIsOpen] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
 
   const loadNotifications = useCallback(async () => {
     if (!userId) return
@@ -31,6 +33,43 @@ export function NotificationBell() {
 
     return () => window.clearTimeout(timer)
   }, [loadNotifications])
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setIsOpen(false)
+    }, 0)
+
+    return () => window.clearTimeout(timer)
+  }, [location.pathname, location.search])
+
+  useEffect(() => {
+    if (!isOpen) return
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setIsOpen(false)
+    }
+
+    function handlePointerDown(event: MouseEvent | TouchEvent) {
+      const target = event.target
+      if (
+        target instanceof Node &&
+        containerRef.current &&
+        !containerRef.current.contains(target)
+      ) {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('mousedown', handlePointerDown)
+    document.addEventListener('touchstart', handlePointerDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('mousedown', handlePointerDown)
+      document.removeEventListener('touchstart', handlePointerDown)
+    }
+  }, [isOpen])
 
   const unreadCount = useMemo(
     () => notifications.filter((item) => !item.read_at).length,
@@ -55,7 +94,7 @@ export function NotificationBell() {
   }
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
       <button
         type="button"
         onClick={() => void handleOpen()}
@@ -70,7 +109,11 @@ export function NotificationBell() {
         ) : null}
       </button>
       {isOpen ? (
-        <div className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] rounded-[1.25rem] border border-white/10 bg-slate-950/97 p-3 shadow-2xl shadow-black/40 backdrop-blur-xl">
+        <div
+          className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] max-h-[calc(100dvh-6rem)] overscroll-contain rounded-[1.25rem] border border-white/10 bg-slate-950/97 p-3 shadow-2xl shadow-black/40 backdrop-blur-xl"
+          role="dialog"
+          aria-label="Notificaciones"
+        >
           <div className="mb-2 flex items-center justify-between gap-2">
             <p className="text-sm font-black text-white">Notificaciones</p>
             <button
@@ -82,7 +125,7 @@ export function NotificationBell() {
               <CheckCheck className="h-3 w-3" /> Leidas
             </button>
           </div>
-          <div className="max-h-80 overflow-y-auto" role="list">
+          <div className="max-h-[calc(100dvh-12rem)] overflow-y-auto overscroll-contain" role="list">
             {notifications.length ? (
               notifications.map((notification) => (
                 <Link

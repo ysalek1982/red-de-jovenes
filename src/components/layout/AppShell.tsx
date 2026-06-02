@@ -121,10 +121,10 @@ export function AppShell() {
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-black">
-                Red de Jóvenes
+                Red de Jovenes
               </span>
               <span className="hidden truncate text-xs text-white/45 sm:block">
-                Conectando jóvenes en Cristo
+                Conectando jovenes en Cristo
               </span>
             </span>
           </button>
@@ -158,10 +158,11 @@ export function AppShell() {
           <div
             ref={morePanelRef}
             data-scroll-root
-            className="fixed inset-x-3 z-50 max-h-[68dvh] overflow-y-auto rounded-2xl border border-white/10 bg-slate-950/95 p-3 text-white shadow-2xl shadow-black/45 backdrop-blur-xl lg:hidden"
+            className="fixed inset-x-3 z-50 max-h-[68dvh] overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-slate-950/95 p-3 text-white shadow-2xl shadow-black/45 backdrop-blur-xl lg:hidden"
             style={{
               bottom:
                 'calc(max(0.75rem, env(safe-area-inset-bottom)) + 5.6rem)',
+              paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))',
             }}
             role="dialog"
             aria-modal="true"

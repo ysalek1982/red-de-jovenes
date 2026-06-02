@@ -192,12 +192,50 @@ function formatDate(value: string | null) {
   }).format(new Date(value))
 }
 
+function formatFeedbackStatus(status: PilotFeedbackStatus | string) {
+  const labels: Record<string, string> = {
+    new: 'Nuevo',
+    reviewing: 'En revision',
+    planned: 'Planificado',
+    resolved: 'Resuelto',
+    dismissed: 'Descartado',
+  }
+  return labels[status] ?? status
+}
+
+function formatIncidentStatus(status: PilotIncidentStatus | string) {
+  const labels: Record<string, string> = {
+    open: 'Abierto',
+    triage: 'En revision',
+    resolved: 'Resuelto',
+    closed: 'Cerrado',
+  }
+  return labels[status] ?? status
+}
+
+function formatIncidentSeverity(severity: PilotIncidentSeverity | string) {
+  const labels: Record<string, string> = {
+    low: 'Baja',
+    medium: 'Media',
+    high: 'Alta',
+    critical: 'Critica',
+  }
+  return labels[severity] ?? severity
+}
+
+function toLocalDateInput(value = new Date()) {
+  const year = value.getFullYear()
+  const month = String(value.getMonth() + 1).padStart(2, '0')
+  const day = String(value.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
 function getDefaultReportRange() {
+  const from = new Date()
+  from.setDate(from.getDate() - 7)
   return {
-    from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-      .toISOString()
-      .slice(0, 10),
-    to: new Date().toISOString().slice(0, 10),
+    from: toLocalDateInput(from),
+    to: toLocalDateInput(),
   }
 }
 
@@ -236,7 +274,7 @@ export function AdminHome() {
     verseText: '',
     reflection: '',
     prayer: '',
-    devotionalDate: new Date().toISOString().slice(0, 10),
+    devotionalDate: toLocalDateInput(),
     isActive: true,
   })
   const [reportNotes, setReportNotes] = useState<Record<string, string>>({})
@@ -283,7 +321,7 @@ export function AdminHome() {
     bookCode: 'JHN',
     chapter: '3',
     verse: '16',
-    activeDate: new Date().toISOString().slice(0, 10),
+    activeDate: toLocalDateInput(),
     devotionalHint: '',
   })
 
@@ -734,10 +772,48 @@ export function AdminHome() {
   ]
 
   const quickActions = [
-    { label: 'Revisar reportes', href: '#reportes' },
-    { label: 'Crear devocional', href: '#crear-devocional' },
-    { label: 'Revisar publicaciones', href: '#publicaciones' },
-    { label: 'Sugerencias de grupos', href: '#sugerencias' },
+    { label: 'Publicar devocional', href: '#crear-devocional' },
+    { label: 'Programar Biblia', href: '#cms-biblia' },
+    { label: 'Revisar feedback', href: '#cms-feedback' },
+    { label: 'Atender reportes', href: '#reportes' },
+  ]
+
+  const adminNavigation = [
+    { label: 'Centro CMS', href: '#cms-centro' },
+    { label: 'Piloto', href: '#cms-piloto' },
+    { label: 'Devocional', href: '#crear-devocional' },
+    { label: 'Biblia', href: '#cms-biblia' },
+    { label: 'IA', href: '#cms-ia' },
+    { label: 'Feedback', href: '#cms-feedback' },
+    { label: 'Incidentes', href: '#cms-incidentes' },
+    { label: 'Reportes', href: '#reportes' },
+  ]
+
+  const cmsSections = [
+    {
+      title: 'Publicar contenido',
+      detail: 'Carga devocionales, revisa publicaciones y acompana conversaciones.',
+      href: '#crear-devocional',
+      status: `${overview.devotionals} devocionales`,
+    },
+    {
+      title: 'Gestionar Biblia',
+      detail: 'Programa el versiculo diario y revisa el estado del corpus RVR1909.',
+      href: '#cms-biblia',
+      status: rvr1909Complete ? 'RVR1909 completa' : 'Revisar corpus',
+    },
+    {
+      title: 'Cuidar comunidad',
+      detail: 'Atiende reportes, incidentes, feedback y sugerencias de grupos.',
+      href: '#cms-feedback',
+      status: `${overview.reports + pilotMetrics.pilot.feedbackNew} pendientes`,
+    },
+    {
+      title: 'Operar piloto',
+      detail: 'Mira activacion, uso diario, evidencia QA y reporte de cierre.',
+      href: '#cms-piloto',
+      status: `${pilotMetrics.daily.activeUsersToday} activos hoy`,
+    },
   ]
 
   return (
@@ -746,13 +822,13 @@ export function AdminHome() {
         <div className="max-w-3xl">
           <p className="app-kicker">
             <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-            Administración
+            Administracion
           </p>
           <h1 data-page-title className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
-            Panel de administración
+            Centro de administracion
           </h1>
           <p className="mt-4 text-lg leading-8 text-white/70">
-            Gestión inicial de Red de Jóvenes: cuidado, contenido y comunidad.
+            Gestiona contenido, comunidad, Biblia, piloto e IA desde un flujo claro tipo CMS.
           </p>
         </div>
 
@@ -762,7 +838,59 @@ export function AdminHome() {
           </div>
         ) : null}
 
-        <div className="mt-10 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6">
+        <nav
+          aria-label="Secciones de administracion"
+          className="app-scroll-x sticky top-24 z-20 -mx-4 mt-8 bg-slate-950/85 px-4 py-2 backdrop-blur-xl sm:mx-0 sm:rounded-full sm:border sm:border-white/10"
+        >
+          {adminNavigation.map((item) => (
+            <a
+              key={item.href}
+              href={item.href}
+              className="app-chip min-w-max bg-slate-950/70 text-xs text-white"
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+
+        <section
+          id="cms-centro"
+          className="app-cms-anchor mt-6 rounded-2xl border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6"
+        >
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.2em] text-amber-200">
+                Centro CMS
+              </p>
+              <h2 className="mt-3 text-2xl font-black md:text-3xl">
+                Que quieres gestionar hoy?
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
+                Accesos rapidos para cargar contenido, revisar comunidad y operar el piloto sin buscar entre secciones largas.
+              </p>
+            </div>
+            <span className="inline-flex w-fit rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-xs font-black text-emerald-100">
+              Datos reales, sin placeholders
+            </span>
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {cmsSections.map((section) => (
+              <a
+                key={section.href}
+                href={section.href}
+                className="rounded-2xl border border-white/10 bg-slate-950/45 p-4 transition hover:border-amber-200/30 hover:bg-white/[0.08] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200"
+              >
+                <p className="text-base font-black text-white">{section.title}</p>
+                <p className="mt-2 text-sm leading-6 text-white/58">{section.detail}</p>
+                <span className="mt-4 inline-flex rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/65">
+                  {section.status}
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <div id="cms-piloto" className="app-cms-anchor mt-8 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <p className="text-sm font-black uppercase tracking-[0.22em] text-emerald-200">
@@ -993,75 +1121,107 @@ export function AdminHome() {
                 {editingDevotionalId ? 'Editar devocional' : 'Crear devocional'}
               </h2>
             </div>
-            <div className="mt-5 grid gap-3">
-              <input
-                value={devotionalForm.title}
-                onChange={(event) =>
-                  setDevotionalForm((current) => ({
-                    ...current,
-                    title: event.target.value,
-                  }))
-                }
-                placeholder="Título"
-                className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
-              />
-              <input
-                type="date"
-                value={devotionalForm.devotionalDate}
-                onChange={(event) =>
-                  setDevotionalForm((current) => ({
-                    ...current,
-                    devotionalDate: event.target.value,
-                  }))
-                }
-                className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none focus:border-amber-200/60"
-              />
-              <input
-                value={devotionalForm.verseReference}
-                onChange={(event) =>
-                  setDevotionalForm((current) => ({
-                    ...current,
-                    verseReference: event.target.value,
-                  }))
-                }
-                placeholder="Referencia bíblica"
-                className="h-11 rounded-2xl border border-white/10 bg-slate-950/55 px-4 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
-              />
-              <textarea
-                value={devotionalForm.verseText}
-                onChange={(event) =>
-                  setDevotionalForm((current) => ({
-                    ...current,
-                    verseText: event.target.value,
-                  }))
-                }
-                placeholder="Texto del versículo"
-                className="min-h-24 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
-              />
-              <textarea
-                value={devotionalForm.reflection}
-                onChange={(event) =>
-                  setDevotionalForm((current) => ({
-                    ...current,
-                    reflection: event.target.value,
-                  }))
-                }
-                placeholder="Reflexión"
-                className="min-h-32 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
-              />
-              <textarea
-                value={devotionalForm.prayer}
-                onChange={(event) =>
-                  setDevotionalForm((current) => ({
-                    ...current,
-                    prayer: event.target.value,
-                  }))
-                }
-                placeholder="Oracion final, opcional"
-                className="min-h-24 rounded-2xl border border-white/10 bg-slate-950/55 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-amber-200/60"
-              />
-              <label className="flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-3 text-sm font-bold text-white/75">
-                Devocional activo
+            <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/35 p-4">
+              <p className="text-sm font-black text-white">Flujo de publicacion</p>
+              <div className="mt-3 grid gap-2 text-xs font-bold text-white/65 sm:grid-cols-4">
+                <span className="rounded-full border border-white/10 px-3 py-2">1. Fecha</span>
+                <span className="rounded-full border border-white/10 px-3 py-2">2. Palabra</span>
+                <span className="rounded-full border border-white/10 px-3 py-2">3. Reflexion</span>
+                <span className="rounded-full border border-white/10 px-3 py-2">4. Publicar</span>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-4">
+              <label className="grid gap-2">
+                <span className="text-sm font-black text-white">Titulo publico</span>
+                <input
+                  value={devotionalForm.title}
+                  onChange={(event) =>
+                    setDevotionalForm((current) => ({
+                      ...current,
+                      title: event.target.value,
+                    }))
+                  }
+                  placeholder="Ej. Dios camina contigo"
+                  className="app-input"
+                />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-black text-white">Fecha de publicacion</span>
+                <input
+                  type="date"
+                  value={devotionalForm.devotionalDate}
+                  onChange={(event) =>
+                    setDevotionalForm((current) => ({
+                      ...current,
+                      devotionalDate: event.target.value,
+                    }))
+                  }
+                  className="app-input"
+                />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-black text-white">Referencia biblica</span>
+                <input
+                  value={devotionalForm.verseReference}
+                  onChange={(event) =>
+                    setDevotionalForm((current) => ({
+                      ...current,
+                      verseReference: event.target.value,
+                    }))
+                  }
+                  placeholder="Ej. Juan 3:16"
+                  className="app-input"
+                />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-black text-white">Texto breve del versiculo</span>
+                <textarea
+                  value={devotionalForm.verseText}
+                  onChange={(event) =>
+                    setDevotionalForm((current) => ({
+                      ...current,
+                      verseText: event.target.value,
+                    }))
+                  }
+                  placeholder="Usa un fragmento breve y autorizado."
+                  className="app-input min-h-24"
+                />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-black text-white">Reflexion para jovenes</span>
+                <textarea
+                  value={devotionalForm.reflection}
+                  onChange={(event) =>
+                    setDevotionalForm((current) => ({
+                      ...current,
+                      reflection: event.target.value,
+                    }))
+                  }
+                  placeholder="Escribe una reflexion clara, corta y pastoral."
+                  className="app-input min-h-32"
+                />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-sm font-black text-white">Oracion final</span>
+                <textarea
+                  value={devotionalForm.prayer}
+                  onChange={(event) =>
+                    setDevotionalForm((current) => ({
+                      ...current,
+                      prayer: event.target.value,
+                    }))
+                  }
+                  placeholder="Opcional: una oracion breve para cerrar."
+                  className="app-input min-h-24"
+                />
+              </label>
+              <label className="flex min-h-12 items-center justify-between gap-4 rounded-2xl border border-white/10 bg-slate-950/45 px-4 py-3 text-sm font-bold text-white/75">
+                <span>
+                  Devocional activo
+                  <span className="block text-xs font-semibold text-white/45">
+                    Si esta activo, queda disponible para la comunidad.
+                  </span>
+                </span>
                 <input
                   type="checkbox"
                   checked={devotionalForm.isActive}
@@ -1085,7 +1245,7 @@ export function AdminHome() {
             </button>
           </form>
 
-          <div className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+          <div id="cms-ia" className="app-cms-anchor rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
             <div className="flex items-center gap-3">
               <Sparkles className="h-6 w-6 text-emerald-200" aria-hidden="true" />
               <h2 className="text-2xl font-black">Inteligencia Artificial</h2>
@@ -1239,7 +1399,7 @@ export function AdminHome() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-sky-300/20 bg-sky-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur xl:col-span-2">
+          <div id="cms-biblia" className="app-cms-anchor rounded-[2rem] border border-sky-300/20 bg-sky-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur xl:col-span-2">
             <div className="flex items-center gap-3">
               <BookOpen className="h-6 w-6 text-sky-200" aria-hidden="true" />
               <h2 className="text-2xl font-black">Biblia</h2>
@@ -1293,13 +1453,34 @@ export function AdminHome() {
               </div>
               <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
                 <h3 className="font-black">Versiculo diario</h3>
-                <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                  <input value={dailyVerseForm.translationCode} onChange={(event) => setDailyVerseForm((current) => ({ ...current, translationCode: event.target.value }))} className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none" />
-                  <input value={dailyVerseForm.bookCode} onChange={(event) => setDailyVerseForm((current) => ({ ...current, bookCode: event.target.value.toUpperCase() }))} className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none" />
-                  <input value={dailyVerseForm.chapter} onChange={(event) => setDailyVerseForm((current) => ({ ...current, chapter: event.target.value }))} className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none" />
-                  <input value={dailyVerseForm.verse} onChange={(event) => setDailyVerseForm((current) => ({ ...current, verse: event.target.value }))} className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none" />
-                  <input type="date" value={dailyVerseForm.activeDate} onChange={(event) => setDailyVerseForm((current) => ({ ...current, activeDate: event.target.value }))} className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none" />
-                  <input value={dailyVerseForm.devotionalHint} onChange={(event) => setDailyVerseForm((current) => ({ ...current, devotionalHint: event.target.value }))} placeholder="Hint devocional" className="h-10 rounded-2xl border border-white/10 bg-slate-950/70 px-3 text-xs text-white outline-none placeholder:text-white/35" />
+                <p className="mt-1 text-xs leading-5 text-white/50">
+                  Programa una referencia para una fecha. Si no hay programacion, la app usa un versiculo aleatorio.
+                </p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label className="grid gap-1">
+                    <span className="text-xs font-black text-white/70">Traduccion</span>
+                    <input value={dailyVerseForm.translationCode} onChange={(event) => setDailyVerseForm((current) => ({ ...current, translationCode: event.target.value }))} placeholder="RVR1909" className="app-input py-2 text-xs" />
+                  </label>
+                  <label className="grid gap-1">
+                    <span className="text-xs font-black text-white/70">Libro</span>
+                    <input value={dailyVerseForm.bookCode} onChange={(event) => setDailyVerseForm((current) => ({ ...current, bookCode: event.target.value.toUpperCase() }))} placeholder="JHN" className="app-input py-2 text-xs" />
+                  </label>
+                  <label className="grid gap-1">
+                    <span className="text-xs font-black text-white/70">Capitulo</span>
+                    <input value={dailyVerseForm.chapter} onChange={(event) => setDailyVerseForm((current) => ({ ...current, chapter: event.target.value }))} inputMode="numeric" placeholder="3" className="app-input py-2 text-xs" />
+                  </label>
+                  <label className="grid gap-1">
+                    <span className="text-xs font-black text-white/70">Versiculo</span>
+                    <input value={dailyVerseForm.verse} onChange={(event) => setDailyVerseForm((current) => ({ ...current, verse: event.target.value }))} inputMode="numeric" placeholder="16" className="app-input py-2 text-xs" />
+                  </label>
+                  <label className="grid gap-1">
+                    <span className="text-xs font-black text-white/70">Fecha</span>
+                    <input type="date" value={dailyVerseForm.activeDate} onChange={(event) => setDailyVerseForm((current) => ({ ...current, activeDate: event.target.value }))} className="app-input py-2 text-xs" />
+                  </label>
+                  <label className="grid gap-1">
+                    <span className="text-xs font-black text-white/70">Hint devocional</span>
+                    <input value={dailyVerseForm.devotionalHint} onChange={(event) => setDailyVerseForm((current) => ({ ...current, devotionalHint: event.target.value }))} placeholder="Una idea breve para meditar" className="app-input py-2 text-xs" />
+                  </label>
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button type="button" onClick={() => void handleSaveDailyBibleVerse()} className="rounded-full bg-white px-4 py-2 text-xs font-black text-slate-950">
@@ -1373,7 +1554,7 @@ export function AdminHome() {
           </div>
 
           <div className="grid gap-6 xl:grid-cols-[1fr_1fr]">
-            <div className="rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+            <div id="cms-feedback" className="app-cms-anchor rounded-[2rem] border border-emerald-300/20 bg-emerald-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
               <div className="flex items-center gap-3">
                 <MessageCircle className="h-6 w-6 text-emerald-200" aria-hidden="true" />
                 <h2 className="text-2xl font-black">Feedback del piloto</h2>
@@ -1420,7 +1601,7 @@ export function AdminHome() {
                         ) : null}
                       </div>
                       <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/60">
-                        {item.status}
+                        {formatFeedbackStatus(item.status)}
                       </span>
                     </div>
                     <div className="mt-3 flex flex-col gap-2">
@@ -1443,7 +1624,7 @@ export function AdminHome() {
                             onClick={() => void handlePilotFeedbackStatus(item.id, status)}
                             className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/70"
                           >
-                            {status}
+                            {formatFeedbackStatus(status)}
                           </button>
                         ))}
                       </div>
@@ -1453,7 +1634,7 @@ export function AdminHome() {
               </div>
             </div>
 
-            <div className="rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
+            <div id="cms-incidentes" className="app-cms-anchor rounded-[2rem] border border-amber-300/20 bg-amber-300/10 p-6 shadow-2xl shadow-black/25 backdrop-blur">
               <div className="flex items-center gap-3">
                 <ShieldCheck className="h-6 w-6 text-amber-200" aria-hidden="true" />
                 <h2 className="text-2xl font-black">Incidentes del piloto</h2>
@@ -1539,7 +1720,7 @@ export function AdminHome() {
                       <div className="min-w-0">
                         <p className="truncate font-black">{item.title}</p>
                         <p className="mt-1 text-xs text-white/50">
-                          {item.severity} · {item.module ?? 'General'} · {item.status}
+                          {formatIncidentSeverity(item.severity)} · {item.module ?? 'General'} · {formatIncidentStatus(item.status)}
                         </p>
                       </div>
                       <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/60">
@@ -1565,7 +1746,7 @@ export function AdminHome() {
                           onClick={() => void handleIncidentStatus(item.id, status)}
                           className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/70"
                         >
-                          {status}
+                          {formatIncidentStatus(status)}
                         </button>
                       ))}
                     </div>
@@ -1593,7 +1774,7 @@ export function AdminHome() {
                 <div className="mt-3 space-y-2">
                   {qaPilotFeedback.slice(0, 3).map((item) => (
                     <p key={item.id} className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white/55">
-                      {item.title} - {item.status}
+                      {item.title} - {formatFeedbackStatus(item.status)}
                     </p>
                   ))}
                   {qaPilotFeedback.length ? null : (
@@ -1606,7 +1787,7 @@ export function AdminHome() {
                 <div className="mt-3 space-y-2">
                   {qaPilotIncidents.slice(0, 3).map((item) => (
                     <p key={item.id} className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-xs text-white/55">
-                      {item.title} - {item.status}
+                      {item.title} - {formatIncidentStatus(item.status)}
                     </p>
                   ))}
                   {qaPilotIncidents.length ? null : (

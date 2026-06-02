@@ -131,6 +131,8 @@ main,
   .app-scroll-x {
     @apply flex gap-2 overflow-x-auto pb-1;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain;
   }
 
   .app-scroll-x::-webkit-scrollbar {
@@ -139,6 +141,10 @@ main,
 
   .app-bottom-safe {
     padding-bottom: calc(7.5rem + env(safe-area-inset-bottom));
+  }
+
+  .app-cms-anchor {
+    scroll-margin-top: 132px;
   }
 
   @screen lg {
@@ -157,6 +163,15 @@ main,
     textarea,
     select {
       font-size: 16px;
+    }
+
+    textarea {
+      line-height: 1.55;
+    }
+
+    .app-card,
+    .app-card-accent {
+      @apply p-4;
     }
   }
 }

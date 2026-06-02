@@ -109,10 +109,10 @@ export function PilotFeedbackDialog({
       </button>
 
       {isOpen ? (
-        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/70 px-3 pb-3 pt-16 backdrop-blur sm:items-center sm:p-6">
+        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-slate-950/70 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-16 backdrop-blur sm:items-center sm:p-6">
           <form
             onSubmit={(event) => void handleSubmit(event)}
-            className="max-h-[88vh] w-full max-w-xl overflow-auto rounded-[1.5rem] border border-white/10 bg-slate-950 p-5 text-white shadow-2xl shadow-black/50"
+            className="max-h-[88dvh] w-full max-w-xl overflow-auto overscroll-contain rounded-[1.5rem] border border-white/10 bg-slate-950 p-5 text-white shadow-2xl shadow-black/50"
             role="dialog"
             aria-modal="true"
             aria-labelledby="pilot-feedback-title"

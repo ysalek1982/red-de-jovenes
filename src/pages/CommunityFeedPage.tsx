@@ -616,7 +616,7 @@ export function CommunityFeedPage() {
                               ) : null}
                             </div>
                           </div>
-                          <p className="mt-4 leading-7 text-white/75">{post.body}</p>
+                          <p className="mt-4 break-words leading-7 text-white/75 [overflow-wrap:anywhere]">{post.body}</p>
                         </div>
                         {isOwner ? (
                           <div className="flex flex-wrap gap-2">
@@ -770,7 +770,7 @@ export function CommunityFeedPage() {
                                 </Button>
                               </div>
                             ) : (
-                              <p className="mt-2 text-sm leading-6 text-white/70">
+                              <p className="mt-2 break-words text-sm leading-6 text-white/70 [overflow-wrap:anywhere]">
                                 {comment.body}
                               </p>
                             )}

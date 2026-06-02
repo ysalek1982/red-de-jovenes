@@ -496,11 +496,11 @@ export function PrayerRoomPage() {
                       className="app-card-soft"
                     >
                       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
+                        <div className="min-w-0">
                           <p className="text-xs font-semibold uppercase tracking-wide text-white/45">
                             {getAuthor(prayer)} · {formatDate(prayer.created_at)}
                           </p>
-                          <h3 className="mt-2 text-xl font-bold">{prayer.title}</h3>
+                          <h3 className="mt-2 break-words text-xl font-bold [overflow-wrap:anywhere]">{prayer.title}</h3>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           <span className="w-fit rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-semibold text-white/70">
@@ -521,9 +521,9 @@ export function PrayerRoomPage() {
                           ) : null}
                         </div>
                       </div>
-                      <p className="mt-4 leading-7 text-white/65">{prayer.body}</p>
+                      <p className="mt-4 break-words leading-7 text-white/65 [overflow-wrap:anywhere]">{prayer.body}</p>
                       {prayer.answered_testimony ? (
-                          <div className="mt-4 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm leading-6 text-emerald-50">
+                          <div className="mt-4 break-words rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-4 text-sm leading-6 text-emerald-50 [overflow-wrap:anywhere]">
                           Testimonio: {prayer.answered_testimony}
                         </div>
                       ) : null}

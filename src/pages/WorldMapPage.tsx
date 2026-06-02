@@ -536,7 +536,7 @@ export function WorldMapPage() {
                         />
                       )}
                     </div>
-                    <p className="mt-4 line-clamp-2 text-sm leading-6 text-white/55">
+                    <p className="mt-4 line-clamp-2 break-words text-sm leading-6 text-white/55 [overflow-wrap:anywhere]">
                       {group.meeting_info ||
                         group.description ||
                         'Grupo juvenil conectado a Red de Jóvenes.'}
@@ -617,7 +617,7 @@ export function WorldMapPage() {
                     <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-200">
                       Comunidad seleccionada
                     </p>
-                    <h3 className="mt-2 text-2xl font-black">
+                    <h3 className="mt-2 break-words text-2xl font-black [overflow-wrap:anywhere]">
                       {visibleSelectedGroup.name}
                     </h3>
                     <p className="mt-2 text-sm text-white/65">
@@ -628,7 +628,7 @@ export function WorldMapPage() {
                     {visibleSelectedGroup.membersCount} miembros
                   </span>
                 </div>
-                <p className="mt-4 leading-7 text-white/70">
+                <p className="mt-4 break-words leading-7 text-white/70 [overflow-wrap:anywhere]">
                   {visibleSelectedGroup.description ||
                     visibleSelectedGroup.meeting_info ||
                     'Comunidad juvenil conectada a la Red.'}
@@ -696,7 +696,7 @@ export function WorldMapPage() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <h3 className="font-bold">{group.name}</h3>
+                          <h3 className="break-words font-bold [overflow-wrap:anywhere]">{group.name}</h3>
                           <p className="mt-1 text-sm text-white/50">
                             {normalize(group.city)}, {normalize(group.country)}
                           </p>
