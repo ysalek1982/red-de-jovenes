@@ -268,8 +268,27 @@ Deno.serve(async (req) => {
       const chapter = Number(body.chapter)
       const verse = Number(body.verse)
       const activeDate = String(body.activeDate || '').trim()
-      if (!bookCode || !chapter || !verse || !activeDate) {
+      if (
+        !bookCode ||
+        !Number.isInteger(chapter) ||
+        !Number.isInteger(verse) ||
+        chapter <= 0 ||
+        verse <= 0 ||
+        !/^\d{4}-\d{2}-\d{2}$/.test(activeDate)
+      ) {
         return jsonResponse({ error: 'INVALID_DAILY_VERSE' }, 400)
+      }
+      const existingVerse = await supabase
+        .from('bible_verses')
+        .select('id')
+        .eq('translation_code', translationCode)
+        .eq('book_code', bookCode)
+        .eq('chapter', chapter)
+        .eq('verse', verse)
+        .maybeSingle()
+      if (existingVerse.error) throw existingVerse.error
+      if (!existingVerse.data) {
+        return jsonResponse({ error: 'BIBLE_VERSE_NOT_FOUND' }, 400)
       }
       const { data, error } = await supabase
         .from('bible_daily_verses')

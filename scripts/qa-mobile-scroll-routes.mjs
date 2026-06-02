@@ -73,6 +73,7 @@ async function validateStagingRoutes() {
     '/app',
     '/app/foros',
     '/app/biblia',
+    '/app/devocional',
     '/app/juegos',
     '/app/mapa',
     '/app/oracion',
@@ -81,6 +82,7 @@ async function validateStagingRoutes() {
     '/app/mensajes',
     '/app/perfil',
     '/app/guia',
+    '/app/seguridad',
     '/app/admin',
   ]
   const observations = []

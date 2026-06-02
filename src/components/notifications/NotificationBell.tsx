@@ -9,6 +9,31 @@ import {
 import { useAuth } from '../../features/auth/useAuth'
 import type { Notification } from '../../types/database'
 
+const allowedNotificationPaths = new Set([
+  '/app',
+  '/app/admin',
+  '/app/biblia',
+  '/app/devocional',
+  '/app/discipulado',
+  '/app/eventos',
+  '/app/foros',
+  '/app/guia',
+  '/app/juegos',
+  '/app/mapa',
+  '/app/mensajes',
+  '/app/oracion',
+  '/app/orar',
+  '/app/perfil',
+  '/app/seguridad',
+])
+
+function getSafeNotificationPath(path?: string | null) {
+  if (!path || !path.startsWith('/app')) return '/app'
+  const normalizedPath = path.split('#')[0].split('?')[0]
+  if (normalizedPath === '/app/construir') return '/app'
+  return allowedNotificationPaths.has(normalizedPath) ? path : '/app'
+}
+
 export function NotificationBell() {
   const { user } = useAuth()
   const location = useLocation()
@@ -130,7 +155,7 @@ export function NotificationBell() {
               notifications.map((notification) => (
                 <Link
                   key={notification.id}
-                  to={notification.link_path || '/app'}
+                  to={getSafeNotificationPath(notification.link_path)}
                   onClick={() => {
                     setIsOpen(false)
                     void handleMarkRead(notification)

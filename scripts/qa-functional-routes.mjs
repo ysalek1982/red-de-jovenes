@@ -378,7 +378,7 @@ async function main() {
     return
   }
 
-  const baseUrl = process.env.QA_APP_BASE_URL || 'http://127.0.0.1:8080'
+  const baseUrl = process.env.QA_APP_BASE_URL || 'http://127.0.0.1:5173'
   const routeResults = await checkRoutes(baseUrl)
 
   const userA = await signIn(

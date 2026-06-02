@@ -36,6 +36,7 @@ import {
 import { generatePilotReport } from '../features/admin/pilotReportService'
 import {
   activateAiPromptTemplate,
+  approveAiAction,
   createAiPromptTemplate,
   disableAiProvider,
   generateAiContent,
@@ -44,6 +45,7 @@ import {
   getAiPromptTemplates,
   getAiUsageSummary,
   getPendingAiActions,
+  rejectAiAction,
   saveAiProviderKey,
   saveAiUsageLimit,
   saveDailyBibleVerse,
@@ -540,6 +542,18 @@ export function AdminHome() {
   async function handleActivatePromptTemplate(templateId: string) {
     await activateAiPromptTemplate(templateId)
     setMessage('Version de prompt activada.')
+    await loadAdminData()
+  }
+
+  async function handleApproveAiQueueItem(queueId: string) {
+    await approveAiAction(queueId)
+    setMessage('Accion IA aprobada para ejecucion controlada.')
+    await loadAdminData()
+  }
+
+  async function handleRejectAiQueueItem(queueId: string) {
+    await rejectAiAction(queueId)
+    setMessage('Accion IA rechazada.')
     await loadAdminData()
   }
 
@@ -1371,6 +1385,10 @@ export function AdminHome() {
                 <option value="classify_content_report">Clasificar reporte</option>
                 <option value="suggest_prayer_response">Sugerir respuesta pastoral</option>
                 <option value="explain_bible_verse">Explicar versiculo</option>
+                <option value="create_bible_reflection">Crear reflexion biblica</option>
+                <option value="create_bible_group_question">Crear pregunta para grupo</option>
+                <option value="create_bible_prayer">Crear oracion breve</option>
+                <option value="suggest_bible_forum_post">Sugerir post biblico</option>
                 <option value="generate_event_description">Generar descripcion de evento</option>
                 <option value="create_discipleship_reflection">Crear reflexion de discipulado</option>
                 <option value="summarize_community_activity">Resumir actividad comunitaria</option>
@@ -1393,6 +1411,22 @@ export function AdminHome() {
                   <div key={item.id} className="rounded-2xl border border-white/10 bg-slate-950/45 p-3 text-sm">
                     <p className="font-bold">{item.action_type}</p>
                     <p className="mt-1 line-clamp-2 text-white/55">{item.prompt}</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => void handleApproveAiQueueItem(item.id)}
+                        className="rounded-full bg-emerald-200 px-3 py-2 text-xs font-black text-slate-950"
+                      >
+                        Aprobar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void handleRejectAiQueueItem(item.id)}
+                        className="rounded-full border border-white/10 px-3 py-2 text-xs font-black text-white/70"
+                      >
+                        Rechazar
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

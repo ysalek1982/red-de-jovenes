@@ -3,7 +3,8 @@ import { ensureQaEnv, printOk, signInQaUser } from './qa-shared.mjs'
 async function main() {
   if (!ensureQaEnv()) return
   const userA = await signInQaUser('A')
-  const event = await userA.supabase
+
+  const blockedCreate = await userA.supabase
     .from('events')
     .insert({
       created_by: userA.user.id,
@@ -17,8 +18,23 @@ async function main() {
       is_active: true,
     })
     .select()
-    .single()
+  if (!blockedCreate.error || (blockedCreate.data ?? []).length > 0) {
+    throw new Error('RLS permitio crear eventos a usuario normal.')
+  }
+
+  const event = await userA.supabase
+    .from('events')
+    .select('id')
+    .eq('is_active', true)
+    .gte('starts_at', new Date(Date.now() - 86_400_000).toISOString())
+    .order('starts_at', { ascending: true })
+    .limit(1)
+    .maybeSingle()
   if (event.error) throw event.error
+  if (!event.data?.id) {
+    printOk('QA_EVENTS_OK', { observation: 'No hay eventos activos para probar RSVP.' })
+    return
+  }
 
   const rsvp = await userA.supabase
     .from('event_rsvps')
