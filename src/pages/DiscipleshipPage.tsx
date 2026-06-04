@@ -70,7 +70,7 @@ export function DiscipleshipPage() {
 
   async function handleCompleteStep() {
     if (!userId || !selectedTrack || !nextStep) {
-      setStatus('Este camino ya esta completo. Puedes compartir lo aprendido o elegir otro.')
+      setStatus('Este camino ya está completo. Puedes compartir lo aprendido o elegir otro.')
       return
     }
 
@@ -95,7 +95,7 @@ export function DiscipleshipPage() {
   async function handleShare(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     if (!userId || !reflection.trim()) {
-      setError('Escribe una reflexion breve antes de compartir.')
+      setError('Escribe una reflexión breve antes de compartir.')
       return
     }
 
@@ -212,7 +212,7 @@ export function DiscipleshipPage() {
                         : 'Completar paso'}
                   </button>
                   <Link to="/app/oracion" className="app-button-secondary">
-                    Pedir oracion
+                    Pedir oración
                   </Link>
                 </div>
                 <form onSubmit={(event) => void handleShare(event)} className="mt-6">

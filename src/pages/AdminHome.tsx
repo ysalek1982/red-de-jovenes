@@ -197,7 +197,7 @@ function formatDate(value: string | null) {
 function formatFeedbackStatus(status: PilotFeedbackStatus | string) {
   const labels: Record<string, string> = {
     new: 'Nuevo',
-    reviewing: 'En revision',
+    reviewing: 'En revisión',
     planned: 'Planificado',
     resolved: 'Resuelto',
     dismissed: 'Descartado',
@@ -208,7 +208,7 @@ function formatFeedbackStatus(status: PilotFeedbackStatus | string) {
 function formatIncidentStatus(status: PilotIncidentStatus | string) {
   const labels: Record<string, string> = {
     open: 'Abierto',
-    triage: 'En revision',
+    triage: 'En revisión',
     resolved: 'Resuelto',
     closed: 'Cerrado',
   }
@@ -473,7 +473,7 @@ export function AdminHome() {
 
   async function handleTestAiSettings() {
     const result = await testAiProviderKey()
-    setMessage(result?.status === 'GEMINI_TEST_OK' ? 'Gemini respondio correctamente.' : 'Gemini no esta configurado.')
+    setMessage(result?.status === 'GEMINI_TEST_OK' ? 'Gemini respondió correctamente.' : 'Gemini no está configurado.')
     await loadAdminData()
   }
 
@@ -496,8 +496,8 @@ export function AdminHome() {
     if (result?.text) setAiOutput(result.text)
     setMessage(
       result?.status === 'AI_PROVIDER_NOT_CONFIGURED'
-        ? 'Gemini no esta configurado. La solicitud quedo en cola para revision.'
-        : 'Respuesta IA generada para revision humana.',
+        ? 'Gemini no está configurado. La solicitud quedó en cola para revisión.'
+        : 'Respuesta IA generada para revisión humana.',
     )
     await loadAdminData()
   }
@@ -509,7 +509,7 @@ export function AdminHome() {
       dailyTokenLimit: 20000,
       isEnabled: true,
     })
-    setMessage('Limite IA global guardado para esta accion.')
+    setMessage('Límite IA global guardado para esta acción.')
     await loadAdminData()
   }
 
@@ -566,7 +566,7 @@ export function AdminHome() {
       activeDate: dailyVerseForm.activeDate,
       devotionalHint: dailyVerseForm.devotionalHint,
     })
-    setMessage('Versiculo diario guardado.')
+    setMessage('Versículo diario guardado.')
     await loadAdminData()
   }
 
@@ -574,8 +574,8 @@ export function AdminHome() {
     const result = await testRandomBibleVerseFromAdmin()
     setMessage(
       result?.status === 'BIBLE_RANDOM_OK'
-        ? 'Versiculo aleatorio disponible.'
-        : 'No hay versiculos disponibles para la prueba.',
+        ? 'Versículo aleatorio disponible.'
+        : 'No hay versículos disponibles para la prueba.',
     )
   }
 
@@ -806,13 +806,13 @@ export function AdminHome() {
   const cmsSections = [
     {
       title: 'Publicar contenido',
-      detail: 'Carga devocionales, revisa publicaciones y acompana conversaciones.',
+      detail: 'Carga devocionales, revisa publicaciones y acompaña conversaciones.',
       href: '#crear-devocional',
       status: `${overview.devotionals} devocionales`,
     },
     {
       title: 'Gestionar Biblia',
-      detail: 'Programa el versiculo diario y revisa el estado del corpus RVR1909.',
+      detail: 'Programa el versículo diario y revisa el estado del corpus RVR1909.',
       href: '#cms-biblia',
       status: rvr1909Complete ? 'RVR1909 completa' : 'Revisar corpus',
     },
@@ -824,7 +824,7 @@ export function AdminHome() {
     },
     {
       title: 'Operar piloto',
-      detail: 'Mira activacion, uso diario, evidencia QA y reporte de cierre.',
+      detail: 'Mira activación, uso diario, evidencia QA y reporte de cierre.',
       href: '#cms-piloto',
       status: `${pilotMetrics.daily.activeUsersToday} activos hoy`,
     },
@@ -833,17 +833,30 @@ export function AdminHome() {
   return (
     <section className="app-page">
       <div className="section-shell relative">
-        <div className="max-w-3xl">
-          <p className="app-kicker">
-            <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-            Administracion
-          </p>
-          <h1 data-page-title className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
-            Centro de administracion
-          </h1>
-          <p className="mt-4 text-lg leading-8 text-white/70">
-            Gestiona contenido, comunidad, Biblia, piloto e IA desde un flujo claro tipo CMS.
-          </p>
+        <div className="app-hero-panel flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="app-kicker">
+              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+              Administración
+            </p>
+            <h1 data-page-title className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
+              Centro CMS de la Red
+            </h1>
+            <p className="mt-4 text-lg leading-8 text-white/70">
+              Publica contenido, cuida comunidad, programa Biblia y monitorea el piloto desde un flujo claro.
+            </p>
+          </div>
+          <div className="grid w-full gap-2 sm:grid-cols-2 lg:max-w-sm">
+            {quickActions.slice(0, 4).map((action) => (
+              <a
+                key={action.href}
+                href={action.href}
+                className="rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-sm font-black text-white/75 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
+              >
+                {action.label}
+              </a>
+            ))}
+          </div>
         </div>
 
         {message ? (
@@ -853,7 +866,7 @@ export function AdminHome() {
         ) : null}
 
         <nav
-          aria-label="Secciones de administracion"
+          aria-label="Secciones de administración"
           className="app-scroll-x sticky top-24 z-20 -mx-4 mt-8 bg-slate-950/85 px-4 py-2 backdrop-blur-xl sm:mx-0 sm:rounded-full sm:border sm:border-white/10"
         >
           {adminNavigation.map((item) => (
@@ -957,7 +970,7 @@ export function AdminHome() {
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <PilotMetricCard
-                title="Adopcion"
+                title="Adopción"
                 value={pilotMetrics.adoption.users}
                 detail="usuarios registrados"
               />
@@ -967,9 +980,9 @@ export function AdminHome() {
                 detail={`${pilotMetrics.community.posts} posts · ${pilotMetrics.community.comments} comentarios`}
               />
               <PilotMetricCard
-                title="Oracion"
+                title="Oración"
                 value={pilotMetrics.community.prayers}
-                detail={`${pilotMetrics.community.prayerSupports} apoyos de oracion`}
+                detail={`${pilotMetrics.community.prayerSupports} apoyos de oración`}
               />
               <PilotMetricCard
                 title="Biblia"
@@ -1013,17 +1026,17 @@ export function AdminHome() {
                 <PilotMetricCard
                   title="Perfil completo"
                   value={pilotMetrics.activation.profileCompleteUsers}
-                  detail="nombre, ubicacion, iglesia, bio y avatar"
+                  detail="nombre, ubicación, iglesia, bio y avatar"
                 />
                 <PilotMetricCard
-                  title="Primer versiculo"
+                  title="Primer versículo"
                   value={pilotMetrics.activation.firstSavedVerseUsers}
-                  detail="usuarios con versiculo guardado"
+                  detail="usuarios con versículo guardado"
                 />
                 <PilotMetricCard
-                  title="Primera oracion"
+                  title="Primera oración"
                   value={pilotMetrics.activation.firstPrayerUsers}
-                  detail="pidieron o apoyaron oracion"
+                  detail="pidieron o apoyaron oración"
                 />
                 <PilotMetricCard
                   title="Primer foro"
@@ -1076,7 +1089,7 @@ export function AdminHome() {
                   detail={`${pilotMetrics.daily.postsToday} posts · ${pilotMetrics.daily.commentsToday} comentarios`}
                 />
                 <PilotMetricCard
-                  title="Oracion hoy"
+                  title="Oración hoy"
                   value={pilotMetrics.daily.prayersToday}
                   detail={`${pilotMetrics.daily.prayerSupportsToday} apoyos`}
                 />
@@ -1136,7 +1149,7 @@ export function AdminHome() {
               </h2>
             </div>
             <div className="mt-4 rounded-3xl border border-white/10 bg-slate-950/35 p-4">
-              <p className="text-sm font-black text-white">Flujo de publicacion</p>
+              <p className="text-sm font-black text-white">Flujo de publicación</p>
               <div className="mt-3 grid gap-2 text-xs font-bold text-white/65 sm:grid-cols-4">
                 <span className="rounded-full border border-white/10 px-3 py-2">1. Fecha</span>
                 <span className="rounded-full border border-white/10 px-3 py-2">2. Palabra</span>
@@ -1160,7 +1173,7 @@ export function AdminHome() {
                 />
               </label>
               <label className="grid gap-2">
-                <span className="text-sm font-black text-white">Fecha de publicacion</span>
+                <span className="text-sm font-black text-white">Fecha de publicación</span>
                 <input
                   type="date"
                   value={devotionalForm.devotionalDate}
@@ -1188,7 +1201,7 @@ export function AdminHome() {
                 />
               </label>
               <label className="grid gap-2">
-                <span className="text-sm font-black text-white">Texto breve del versiculo</span>
+                <span className="text-sm font-black text-white">Texto breve del versículo</span>
                 <textarea
                   value={devotionalForm.verseText}
                   onChange={(event) =>
@@ -1211,12 +1224,12 @@ export function AdminHome() {
                       reflection: event.target.value,
                     }))
                   }
-                  placeholder="Escribe una reflexion clara, corta y pastoral."
+                  placeholder="Escribe una reflexión clara, corta y pastoral."
                   className="app-input min-h-32"
                 />
               </label>
               <label className="grid gap-2">
-                <span className="text-sm font-black text-white">Oracion final</span>
+                <span className="text-sm font-black text-white">Oración final</span>
                 <textarea
                   value={devotionalForm.prayer}
                   onChange={(event) =>
@@ -1225,7 +1238,7 @@ export function AdminHome() {
                       prayer: event.target.value,
                     }))
                   }
-                  placeholder="Opcional: una oracion breve para cerrar."
+                  placeholder="Opcional: una oración breve para cerrar."
                   className="app-input min-h-24"
                 />
               </label>
@@ -1233,7 +1246,7 @@ export function AdminHome() {
                 <span>
                   Devocional activo
                   <span className="block text-xs font-semibold text-white/45">
-                    Si esta activo, queda disponible para la comunidad.
+                    Si está activo, queda disponible para la comunidad.
                   </span>
                 </span>
                 <input
@@ -1384,13 +1397,13 @@ export function AdminHome() {
                 <option value="summarize_report">Resumir reporte</option>
                 <option value="classify_content_report">Clasificar reporte</option>
                 <option value="suggest_prayer_response">Sugerir respuesta pastoral</option>
-                <option value="explain_bible_verse">Explicar versiculo</option>
-                <option value="create_bible_reflection">Crear reflexion biblica</option>
+                <option value="explain_bible_verse">Explicar versículo</option>
+                <option value="create_bible_reflection">Crear reflexión bíblica</option>
                 <option value="create_bible_group_question">Crear pregunta para grupo</option>
-                <option value="create_bible_prayer">Crear oracion breve</option>
+                <option value="create_bible_prayer">Crear oración breve</option>
                 <option value="suggest_bible_forum_post">Sugerir post biblico</option>
                 <option value="generate_event_description">Generar descripcion de evento</option>
-                <option value="create_discipleship_reflection">Crear reflexion de discipulado</option>
+                <option value="create_discipleship_reflection">Crear reflexión de discipulado</option>
                 <option value="summarize_community_activity">Resumir actividad comunitaria</option>
               </select>
               <textarea value={aiPrompt} onChange={(event) => setAiPrompt(event.target.value)} rows={4} placeholder="Solicitud para la IA" className="mt-3 w-full rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-white/35" />
@@ -1450,8 +1463,8 @@ export function AdminHome() {
               <p className="mt-1 text-xs leading-5 text-white/60">
                 Fuente: eBible RVR1909 / spaRV1909 - licencia public domain.
                 {rvr1909Stats
-                  ? ` ${rvr1909Stats.verses_count ?? 0} versiculos, ${rvr1909Stats.chapters_with_verses ?? 0} capitulos y ${rvr1909Stats.books_with_verses ?? 0} libros.`
-                  : ' Aun no hay estadisticas RVR1909 disponibles.'}
+                  ? ` ${rvr1909Stats.verses_count ?? 0} versículos, ${rvr1909Stats.chapters_with_verses ?? 0} capítulos y ${rvr1909Stats.books_with_verses ?? 0} libros.`
+                  : ' Aún no hay estadísticas RVR1909 disponibles.'}
               </p>
             </div>
             <div className="mt-5 grid gap-3 md:grid-cols-3">
@@ -1465,7 +1478,7 @@ export function AdminHome() {
               </div>
               <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
                 <p className="text-3xl font-black">{bibleAdmin.versesCount}</p>
-                <p className="mt-1 text-xs font-bold text-white/55">Versiculos cargados</p>
+                <p className="mt-1 text-xs font-bold text-white/55">Versículos cargados</p>
               </div>
             </div>
             <div className="mt-5 grid gap-3 lg:grid-cols-2">
@@ -1486,9 +1499,9 @@ export function AdminHome() {
                 </div>
               </div>
               <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">
-                <h3 className="font-black">Versiculo diario</h3>
+                <h3 className="font-black">Versículo diario</h3>
                 <p className="mt-1 text-xs leading-5 text-white/50">
-                  Programa una referencia para una fecha. Si no hay programacion, la app usa un versiculo aleatorio.
+                  Programa una referencia para una fecha. Si no hay programación, la app usa un versículo aleatorio.
                 </p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   <label className="grid gap-1">
@@ -1500,11 +1513,11 @@ export function AdminHome() {
                     <input value={dailyVerseForm.bookCode} onChange={(event) => setDailyVerseForm((current) => ({ ...current, bookCode: event.target.value.toUpperCase() }))} placeholder="JHN" className="app-input py-2 text-xs" />
                   </label>
                   <label className="grid gap-1">
-                    <span className="text-xs font-black text-white/70">Capitulo</span>
+                    <span className="text-xs font-black text-white/70">Capítulo</span>
                     <input value={dailyVerseForm.chapter} onChange={(event) => setDailyVerseForm((current) => ({ ...current, chapter: event.target.value }))} inputMode="numeric" placeholder="3" className="app-input py-2 text-xs" />
                   </label>
                   <label className="grid gap-1">
-                    <span className="text-xs font-black text-white/70">Versiculo</span>
+                    <span className="text-xs font-black text-white/70">Versículo</span>
                     <input value={dailyVerseForm.verse} onChange={(event) => setDailyVerseForm((current) => ({ ...current, verse: event.target.value }))} inputMode="numeric" placeholder="16" className="app-input py-2 text-xs" />
                   </label>
                   <label className="grid gap-1">
@@ -1518,7 +1531,7 @@ export function AdminHome() {
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button type="button" onClick={() => void handleSaveDailyBibleVerse()} className="rounded-full bg-white px-4 py-2 text-xs font-black text-slate-950">
-                    Guardar versiculo diario
+                    Guardar versículo diario
                   </button>
                   <button type="button" onClick={() => void handleTestBibleRandom()} className="rounded-full border border-white/10 px-4 py-2 text-xs font-black text-white/70">
                     Probar aleatorio
@@ -1531,7 +1544,7 @@ export function AdminHome() {
                     </p>
                   ))}
                   {bibleAdmin.recentDailyVerses.length ? null : (
-                    <p className="text-sm text-white/55">No hay versiculos diarios programados.</p>
+                    <p className="text-sm text-white/55">No hay versículos diarios programados.</p>
                   )}
                 </div>
               </div>
@@ -1544,7 +1557,7 @@ export function AdminHome() {
                     <div key={item.code ?? item.name} className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 text-xs text-white/60">
                       <p className="font-bold text-white">{item.code} - {item.name}</p>
                       <p className="mt-1">
-                        {item.verses_count ?? 0} versiculos - {item.books_with_verses ?? 0} libros - {item.estimated_completion_percent ?? 0}% estimado
+                        {item.verses_count ?? 0} versículos - {item.books_with_verses ?? 0} libros - {item.estimated_completion_percent ?? 0}% estimado
                       </p>
                       {item.code === 'RVR1909' && rvr1909Complete ? (
                         <p className="mt-2 inline-flex rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-[11px] font-black text-emerald-100">
@@ -1554,7 +1567,7 @@ export function AdminHome() {
                     </div>
                   ))}
                   {bibleAdmin.translationStats.length ? null : (
-                    <p className="text-sm text-white/55">Sin estadisticas todavia.</p>
+                    <p className="text-sm text-white/55">Sin estadísticas todavía.</p>
                   )}
                 </div>
               </div>
@@ -1580,7 +1593,7 @@ export function AdminHome() {
                     </p>
                   ))}
                   {bibleAdmin.missingChapters.length ? null : (
-                    <p className="text-sm text-white/55">No se detectaron capitulos vacios en el muestreo.</p>
+                    <p className="text-sm text-white/55">No se detectaron capítulos vacíos en el muestreo.</p>
                   )}
                 </div>
               </div>
@@ -1594,7 +1607,7 @@ export function AdminHome() {
                 <h2 className="text-2xl font-black">Feedback del piloto</h2>
               </div>
               <p className="mt-3 text-sm leading-6 text-white/65">
-                Comentarios reales enviados desde el menu Mas y Perfil.
+                Comentarios reales enviados desde el menú Más y Perfil.
               </p>
               <div className="mt-5 grid gap-3 sm:grid-cols-3">
                 <PilotMetricCard

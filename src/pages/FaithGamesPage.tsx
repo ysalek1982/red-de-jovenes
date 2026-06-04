@@ -395,7 +395,7 @@ export function FaithGamesPage() {
                         ? `Mejor: ${best.score}/${best.total} - ${plays} partida${
                             plays === 1 ? '' : 's'
                           }`
-                        : 'Sin partidas todavia'}
+                        : 'Sin partidas todavía'}
                     </p>
                   </div>
                 ))}
@@ -416,8 +416,8 @@ export function FaithGamesPage() {
                   {score}/{activeTotal} puntos
                 </h2>
                 <p className="mt-4 max-w-xl text-white/65">
-                  Cada respuesta es una oportunidad para conocer mas la Palabra.
-                  Repite el juego o prueba otro desafio.
+                  Cada respuesta es una oportunidad para conocer más la Palabra.
+                  Repite el juego o prueba otro desafío.
                 </p>
                 {scoreMessage ? (
                   <p

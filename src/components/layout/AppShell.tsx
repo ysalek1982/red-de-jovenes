@@ -54,9 +54,9 @@ const secondaryNavigation: NavigationItem[] = [
 
 function navigationItemClass(isActive: boolean) {
   return cn(
-    'flex min-h-[3.65rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-2xl px-2 text-[0.62rem] font-semibold text-white/55 transition hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 sm:text-xs',
+    'group flex min-h-[3.75rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-xl px-2 text-[0.62rem] font-semibold text-white/58 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 sm:text-xs',
     isActive &&
-      'bg-white text-slate-950 shadow-lg shadow-amber-500/10 ring-1 ring-amber-100/70 hover:bg-amber-100 hover:text-slate-950',
+      'bg-gradient-to-br from-amber-100 to-emerald-100 text-slate-950 shadow-lg shadow-amber-500/15 ring-1 ring-amber-100/70 hover:from-amber-100 hover:to-white hover:text-slate-950',
   )
 }
 
@@ -79,7 +79,7 @@ export function AppShell() {
   }, [])
 
   const adminNavigation: NavigationItem[] = isAdmin
-    ? [{ label: 'Administracion', to: '/app/admin', icon: ShieldCheck }]
+    ? [{ label: 'Administración', to: '/app/admin', icon: ShieldCheck }]
     : []
   const desktopNavigation: NavigationItem[] = [
     ...primaryMobileNavigation,
@@ -105,7 +105,7 @@ export function AppShell() {
 
   return (
     <div className="relative min-h-screen bg-slate-950 pb-28 lg:pb-24">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-950/85 px-4 py-3 text-white shadow-2xl shadow-black/30 backdrop-blur-xl">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-950/82 px-4 py-3 text-white shadow-2xl shadow-black/30 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-7xl items-center gap-3">
           <button
             type="button"
@@ -116,7 +116,7 @@ export function AppShell() {
             className="flex min-w-0 items-center gap-3 rounded-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-200"
             aria-label="Ir al inicio de mi red"
           >
-            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-300 via-lime-200 to-amber-300 font-black text-slate-950 shadow-lg shadow-amber-500/20">
+            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-emerald-300 via-lime-200 to-amber-300 font-black text-slate-950 shadow-lg shadow-amber-500/20 ring-1 ring-white/40">
               +
             </span>
             <span className="min-w-0">
@@ -133,7 +133,7 @@ export function AppShell() {
             <GlobalSearch />
           </div>
 
-          <div className="ml-auto flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 text-xs font-semibold text-amber-200 lg:ml-0">
+          <div className="ml-auto flex items-center gap-2 rounded-full border border-amber-200/15 bg-amber-200/[0.08] px-3 py-2 text-xs font-semibold text-amber-100 lg:ml-0">
             <Sparkles className="h-4 w-4" aria-hidden="true" />
             <span className="hidden sm:inline">Mi red</span>
           </div>
@@ -158,7 +158,7 @@ export function AppShell() {
           <div
             ref={morePanelRef}
             data-scroll-root
-            className="fixed inset-x-3 z-50 max-h-[68dvh] overflow-y-auto overscroll-contain rounded-2xl border border-white/10 bg-slate-950/95 p-3 text-white shadow-2xl shadow-black/45 backdrop-blur-xl lg:hidden"
+            className="fixed inset-x-3 z-50 max-h-[68dvh] overflow-y-auto overscroll-contain rounded-xl border border-white/10 bg-slate-950/96 p-3 text-white shadow-2xl shadow-black/45 backdrop-blur-2xl lg:hidden"
             style={{
               bottom:
                 'calc(max(0.75rem, env(safe-area-inset-bottom)) + 5.6rem)',
@@ -166,12 +166,12 @@ export function AppShell() {
             }}
             role="dialog"
             aria-modal="true"
-            aria-label="Mas opciones de navegacion"
+            aria-label="Más opciones de navegación"
           >
           <div className="mx-auto mb-3 h-1 w-12 rounded-full bg-white/20" />
           <div className="mb-3 flex items-center justify-between px-2">
             <div>
-              <p className="text-sm font-black text-white">Mas de tu Red</p>
+              <p className="text-sm font-black text-white">Más de tu Red</p>
               <p className="mt-1 text-xs font-semibold text-white/45">
                 Devocional, comunidad y herramientas personales.
               </p>
@@ -196,7 +196,7 @@ export function AppShell() {
                   onClick={resetPrivateNavigation}
                   className={({ isActive }) =>
                     cn(
-                      'flex min-h-14 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-3 text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white',
+                  'flex min-h-14 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.05] px-3 text-sm font-bold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white',
                       isActive &&
                         'border-amber-300/25 bg-amber-300/10 text-amber-100',
                     )
@@ -208,12 +208,12 @@ export function AppShell() {
               )
             })}
             <PilotFeedbackDialog
-              triggerClassName="flex min-h-14 items-center gap-3 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 px-3 text-sm font-bold text-emerald-100 transition hover:bg-emerald-300/15"
+              triggerClassName="flex min-h-14 items-center gap-3 rounded-xl border border-emerald-300/20 bg-emerald-300/10 px-3 text-sm font-bold text-emerald-100 transition hover:-translate-y-0.5 hover:bg-emerald-300/15"
             />
             <button
               type="button"
               onClick={() => void handleSignOut()}
-              className="flex min-h-14 items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.05] px-3 text-sm font-bold text-white/70 transition hover:bg-white/10 hover:text-white"
+              className="flex min-h-14 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.05] px-3 text-sm font-bold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
             >
               <LogOut className="h-4 w-4" aria-hidden="true" />
               Cerrar sesion
@@ -224,7 +224,7 @@ export function AppShell() {
       ) : null}
 
       <nav
-        className="fixed inset-x-3 z-50 mx-auto max-w-6xl overflow-hidden rounded-2xl border border-white/10 bg-slate-950/92 p-2 shadow-2xl shadow-black/45 backdrop-blur-xl lg:hidden"
+        className="fixed inset-x-3 z-50 mx-auto max-w-6xl overflow-hidden rounded-xl border border-white/10 bg-slate-950/94 p-2 shadow-2xl shadow-black/45 backdrop-blur-2xl lg:hidden"
         style={{
           bottom: 'max(0.75rem, env(safe-area-inset-bottom))',
           paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
@@ -256,7 +256,7 @@ export function AppShell() {
             className={navigationItemClass(isMoreActive || isMoreOpen)}
           >
             <Menu className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
-            <span className="max-w-full truncate">Mas</span>
+            <span className="max-w-full truncate">Más</span>
           </button>
         </div>
       </nav>

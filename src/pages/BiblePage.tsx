@@ -193,7 +193,7 @@ export function BiblePage() {
     setRandomVerse(
       await getRandomBibleVerse({ translationCode: selectedTranslation }),
     )
-    setStatus('Versiculo actualizado.')
+    setStatus('Versículo actualizado.')
     revealNode(pageTopRef.current)
   }
 
@@ -221,7 +221,7 @@ export function BiblePage() {
       verseText: verse.verse_text,
       note,
     })
-    setStatus('Versiculo guardado en tu Biblia.')
+    setStatus('Versículo guardado en tu Biblia.')
     setNote('')
     setSaved(await getMySavedVerses(userId))
   }
@@ -258,7 +258,7 @@ export function BiblePage() {
       highlightText: verse.verse_text,
       note: 'Subrayado desde Biblia.',
     })
-    setStatus('Versiculo subrayado.')
+    setStatus('Versículo subrayado.')
     setHighlights(await getMyHighlights(userId))
   }
 
@@ -275,7 +275,7 @@ export function BiblePage() {
 
   async function handleCopy(verse = activeVerse) {
     await navigator.clipboard.writeText(`${verse.verse_text} - ${verse.reference}`)
-    setStatus('Versiculo copiado.')
+    setStatus('Versículo copiado.')
   }
 
   async function handleExplainVerse(verse = activeVerse) {
@@ -285,7 +285,7 @@ export function BiblePage() {
     })
     setAiExplanation(
       result?.text ||
-        'Gemini no esta configurado todavia. La solicitud quedo registrada para revision.',
+        'Gemini no está configurado todavía. La solicitud quedó registrada para revisión.',
     )
     setStatus('Explicacion generada para revisar.')
     revealNode(aiRef.current, 'smooth')
@@ -305,7 +305,7 @@ export function BiblePage() {
     })
     setAiExplanation(
       result?.text ||
-        'La IA aun no esta configurada por el administrador.',
+        'La IA aún no está configurada por el administrador.',
     )
     setStatus('Sugerencia IA generada para revisar antes de compartir.')
     revealNode(aiRef.current, 'smooth')
@@ -313,7 +313,7 @@ export function BiblePage() {
 
   async function handleLoadChapter() {
     await loadChapter()
-    setStatus('Capitulo cargado.')
+    setStatus('Capítulo cargado.')
     revealReader()
   }
 
@@ -352,9 +352,9 @@ export function BiblePage() {
     <section className="app-page">
       <div className="section-shell">
         <div className="grid gap-6 xl:grid-cols-[1.05fr_0.95fr]">
-          <article ref={pageTopRef} className="app-card-accent">
+          <article ref={pageTopRef} className="app-hero-panel">
             <p className="app-kicker">Biblia</p>
-            <h1 data-page-title className="mt-3 text-4xl font-black">Versiculo del dia</h1>
+            <h1 data-page-title className="mt-3 text-4xl font-black">Versículo del día</h1>
             {dailyVerse ? (
               <div className="app-card-soft mt-5">
                 <p className="text-2xl leading-10 text-white">
@@ -370,7 +370,7 @@ export function BiblePage() {
                 ) : null}
               </div>
             ) : null}
-            <h2 className="mt-8 text-2xl font-black">Versiculo aleatorio</h2>
+            <h2 className="mt-8 text-2xl font-black">Versículo aleatorio</h2>
             <p className="mt-5 text-2xl leading-10 text-white">
               "{activeVerse.verse_text}"
             </p>
@@ -386,7 +386,7 @@ export function BiblePage() {
             />
             <div className="mt-4 flex flex-wrap gap-2">
               <button type="button" onClick={() => void handleRandomVerse()} className="app-button-primary bg-emerald-200 hover:bg-emerald-100">
-                <RefreshCw className="h-4 w-4" /> Otro versiculo
+                <RefreshCw className="h-4 w-4" /> Otro versículo
               </button>
               <button type="button" onClick={() => void handleSaveVerse()} className="app-button-primary">
                 <Save className="h-4 w-4" /> Guardar
@@ -409,7 +409,7 @@ export function BiblePage() {
                 Pregunta grupo
               </button>
               <button type="button" onClick={() => void handleBibleAiAction('create_bible_prayer')} className="app-chip text-xs">
-                Oracion breve
+                Oración breve
               </button>
               <button type="button" onClick={() => void handleBibleAiAction('suggest_bible_forum_post')} className="app-chip text-xs">
                 Post sugerido
@@ -431,7 +431,7 @@ export function BiblePage() {
                   Primer paso en Biblia
                 </p>
                 <p className="mt-2 text-sm leading-6 text-white/65">
-                  Empieza con el versiculo del dia, Juan 3 o Salmos 23. Guarda
+                  Empieza con el versículo del día, Juan 3 o Salmos 23. Guarda
                   una referencia que quieras recordar esta semana.
                 </p>
               </div>
@@ -439,7 +439,7 @@ export function BiblePage() {
           </article>
 
           <article ref={readerRef} className="app-card">
-            <p className="text-sm font-semibold text-emerald-200">Leer por capitulo</p>
+            <p className="text-sm font-semibold text-emerald-200">Leer por capítulo</p>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <select value={selectedTranslation} onChange={(event) => { setSelectedTranslation(event.target.value); revealReader() }} className="app-select">
                 {translations.map((translation) => (
@@ -463,7 +463,7 @@ export function BiblePage() {
                 <ChevronLeft className="h-4 w-4" /> Anterior
               </button>
               <button type="button" onClick={() => void handleLoadChapter()} className="app-button-primary">
-                Cargar capitulo
+                Cargar capítulo
               </button>
               <button type="button" onClick={() => void handleNextChapter()} className="app-button-secondary">
                 Siguiente <ChevronRight className="h-4 w-4" />
@@ -473,7 +473,7 @@ export function BiblePage() {
               {isLoading ? <p className="text-white/60">Cargando Biblia...</p> : null}
               {!isLoading && !chapterVerses.length ? (
                 <p className="app-empty text-left">
-                  La Biblia completa todavia no fue importada. Ya puedes usar versiculos base y cargar una traduccion autorizada desde administracion.
+                  La Biblia completa todavía no fue importada. Ya puedes usar versículos base y cargar una traducción autorizada desde administración.
                 </p>
               ) : null}
               {chapterVerses.map((verse) => (
@@ -531,8 +531,8 @@ export function BiblePage() {
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {searchResults.length ? null : (
               <p className="app-empty md:col-span-2">
-                Busca en los versiculos importados. Si el corpus completo aun no
-                fue cargado, los resultados se limitan a los versiculos base.
+                Busca en los versículos importados. Si el corpus completo aún no
+                fue cargado, los resultados se limitan a los versículos base.
               </p>
             )}
             {searchResults.map((verse) => (
@@ -614,18 +614,18 @@ export function BiblePage() {
             <p className="mt-4 text-sm text-white/55">
               {currentDbDay
                 ? completedDbDayIds.has(currentDbDay.id)
-                  ? 'Este dia del plan ya esta completado.'
+                  ? 'Este día del plan ya está completado.'
                   : 'Marca este dia cuando hayas meditado la referencia.'
                 : completedSet.has(`${selectedPlan}:${sample.dayNumber}`)
-                ? 'Este dia ya esta completado.'
+                ? 'Este día ya está completado.'
                 : 'Marca la lectura cuando hayas meditado el fragmento.'}
             </p>
           </article>
 
           <article className="app-card">
-            <h2 className="text-2xl font-black">Versiculos guardados</h2>
+            <h2 className="text-2xl font-black">Versículos guardados</h2>
             <div className="mt-5 space-y-3">
-              {!saved.length ? <p className="text-sm text-white/60">Guarda tu primer versiculo para volver a el durante la semana.</p> : null}
+              {!saved.length ? <p className="text-sm text-white/60">Guarda tu primer versículo para volver a él durante la semana.</p> : null}
               {saved.slice(0, 8).map((item) => (
                 <div key={item.id} className="app-card-soft">
                   <p className="font-bold text-amber-200">{item.reference}</p>

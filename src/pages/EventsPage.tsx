@@ -222,7 +222,7 @@ export function EventsPage() {
           <div>
             <p className="text-sm font-semibold text-amber-200">Eventos</p>
             <h1 data-page-title className="mt-2 text-4xl font-black">Encuentros de la Red</h1>
-            <p className="mt-3 max-w-2xl text-white/62">Reuniones, estudios, juegos y momentos de oracion para crecer juntos.</p>
+            <p className="mt-3 max-w-2xl text-white/62">Reuniones, estudios, juegos y momentos de oración para crecer juntos.</p>
           </div>
           <select
             value={filter}
@@ -328,7 +328,7 @@ export function EventsPage() {
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <label className="grid gap-2">
                 <span className="text-sm font-black text-white">Titulo del evento</span>
-                <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Ej. Noche de oracion juvenil" className="app-input" required />
+                <input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} placeholder="Ej. Noche de oración juvenil" className="app-input" required />
               </label>
               <label className="grid gap-2">
                 <span className="text-sm font-black text-white">Fecha y hora</span>
@@ -347,7 +347,7 @@ export function EventsPage() {
                 <input value={form.city} onChange={(event) => setForm({ ...form, city: event.target.value })} placeholder="Ej. La Paz" autoComplete="address-level2" className="app-input" />
               </label>
               <label className="grid gap-2 md:col-span-2">
-                <span className="text-sm font-black text-white">Pais</span>
+                <span className="text-sm font-black text-white">País</span>
                 <input value={form.country} onChange={(event) => setForm({ ...form, country: event.target.value })} placeholder="Ej. Bolivia" autoComplete="country-name" className="app-input" />
               </label>
             </div>

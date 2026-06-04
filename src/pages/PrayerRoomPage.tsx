@@ -283,7 +283,7 @@ export function PrayerRoomPage() {
           <form
             ref={formRef}
             onSubmit={handleSubmit}
-            className="app-card h-fit md:p-8"
+            className="app-hero-panel h-fit md:p-8"
           >
             <p className="app-kicker">
               <Heart className="h-4 w-4" aria-hidden="true" />
@@ -296,8 +296,8 @@ export function PrayerRoomPage() {
               Ora con otros jóvenes.
             </h1>
             <p className="mt-4 text-white/65">
-              Comparte una petición y permite que la comunidad camine contigo
-              en oración.
+              Comparte una carga con cuidado o acompaña a alguien con una
+              oración breve. Nadie debería caminar solo.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -312,7 +312,7 @@ export function PrayerRoomPage() {
                   {activePrayers} peticiones activas
                 </p>
                 <p className="mt-2 text-sm leading-6 text-white/65">
-                  Inhala Su paz · sostén Su nombre · exhala tu carga.
+                  Respira, nombra tu carga y entrégala a Cristo con confianza.
                 </p>
               </div>
             </div>
@@ -424,7 +424,7 @@ export function PrayerRoomPage() {
                 <p className="text-sm font-semibold text-amber-200">
                   Peticiones públicas
                 </p>
-                <h2 className="mt-2 text-3xl font-black">En oración</h2>
+                <h2 className="mt-2 text-3xl font-black">Orando juntos</h2>
               </div>
               <span className="rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm text-white/60">
                 {prayers.length} peticiones públicas

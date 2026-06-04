@@ -49,7 +49,7 @@ import type { Devotional, Profile } from '../types/database'
 const quickActions = [
   {
     title: 'Biblia',
-    text: 'Guarda versiculos, marca lecturas y comparte la Palabra.',
+    text: 'Guarda versículos, marca lecturas y comparte la Palabra.',
     to: '/app/biblia',
     icon: BookOpen,
   },
@@ -91,7 +91,7 @@ const quickActions = [
   },
   {
     title: 'Discipulado',
-    text: 'Camina planes cortos para crecer con proposito.',
+    text: 'Camina planes cortos para crecer con propósito.',
     to: '/app/discipulado',
     icon: GraduationCap,
   },
@@ -154,14 +154,14 @@ function formatRelative(value: string | null) {
     if (futureHours < 24) return `en ${futureHours} h`
     const futureDays = Math.ceil(futureHours / 24)
     if (futureDays === 1) return 'mañana'
-    return `en ${futureDays} dias`
+    return `en ${futureDays} días`
   }
   const diffHours = Math.floor(diffMs / 3_600_000)
   if (diffHours < 1) return 'hace unos minutos'
   if (diffHours < 24) return `hace ${diffHours} h`
   const diffDays = Math.floor(diffHours / 24)
   if (diffDays === 1) return 'ayer'
-  return `hace ${diffDays} dias`
+  return `hace ${diffDays} días`
 }
 
 export function AppHome() {
@@ -242,13 +242,13 @@ export function AppHome() {
     : !profile?.city || !profile.country || !profile.bio || !profile.church_name
   const communityPulse = [
     ...posts.slice(0, 2).map((post) => ({
-      title: 'Nueva reflexion en foros',
+      title: 'Nueva reflexión en foros',
       text: post.body,
       to: '/app/foros',
       when: formatRelative(post.created_at),
     })),
     ...prayers.slice(0, 2).map((prayer) => ({
-      title: prayer.is_answered ? 'Oracion respondida' : 'Peticion de oracion',
+      title: prayer.is_answered ? 'Oración respondida' : 'Petición de oración',
       text: prayer.title,
       to: '/app/oracion',
       when: formatRelative(prayer.created_at),
@@ -266,7 +266,7 @@ export function AppHome() {
     ...(progress?.lastGame
       ? [
           {
-            title: 'Ultimo juego completado',
+            title: 'Último juego completado',
             text: `${progress.lastGame.title}: ${progress.lastGame.score}/${progress.lastGame.total}`,
             to: '/app/juegos',
             when: 'tu progreso',
@@ -280,18 +280,23 @@ export function AppHome() {
       when: `${group.membersCount} miembros`,
     })),
     ...events.slice(0, 2).map((event) => ({
-      title: 'Evento proximo',
+      title: 'Evento próximo',
       text: event.title,
       to: '/app/eventos',
       when: formatRelative(event.starts_at),
     })),
   ].slice(0, 6)
+  const heroStats = [
+    { label: 'posts recientes', value: posts.length, to: '/app/foros' },
+    { label: 'oraciones abiertas', value: prayers.length, to: '/app/oracion' },
+    { label: 'eventos próximos', value: events.length, to: '/app/eventos' },
+  ]
 
   async function handleQuickPost() {
     if (!userId) return
     const body = quickPost.trim()
     if (!body) {
-      setQuickError('Escribe una reflexion breve antes de publicar.')
+      setQuickError('Escribe una reflexión breve antes de publicar.')
       return
     }
 
@@ -301,7 +306,7 @@ export function AppHome() {
     try {
       await createPost({ userId, body })
       setQuickPost('')
-      setQuickStatus('Tu publicacion quedo en Foros con la Palabra.')
+      setQuickStatus('Tu publicación quedó en Foros con la Palabra.')
       await loadData()
     } catch {
       setQuickError('No pudimos publicar ahora. Intenta de nuevo en un momento.')
@@ -357,14 +362,14 @@ export function AppHome() {
   return (
     <section className="app-page">
       <div className="section-shell relative">
-        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div>
+        <div className="app-hero-panel flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
             <p className="app-kicker">
               <Sparkles className="h-4 w-4" aria-hidden="true" />
-              Mi red
+              Tu red en movimiento
             </p>
             <h1 className="mt-5 text-4xl font-black tracking-tight md:text-6xl">
-              Hola, {displayName}. Hoy tambien puedes ser luz.
+              Hola, {displayName}. Hoy también puedes ser luz.
             </h1>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-white/70">
               Hoy tu red está activa: oración, foros con la Palabra,
@@ -375,13 +380,31 @@ export function AppHome() {
               una comunidad cercana.
             </p>
           </div>
-          <Link
-            to="/app/perfil"
-            className="app-button-secondary"
-          >
-            <UserRound className="h-4 w-4" aria-hidden="true" />
-            Editar perfil
-          </Link>
+          <div className="w-full max-w-md">
+            <div className="grid grid-cols-3 gap-2">
+              {heroStats.map((stat) => (
+                <Link
+                  key={stat.label}
+                  to={stat.to}
+                  className="rounded-xl border border-white/10 bg-slate-950/45 p-3 text-center transition hover:-translate-y-0.5 hover:bg-white/10"
+                >
+                  <span className="block text-2xl font-black text-white">
+                    {stat.value}
+                  </span>
+                  <span className="mt-1 block text-[0.7rem] font-bold leading-4 text-white/55">
+                    {stat.label}
+                  </span>
+                </Link>
+              ))}
+            </div>
+            <Link
+              to="/app/perfil"
+              className="app-button-secondary mt-3 w-full"
+            >
+              <UserRound className="h-4 w-4" aria-hidden="true" />
+              Editar perfil
+            </Link>
+          </div>
         </div>
 
         {error ? (
@@ -437,7 +460,7 @@ export function AppHome() {
                       {onboarding.completedCount}/{onboarding.totalCount} pasos completados
                     </span>
                     <span className="text-xs font-bold text-amber-100">
-                      {onboarding.percentage}% de activacion inicial
+                      {onboarding.percentage}% de activación inicial
                     </span>
                   </div>
                   <div
@@ -490,7 +513,7 @@ export function AppHome() {
             <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
               <article className="app-card-accent">
                 <p className="text-sm font-semibold text-amber-100">
-                  Versiculo del momento
+                  Versículo del momento
                 </p>
                 <p className="mt-4 text-2xl leading-10 text-white">
                   "{displayedMomentVerse.verse_text}"
@@ -509,7 +532,7 @@ export function AppHome() {
                     to="/app/foros"
                     className="app-button-secondary"
                   >
-                    Compartir reflexion
+                    Compartir reflexión
                   </Link>
                 </div>
               </article>
@@ -519,13 +542,13 @@ export function AppHome() {
                   Comparte con la Red
                 </p>
                 <h2 className="mt-2 text-2xl font-black">
-                  Que esta haciendo Dios hoy?
+                  ¿Qué está haciendo Dios hoy?
                 </h2>
                 <textarea
                   value={quickPost}
                   onChange={(event) => setQuickPost(event.target.value)}
                   rows={3}
-                  placeholder="Escribe una reflexion, testimonio o pregunta..."
+                  placeholder="Escribe una reflexión, testimonio o pregunta..."
                   disabled={isQuickPosting}
                   className="app-input mt-4"
                 />
@@ -559,7 +582,7 @@ export function AppHome() {
                   <Link
                     key={action.to}
                     to={action.to}
-                    className="app-card group transition hover:-translate-y-1 hover:bg-white/[0.1]"
+                    className="app-card group border-l-4 border-l-amber-200/60 transition hover:-translate-y-1 hover:bg-white/[0.1]"
                   >
                     <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-300/20 to-amber-300/20 text-amber-200 ring-1 ring-white/10">
                       <Icon className="h-5 w-5" aria-hidden="true" />
@@ -569,7 +592,7 @@ export function AppHome() {
                       {action.text}
                     </p>
                     <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-amber-200">
-                      Abrir
+                      Abrir módulo
                       <ArrowRight className="h-4 w-4" aria-hidden="true" />
                     </span>
                   </Link>
@@ -625,7 +648,7 @@ export function AppHome() {
                 </div>
                 <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   <ProgressStat
-                    label="Devocionales leidos"
+                    label="Devocionales leídos"
                     value={progress.devotionalReads}
                     to="/app/devocional"
                   />
@@ -647,7 +670,7 @@ export function AppHome() {
                 </div>
                 <p className="mt-4 text-sm leading-6 text-white/65">
                   {progress.lastGame
-                    ? `Ultimo juego: ${progress.lastGame.title} (${progress.lastGame.score}/${progress.lastGame.total}).`
+                    ? `Último juego: ${progress.lastGame.title} (${progress.lastGame.score}/${progress.lastGame.total}).`
                     : 'Completa tu primer juego para iniciar tu historial.'}
                 </p>
               </article>

@@ -195,7 +195,7 @@ export function CommunityFeedPage() {
       revealNode(feedTopRef.current)
       setActionMessage('Post actualizado.')
     } catch {
-      setError('No pudimos editar tu publicacion.')
+      setError('No pudimos editar tu publicación.')
     } finally {
       setIsSubmitting(false)
     }
@@ -307,7 +307,7 @@ export function CommunityFeedPage() {
         targetId: postId,
         reason: 'Revisión comunitaria solicitada',
       })
-      setActionMessage('Reporte enviado para revision. Gracias por cuidar la Red.')
+      setActionMessage('Reporte enviado para revisión. Gracias por cuidar la Red.')
     } catch {
       setError('No pudimos enviar el reporte.')
     } finally {
@@ -328,7 +328,7 @@ export function CommunityFeedPage() {
         targetId: commentId,
         reason: 'Revisión comunitaria solicitada',
       })
-      setActionMessage('Comentario enviado a revision. Gracias por cuidar la Red.')
+      setActionMessage('Comentario enviado a revisión. Gracias por cuidar la Red.')
     } catch {
       setError('No pudimos enviar el reporte del comentario.')
     } finally {
@@ -360,7 +360,7 @@ export function CommunityFeedPage() {
           <form
             ref={pageTopRef}
             onSubmit={editingPostId ? handleSaveEditedPost : handleSubmit}
-            className="app-card h-fit md:p-8"
+            className="app-hero-panel h-fit md:p-8"
           >
             <p className="app-kicker">
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
@@ -373,8 +373,8 @@ export function CommunityFeedPage() {
               Debates anclados en la Palabra.
             </h1>
             <p className="mt-4 text-white/65">
-              Cada conversación empieza con versículos, respeto y una búsqueda
-              real de Cristo.
+              Comparte testimonio, pregunta con libertad y responde con gracia.
+              La meta es edificar, no ganar debates.
             </p>
 
             <div className="mt-6 grid grid-cols-2 gap-2">
@@ -461,7 +461,7 @@ export function CommunityFeedPage() {
                   ? 'Guardando...'
                   : editingPostId
                     ? 'Guardar cambios'
-                    : 'Publicar post'}
+                    : 'Publicar en la Red'}
               </Button>
               {editingPostId ? (
                 <button
@@ -476,7 +476,7 @@ export function CommunityFeedPage() {
                   }}
                   className="app-button-secondary w-full"
                 >
-                  Cancelar edicion
+                  Cancelar edición
                 </button>
               ) : null}
             </div>
@@ -498,8 +498,8 @@ export function CommunityFeedPage() {
             <div className="app-scroll-x mt-5">
               {[
                 ['recent', 'Recientes'],
-                ['verse', 'Con versiculo'],
-                ['commented', 'Mas comentadas'],
+                ['verse', 'Con versículo'],
+                ['commented', 'Más comentadas'],
                 ['myCommunity', 'Mi comunidad'],
               ].map(([value, label]) => (
                 <button
@@ -543,7 +543,7 @@ export function CommunityFeedPage() {
                     ))}
                   </div>
                   <p className="mt-3 text-sm text-white/50">
-                    Guia de conversacion para el piloto. No representa actividad
+                    Guía de conversación para el piloto. No representa actividad
                     real de usuarios.
                   </p>
                 </article>
@@ -600,7 +600,7 @@ export function CommunityFeedPage() {
                                 {formatDate(post.created_at)}
                                 {post.profiles?.city || post.profiles?.country
                                   ? ` · ${post.profiles.city ?? 'Sin ciudad'}, ${
-                                      post.profiles.country ?? 'Sin pais'
+                                      post.profiles.country ?? 'Sin país'
                                     }`
                                   : ''}
                               </p>
@@ -809,8 +809,8 @@ export function CommunityFeedPage() {
               </div>
             ) : (
               <div className="app-empty mt-8">
-                Todavia no hay posts. Comparte una reflexion, una pregunta o
-                una palabra de animo para iniciar la conversacion.
+                Todavía no hay posts. Comparte una reflexión, una pregunta o
+                una palabra de ánimo para iniciar la conversación.
               </div>
             )}
           </div>

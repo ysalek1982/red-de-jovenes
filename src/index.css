@@ -19,8 +19,9 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
-  background: #020617;
+  font-family: Aptos, "Segoe UI Variable", "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
+  background:
+    linear-gradient(135deg, #04130f 0%, #07131f 42%, #170f25 100%);
 }
 
 #root {
@@ -56,8 +57,24 @@ main,
 
 @layer components {
   .app-page {
-    @apply min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 pt-28 text-white;
+    @apply relative min-h-screen overflow-hidden pt-28 text-white;
+    background:
+      linear-gradient(145deg, rgba(4, 19, 15, 0.98) 0%, rgba(8, 18, 30, 0.98) 48%, rgba(24, 15, 32, 0.98) 100%),
+      repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 34px);
     padding-bottom: calc(8rem + env(safe-area-inset-bottom));
+  }
+
+  .app-page::before {
+    content: "";
+    @apply pointer-events-none fixed inset-0 z-0;
+    background:
+      linear-gradient(90deg, rgba(251, 191, 36, 0.08), transparent 32%, rgba(16, 185, 129, 0.08)),
+      repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 96px);
+    opacity: 0.42;
+  }
+
+  .app-page > * {
+    @apply relative z-10;
   }
 
   .app-shell-inner {
@@ -65,15 +82,28 @@ main,
   }
 
   .app-card {
-    @apply min-w-0 rounded-2xl border border-white/10 bg-white/[0.07] p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6;
+    @apply min-w-0 rounded-xl border border-white/10 bg-white/[0.075] p-5 shadow-2xl shadow-black/25 backdrop-blur-xl transition duration-200 md:p-6;
+    box-shadow:
+      0 24px 70px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
   }
 
   .app-card-soft {
-    @apply min-w-0 rounded-2xl border border-white/10 bg-slate-950/45 p-4 backdrop-blur;
+    @apply min-w-0 rounded-xl border border-white/10 bg-slate-950/50 p-4 backdrop-blur transition duration-200;
   }
 
   .app-card-accent {
-    @apply min-w-0 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-5 shadow-2xl shadow-black/20 backdrop-blur md:p-6;
+    @apply min-w-0 rounded-xl border border-amber-300/20 bg-amber-300/10 p-5 shadow-2xl shadow-black/20 backdrop-blur-xl md:p-6;
+    background:
+      linear-gradient(135deg, rgba(251, 191, 36, 0.16), rgba(16, 185, 129, 0.08)),
+      rgba(15, 23, 42, 0.54);
+  }
+
+  .app-hero-panel {
+    @apply rounded-xl border border-white/10 bg-slate-950/50 p-5 shadow-2xl shadow-black/30 backdrop-blur-xl md:p-8;
+    background:
+      linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(251, 191, 36, 0.1) 48%, rgba(255, 255, 255, 0.05)),
+      rgba(2, 6, 23, 0.58);
   }
 
   .app-kicker {
@@ -89,7 +119,7 @@ main,
   }
 
   .app-chip {
-    @apply inline-flex min-h-10 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.05] px-4 text-sm font-bold text-white/65 transition hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.055] px-4 text-sm font-bold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200;
   }
 
   .app-chip-active {
@@ -97,11 +127,11 @@ main,
   }
 
   .app-button-primary {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-black text-slate-950 transition hover:bg-amber-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-black text-slate-950 shadow-lg shadow-amber-500/10 transition hover:-translate-y-0.5 hover:bg-amber-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60;
   }
 
   .app-button-secondary {
-    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-5 text-sm font-bold text-white transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.065] px-5 text-sm font-bold text-white transition hover:-translate-y-0.5 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 disabled:cursor-not-allowed disabled:translate-y-0 disabled:opacity-60;
   }
 
   .app-button-danger {
@@ -109,15 +139,15 @@ main,
   }
 
   .app-input {
-    @apply w-full rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-amber-200/60 focus:ring-4 focus:ring-amber-200/10;
+    @apply w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/35 focus:border-amber-200/60 focus:ring-4 focus:ring-amber-200/10;
   }
 
   .app-select {
-    @apply h-11 w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 text-sm font-bold text-white outline-none transition focus:border-amber-200/60 focus:ring-4 focus:ring-amber-200/10;
+    @apply h-12 w-full rounded-xl border border-white/10 bg-slate-950/80 px-4 text-sm font-bold text-white outline-none transition focus:border-amber-200/60 focus:ring-4 focus:ring-amber-200/10;
   }
 
   .app-empty {
-    @apply rounded-2xl border border-dashed border-white/10 bg-slate-950/35 p-6 text-center text-sm leading-6 text-white/60;
+    @apply rounded-xl border border-dashed border-white/10 bg-slate-950/40 p-6 text-center text-sm leading-6 text-white/60;
   }
 
   .app-alert {

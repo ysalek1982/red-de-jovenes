@@ -249,7 +249,7 @@ export function WorldMapPage() {
     if (!userId) return
 
     if (!suggestion.name.trim() || !suggestion.country.trim() || !suggestion.city.trim()) {
-      setFormMessage('El nombre, el pais y la ciudad son obligatorios.')
+      setFormMessage('El nombre, el país y la ciudad son obligatorios.')
       revealNode(suggestionFormRef.current)
       return
     }
@@ -379,7 +379,7 @@ export function WorldMapPage() {
                 </p>
                 <p className="mt-2 text-sm leading-6 text-white/62">
                   Busca tu ciudad, unete a una comunidad activa o sugiere una si
-                  todavia no aparece en el mapa.
+                  todavía no aparece en el mapa.
                 </p>
               </div>
             ) : null}
@@ -420,8 +420,8 @@ export function WorldMapPage() {
                 Mapa visual de comunidades
               </p>
               <p className="mt-2 text-sm leading-6 text-white/55">
-                Cada nodo representa un pais con comunidades activas. Toca un
-                pais para filtrar el directorio.
+                Cada nodo representa un país con comunidades activas. Toca un
+                país para filtrar el directorio.
               </p>
             </div>
           </div>
@@ -452,7 +452,7 @@ export function WorldMapPage() {
                   type="search"
                   value={searchTerm}
                   onChange={(event) => setSearchTerm(event.target.value)}
-                  placeholder="Buscar nombre, iglesia, ciudad o pais"
+                  placeholder="Buscar nombre, iglesia, ciudad o país"
                   className="app-input h-11 rounded-full py-0 pl-9"
                 />
               </label>
@@ -463,9 +463,9 @@ export function WorldMapPage() {
                   setCityFilter('todos')
                 }}
                 className="app-select rounded-full"
-                aria-label="Filtrar por pais"
+                aria-label="Filtrar por país"
               >
-                <option value="todos">Todos los paises</option>
+                <option value="todos">Todos los países</option>
                 {countries.map((country) => (
                   <option key={country} value={country}>
                     {country}
@@ -670,7 +670,7 @@ export function WorldMapPage() {
                     to="/app/oracion"
                     className="app-button-secondary min-h-10 px-4"
                   >
-                    Pedir oracion
+                    Pedir oración
                   </Link>
                 </div>
               </article>
@@ -750,7 +750,7 @@ export function WorldMapPage() {
                 </label>
                 <div className="grid gap-3 sm:grid-cols-2">
                   <label className="grid gap-2">
-                    <span className="text-sm font-black text-white">Pais</span>
+                    <span className="text-sm font-black text-white">País</span>
                     <input
                       value={suggestion.country}
                       onChange={(event) =>
@@ -941,7 +941,7 @@ export function WorldMapPage() {
                   ))
                 ) : (
                   <div className="app-empty">
-                    Todavia no enviaste sugerencias.
+                    Todavía no enviaste sugerencias.
                   </div>
                 )}
               </div>

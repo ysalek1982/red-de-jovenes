@@ -339,7 +339,7 @@ export function AppProfile() {
                         {community.name}
                       </p>
                       <p className="mt-1 text-xs text-white/50">
-                        {community.city ?? 'Sin ciudad'}, {community.country ?? 'Sin pais'}
+                        {community.city ?? 'Sin ciudad'}, {community.country ?? 'Sin país'}
                       </p>
                     </div>
                   ))
@@ -427,9 +427,9 @@ export function AppProfile() {
                   Cuida tus datos personales
                 </p>
                 <p className="mt-2 text-sm leading-6 text-white/65">
-                  Tu nombre, ciudad, pais, iglesia y bio pueden ser visibles
+                  Tu nombre, ciudad, país, iglesia y bio pueden ser visibles
                   para miembros autenticados de la Red. Comparte solo lo que
-                  te sientas comodo mostrando.
+                  te sientas cómodo mostrando.
                 </p>
               </div>
 
