@@ -32,7 +32,7 @@ export function Header() {
     <>
       <Link
         to="/app"
-        className="rounded-full bg-gradient-to-r from-emerald-300 via-lime-200 to-amber-300 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-500/20 transition hover:scale-[1.02]"
+        className="rounded-full bg-gradient-to-r from-amber-100 via-lime-100 to-emerald-200 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-500/20 transition hover:scale-[1.02]"
       >
         Mi red
       </Link>
@@ -55,7 +55,7 @@ export function Header() {
       </Link>
       <Link
         to="/crear-cuenta"
-        className="rounded-full bg-gradient-to-r from-emerald-300 via-lime-200 to-amber-300 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-500/20 transition hover:scale-[1.02]"
+        className="rounded-full bg-gradient-to-r from-amber-100 via-lime-100 to-emerald-200 px-5 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-amber-500/20 transition hover:scale-[1.02]"
       >
         Crear cuenta
       </Link>
@@ -66,7 +66,7 @@ export function Header() {
     <header className="fixed inset-x-0 top-4 z-50 px-4">
       <div
         className={cn(
-          'mx-auto max-w-7xl border border-white/10 bg-slate-950/70 px-4 py-3 shadow-2xl shadow-black/30 backdrop-blur-xl transition-[border-radius]',
+          'mx-auto max-w-7xl border border-amber-100/10 bg-[#06100d]/78 px-4 py-3 shadow-2xl shadow-black/30 backdrop-blur-xl transition-[border-radius]',
           isOpen ? 'rounded-[2rem]' : 'rounded-full',
         )}
       >
@@ -77,7 +77,7 @@ export function Header() {
             className="flex items-center gap-3 text-sm font-bold text-white sm:text-base"
             onClick={() => setIsOpen(false)}
           >
-            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-emerald-300 via-lime-200 to-amber-300 text-slate-950 shadow-lg shadow-amber-500/20">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 via-lime-100 to-emerald-200 text-slate-950 shadow-lg shadow-amber-500/20">
               <Plus className="h-5 w-5" aria-hidden="true" />
             </span>
             <span>Red de Jóvenes</span>
@@ -133,7 +133,7 @@ export function Header() {
                   <>
                     <Link
                       to="/app"
-                      className="rounded-full bg-gradient-to-r from-emerald-300 via-lime-200 to-amber-300 px-4 py-3 text-center text-sm font-bold text-slate-950"
+                      className="rounded-full bg-gradient-to-r from-amber-100 via-lime-100 to-emerald-200 px-4 py-3 text-center text-sm font-bold text-slate-950"
                       onClick={() => setIsOpen(false)}
                     >
                       Mi red
@@ -158,7 +158,7 @@ export function Header() {
                     </Link>
                     <Link
                       to="/crear-cuenta"
-                      className="rounded-full bg-gradient-to-r from-emerald-300 via-lime-200 to-amber-300 px-4 py-3 text-center text-sm font-bold text-slate-950"
+                      className="rounded-full bg-gradient-to-r from-amber-100 via-lime-100 to-emerald-200 px-4 py-3 text-center text-sm font-bold text-slate-950"
                       onClick={() => setIsOpen(false)}
                     >
                       Crear cuenta

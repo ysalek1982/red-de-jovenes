@@ -8,14 +8,14 @@ export function Layout() {
 
   if (isChromeLessRoute) {
     return (
-      <div className="min-h-screen bg-slate-950">
+      <div className="min-h-screen bg-[#06100d]">
         <Outlet />
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-950">
+    <div className="flex min-h-screen flex-col bg-[#06100d]">
       <Header />
       <main className="flex-1">
         <Outlet />

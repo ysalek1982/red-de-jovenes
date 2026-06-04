@@ -54,9 +54,9 @@ const secondaryNavigation: NavigationItem[] = [
 
 function navigationItemClass(isActive: boolean) {
   return cn(
-    'group flex min-h-[3.75rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-xl px-2 text-[0.62rem] font-semibold text-white/58 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 sm:text-xs',
+    'group flex min-h-[3.75rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-xl px-2 text-[0.62rem] font-semibold text-white/60 transition hover:-translate-y-0.5 hover:bg-amber-200/10 hover:text-amber-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 sm:text-xs',
     isActive &&
-      'bg-gradient-to-br from-amber-100 to-emerald-100 text-slate-950 shadow-lg shadow-amber-500/15 ring-1 ring-amber-100/70 hover:from-amber-100 hover:to-white hover:text-slate-950',
+      'bg-gradient-to-br from-amber-100 via-lime-100 to-emerald-100 text-slate-950 shadow-lg shadow-amber-500/15 ring-1 ring-amber-100/70 hover:from-amber-100 hover:to-white hover:text-slate-950',
   )
 }
 
@@ -104,8 +104,8 @@ export function AppShell() {
   }
 
   return (
-    <div className="relative min-h-screen bg-slate-950 pb-28 lg:pb-24">
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-slate-950/82 px-4 py-3 text-white shadow-2xl shadow-black/30 backdrop-blur-2xl">
+    <div className="relative min-h-screen bg-[#06100d] pb-28 lg:pb-24">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-amber-100/10 bg-[#06100d]/88 px-4 py-3 text-white shadow-2xl shadow-black/30 backdrop-blur-2xl">
         <div className="mx-auto flex max-w-7xl items-center gap-3">
           <button
             type="button"
@@ -116,7 +116,7 @@ export function AppShell() {
             className="flex min-w-0 items-center gap-3 rounded-full text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-200"
             aria-label="Ir al inicio de mi red"
           >
-            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-emerald-300 via-lime-200 to-amber-300 font-black text-slate-950 shadow-lg shadow-amber-500/20 ring-1 ring-white/40">
+            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-gradient-to-br from-amber-100 via-lime-100 to-emerald-200 font-black text-slate-950 shadow-lg shadow-amber-500/20 ring-1 ring-white/40">
               +
             </span>
             <span className="min-w-0">
@@ -158,7 +158,7 @@ export function AppShell() {
           <div
             ref={morePanelRef}
             data-scroll-root
-            className="fixed inset-x-3 z-50 max-h-[68dvh] overflow-y-auto overscroll-contain rounded-xl border border-white/10 bg-slate-950/96 p-3 text-white shadow-2xl shadow-black/45 backdrop-blur-2xl lg:hidden"
+            className="fixed inset-x-3 z-50 max-h-[68dvh] overflow-y-auto overscroll-contain rounded-xl border border-amber-100/10 bg-[#06100d]/96 p-3 text-white shadow-2xl shadow-black/45 backdrop-blur-2xl lg:hidden"
             style={{
               bottom:
                 'calc(max(0.75rem, env(safe-area-inset-bottom)) + 5.6rem)',
@@ -224,7 +224,7 @@ export function AppShell() {
       ) : null}
 
       <nav
-        className="fixed inset-x-3 z-50 mx-auto max-w-6xl overflow-hidden rounded-xl border border-white/10 bg-slate-950/94 p-2 shadow-2xl shadow-black/45 backdrop-blur-2xl lg:hidden"
+        className="fixed inset-x-3 z-50 mx-auto max-w-6xl overflow-hidden rounded-xl border border-amber-100/10 bg-[#06100d]/94 p-2 shadow-2xl shadow-black/45 backdrop-blur-2xl lg:hidden"
         style={{
           bottom: 'max(0.75rem, env(safe-area-inset-bottom))',
           paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
@@ -262,7 +262,7 @@ export function AppShell() {
       </nav>
 
       <nav
-        className="fixed inset-x-3 bottom-3 z-50 mx-auto hidden max-w-6xl overflow-hidden rounded-[1.5rem] border border-white/10 bg-slate-950/85 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block"
+        className="fixed inset-x-3 bottom-3 z-50 mx-auto hidden max-w-6xl overflow-hidden rounded-[1.5rem] border border-amber-100/10 bg-[#06100d]/85 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block"
         aria-label="Navegacion privada"
       >
         <div className="flex gap-1 overflow-x-auto">

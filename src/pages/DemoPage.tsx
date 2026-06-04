@@ -54,7 +54,7 @@ const demoModules = [
 
 export function DemoPage() {
   return (
-    <section className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-20 pt-32 text-white">
+    <section className="faith-page pb-20">
       <div className="pointer-events-none absolute left-1/2 top-20 h-96 w-96 -translate-x-1/2 rounded-full bg-amber-300/10 blur-3xl" />
       <div className="pointer-events-none absolute bottom-20 right-0 h-96 w-96 rounded-full bg-emerald-300/10 blur-3xl" />
 

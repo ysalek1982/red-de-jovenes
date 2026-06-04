@@ -36,7 +36,7 @@ export function RecoverPasswordPage() {
   }
 
   return (
-    <section className="min-h-screen bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 px-4 pb-16 pt-32 text-white md:pt-36">
+    <section className="faith-page">
       <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
         <div>
           <p className="app-kicker">
