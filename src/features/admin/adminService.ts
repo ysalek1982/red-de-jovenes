@@ -6,7 +6,9 @@ import type {
   Post,
   PrayerRequest,
   Profile,
+  UserRole,
 } from '../../types/database'
+import type { AppRole } from '../auth/roleService'
 
 type CountableTable =
   | 'profiles'
@@ -77,6 +79,19 @@ export type AdminPrayerPreview = Pick<
   'id' | 'title' | 'is_answered' | 'created_at'
 > & {
   profiles: { full_name: string | null } | null
+}
+
+export type AdminRoleUser = Pick<
+  Profile,
+  'id' | 'full_name' | 'username' | 'city' | 'country' | 'created_at'
+> & {
+  roles: AppRole[]
+}
+
+function normalizeRole(role: string) {
+  return ['admin', 'moderator', 'member'].includes(role)
+    ? (role as AppRole)
+    : null
 }
 
 export async function getAdminOverview() {
@@ -178,6 +193,56 @@ export async function getAdminLatestItems() {
     prayers: (prayers.data ?? []) as AdminPrayerPreview[],
     devotionals: (devotionals.data ?? []) as AdminDevotionalPreview[],
   }
+}
+
+export async function getAdminRoleUsers() {
+  const [profiles, roles] = await Promise.all([
+    supabase
+      .from('profiles')
+      .select('id, full_name, username, city, country, created_at')
+      .order('created_at', { ascending: false })
+      .limit(100),
+    supabase
+      .from('user_roles')
+      .select('id, user_id, role, created_at')
+      .order('created_at', { ascending: true }),
+  ])
+
+  if (profiles.error) throw profiles.error
+  if (roles.error) throw roles.error
+
+  const rolesByUser = new Map<string, AppRole[]>()
+  for (const roleRow of (roles.data ?? []) as UserRole[]) {
+    const role = normalizeRole(roleRow.role)
+    if (!role) continue
+    rolesByUser.set(roleRow.user_id, [
+      ...(rolesByUser.get(roleRow.user_id) ?? []),
+      role,
+    ])
+  }
+
+  return ((profiles.data ?? []) as AdminProfilePreview[]).map((profile) => ({
+    ...profile,
+    roles: rolesByUser.get(profile.id) ?? [],
+  }))
+}
+
+export async function assignUserRole(input: { userId: string; role: AppRole }) {
+  const { error } = await supabase.rpc('admin_assign_user_role', {
+    p_user_id: input.userId,
+    p_role: input.role,
+  })
+
+  if (error) throw error
+}
+
+export async function revokeUserRole(input: { userId: string; role: AppRole }) {
+  const { error } = await supabase.rpc('admin_revoke_user_role', {
+    p_user_id: input.userId,
+    p_role: input.role,
+  })
+
+  if (error) throw error
 }
 
 export async function createDevotional(input: {

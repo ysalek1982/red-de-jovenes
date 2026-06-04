@@ -2784,6 +2784,14 @@ export type Database = {
       }
     }
     Functions: {
+      admin_assign_user_role: {
+        Args: { p_role: string; p_user_id: string }
+        Returns: Database["public"]["Tables"]["user_roles"]["Row"]
+      }
+      admin_revoke_user_role: {
+        Args: { p_role: string; p_user_id: string }
+        Returns: undefined
+      }
       get_bible_chapter: {
         Args: {
           p_book_code: string

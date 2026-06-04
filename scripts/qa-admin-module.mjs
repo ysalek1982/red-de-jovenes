@@ -45,6 +45,13 @@ function makeClient() {
   )
 }
 
+function isMissingRpc(error) {
+  return (
+    error?.code === 'PGRST202' ||
+    String(error?.message ?? '').includes('Could not find the function')
+  )
+}
+
 async function signIn(email, password) {
   const supabase = makeClient()
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -72,6 +79,47 @@ async function main() {
 
   const adminRole = await admin.supabase.rpc('has_role', { required_role: 'admin' })
   const userRole = await userA.supabase.rpc('has_role', { required_role: 'admin' })
+  const originalRoles = await admin.supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userA.user.id)
+
+  const originalRoleNames = new Set(
+    (originalRoles.data ?? []).map((item) => item.role),
+  )
+  const roleToTest = originalRoleNames.has('moderator') ? 'member' : 'moderator'
+  const roleWasAlreadyAssigned = originalRoleNames.has(roleToTest)
+  const roleAssign = await admin.supabase.rpc('admin_assign_user_role', {
+    p_user_id: userA.user.id,
+    p_role: roleToTest,
+  })
+  const roleAfterAssign = await admin.supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', userA.user.id)
+    .eq('role', roleToTest)
+    .maybeSingle()
+  const nonAdminRoleAssign = await userA.supabase.rpc('admin_assign_user_role', {
+    p_user_id: userA.user.id,
+    p_role: 'admin',
+  })
+
+  let roleRevoke = { error: null }
+  if (!roleWasAlreadyAssigned && roleAfterAssign.data) {
+    roleRevoke = await admin.supabase.rpc('admin_revoke_user_role', {
+      p_user_id: userA.user.id,
+      p_role: roleToTest,
+    })
+  }
+  const roleManagementPending =
+    isMissingRpc(roleAssign.error) || isMissingRpc(nonAdminRoleAssign.error)
+  const roleManagementOk =
+    roleManagementPending ||
+    (!originalRoles.error &&
+      !roleAssign.error &&
+      Boolean(roleAfterAssign.data) &&
+      Boolean(nonAdminRoleAssign.error) &&
+      !roleRevoke.error)
 
   const report = await userA.supabase
     .from('content_reports')
@@ -135,6 +183,7 @@ async function main() {
   const status =
     adminRole.data === true &&
     userRole.data === false &&
+    roleManagementOk &&
     reportUpdate.data &&
     devotionalUpdate.data
       ? 'QA_ADMIN_OK'
@@ -148,6 +197,11 @@ async function main() {
         status,
         adminRole: adminRole.data === true ? 'OK' : 'FAILED',
         nonAdminBlocked: userRole.data === false ? 'OK' : 'FAILED',
+        roleManagement: roleManagementPending
+          ? 'PENDING_MIGRATION'
+          : roleManagementOk
+            ? 'OK'
+            : 'FAILED',
         reportModeration: reportUpdate.data ? 'OK' : 'FAILED',
         devotionalAdminWrite: devotionalUpdate.data ? 'OK' : 'FAILED',
       },

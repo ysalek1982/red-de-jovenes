@@ -13,12 +13,15 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { hasRole } from '../features/auth/roleService'
+import { hasRole, type AppRole } from '../features/auth/roleService'
 import { useAuth } from '../features/auth/useAuth'
 import {
+  assignUserRole,
   createDevotional,
   getAdminLatestItems,
   getAdminOverview,
+  getAdminRoleUsers,
+  revokeUserRole,
   updateDevotional,
   updateGroupSuggestionStatus,
   updateReportStatus,
@@ -27,6 +30,7 @@ import {
   type AdminPrayerPreview,
   type AdminProfilePreview,
   type AdminReportPreview,
+  type AdminRoleUser,
   type AdminSuggestionPreview,
 } from '../features/admin/adminService'
 import {
@@ -185,6 +189,28 @@ const initialPilotMetrics: PilotMetrics = {
   },
 }
 
+const manageableRoles: Array<{
+  role: AppRole
+  label: string
+  detail: string
+}> = [
+  {
+    role: 'admin',
+    label: 'Admin',
+    detail: 'Acceso completo al CMS, moderación, Biblia e IA.',
+  },
+  {
+    role: 'moderator',
+    label: 'Moderador',
+    detail: 'Acompaña comunidad y reportes sin operar configuración sensible.',
+  },
+  {
+    role: 'member',
+    label: 'Miembro',
+    detail: 'Participante normal del piloto cerrado.',
+  },
+]
+
 function formatDate(value: string | null) {
   if (!value) return 'Fecha pendiente'
   return new Intl.DateTimeFormat('es', {
@@ -247,6 +273,9 @@ export function AdminHome() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [overview, setOverview] = useState<AdminOverview>(initialOverview)
   const [latest, setLatest] = useState<AdminLatestItems>(initialLatest)
+  const [roleUsers, setRoleUsers] = useState<AdminRoleUser[]>([])
+  const [roleSearch, setRoleSearch] = useState('')
+  const [busyRoleKey, setBusyRoleKey] = useState('')
   const [pilotMetrics, setPilotMetrics] =
     useState<PilotMetrics>(initialPilotMetrics)
   const [pilotFeedback, setPilotFeedback] = useState<PilotFeedback[]>([])
@@ -331,6 +360,7 @@ export function AdminHome() {
     const [
       overviewData,
       latestData,
+      roleUsersData,
       aiStatusData,
       aiQueueData,
       aiUsageData,
@@ -344,6 +374,7 @@ export function AdminHome() {
     ] = await Promise.all([
       getAdminOverview(),
       getAdminLatestItems(),
+      getAdminRoleUsers().catch(() => []),
       getAiProviderStatus().catch(() => ({ provider: null })),
       getPendingAiActions().catch(() => []),
       getAiUsageSummary().catch(() => ({
@@ -369,6 +400,7 @@ export function AdminHome() {
     ])
     setOverview(overviewData)
     setLatest(latestData)
+    setRoleUsers(roleUsersData)
     setAiStatus(aiStatusData?.provider ?? null)
     setAiQueue(aiQueueData)
     setAiUsage(aiUsageData?.usage ?? [])
@@ -543,6 +575,40 @@ export function AdminHome() {
     await activateAiPromptTemplate(templateId)
     setMessage('Version de prompt activada.')
     await loadAdminData()
+  }
+
+  async function handleAssignRole(userId: string, role: AppRole) {
+    const busyKey = `${userId}:${role}:assign`
+    setBusyRoleKey(busyKey)
+    setMessage('')
+    try {
+      await assignUserRole({ userId, role })
+      setMessage('Rol asignado correctamente.')
+      await loadAdminData()
+    } catch {
+      setMessage('No pudimos asignar el rol. Revisa permisos de administrador.')
+    } finally {
+      setBusyRoleKey('')
+    }
+  }
+
+  async function handleRevokeRole(userId: string, role: AppRole) {
+    const busyKey = `${userId}:${role}:revoke`
+    setBusyRoleKey(busyKey)
+    setMessage('')
+    try {
+      await revokeUserRole({ userId, role })
+      setMessage('Rol removido correctamente.')
+      await loadAdminData()
+    } catch {
+      setMessage(
+        role === 'admin'
+          ? 'No pudimos remover admin. Debe quedar al menos un administrador.'
+          : 'No pudimos remover el rol.',
+      )
+    } finally {
+      setBusyRoleKey('')
+    }
   }
 
   async function handleApproveAiQueueItem(queueId: string) {
@@ -785,15 +851,34 @@ export function AdminHome() {
     },
   ]
 
+  const roleSearchQuery = roleSearch.trim().toLowerCase()
+  const filteredRoleUsers = roleUsers.filter((profile) => {
+    if (!roleSearchQuery) return true
+
+    return [
+      profile.full_name,
+      profile.username,
+      profile.city,
+      profile.country,
+      profile.id,
+    ].some((value) => (value ?? '').toLowerCase().includes(roleSearchQuery))
+  })
+  const roleCounts = manageableRoles.map(({ role, label }) => ({
+    role,
+    label,
+    count: roleUsers.filter((profile) => profile.roles.includes(role)).length,
+  }))
+
   const quickActions = [
     { label: 'Publicar devocional', href: '#crear-devocional' },
+    { label: 'Gestionar roles', href: '#cms-roles' },
     { label: 'Programar Biblia', href: '#cms-biblia' },
     { label: 'Revisar feedback', href: '#cms-feedback' },
-    { label: 'Atender reportes', href: '#reportes' },
   ]
 
   const adminNavigation = [
     { label: 'Centro CMS', href: '#cms-centro' },
+    { label: 'Roles', href: '#cms-roles' },
     { label: 'Piloto', href: '#cms-piloto' },
     { label: 'Devocional', href: '#crear-devocional' },
     { label: 'Biblia', href: '#cms-biblia' },
@@ -809,6 +894,12 @@ export function AdminHome() {
       detail: 'Carga devocionales, revisa publicaciones y acompaña conversaciones.',
       href: '#crear-devocional',
       status: `${overview.devotionals} devocionales`,
+    },
+    {
+      title: 'Roles y permisos',
+      detail: 'Asigna administradores, moderadores y miembros desde una lista simple.',
+      href: '#cms-roles',
+      status: `${roleCounts.find((item) => item.role === 'admin')?.count ?? 0} admins`,
     },
     {
       title: 'Gestionar Biblia',
@@ -914,6 +1005,183 @@ export function AdminHome() {
                 </span>
               </a>
             ))}
+          </div>
+        </section>
+
+        <section
+          id="cms-roles"
+          className="app-cms-anchor mt-8 rounded-2xl border border-sky-300/20 bg-sky-300/10 p-5 shadow-2xl shadow-black/25 backdrop-blur md:p-6"
+        >
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <p className="text-sm font-black uppercase tracking-[0.22em] text-sky-200">
+                Roles y permisos
+              </p>
+              <h2 className="mt-3 text-3xl font-black">
+                Administra accesos sin salir del CMS
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
+                Asigna responsables del piloto por categoría. Los cambios se
+                guardan en Supabase mediante funciones administrativas y no
+                exponen llaves sensibles en el frontend.
+              </p>
+            </div>
+            <div className="grid w-full gap-2 sm:grid-cols-3 lg:max-w-md">
+              {roleCounts.map((item) => (
+                <div
+                  key={item.role}
+                  className="rounded-2xl border border-white/10 bg-slate-950/45 p-3 text-center"
+                >
+                  <p className="text-2xl font-black text-white">{item.count}</p>
+                  <p className="mt-1 text-xs font-black uppercase tracking-[0.16em] text-white/55">
+                    {item.label}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+            <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+              <h3 className="text-lg font-black text-white">
+                Categorías disponibles
+              </h3>
+              <div className="mt-4 grid gap-3">
+                {manageableRoles.map((item) => (
+                  <article
+                    key={item.role}
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="font-black text-white">{item.label}</p>
+                      <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/60">
+                        {item.role}
+                      </span>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-white/58">
+                      {item.detail}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h3 className="text-lg font-black text-white">
+                    Usuarios del piloto
+                  </h3>
+                  <p className="mt-1 text-sm text-white/55">
+                    Busca por nombre, usuario, ciudad, país o ID.
+                  </p>
+                </div>
+                <label className="w-full sm:max-w-xs">
+                  <span className="sr-only">Buscar usuario por rol</span>
+                  <input
+                    value={roleSearch}
+                    onChange={(event) => setRoleSearch(event.target.value)}
+                    className="app-input min-h-11"
+                    placeholder="Buscar usuario..."
+                    type="search"
+                  />
+                </label>
+              </div>
+
+              <div className="mt-4 grid max-h-[560px] gap-3 overflow-y-auto pr-1">
+                {filteredRoleUsers.slice(0, 40).map((profile) => {
+                  const displayName =
+                    profile.full_name || profile.username || 'Usuario sin nombre'
+                  const location = [profile.city, profile.country]
+                    .filter(Boolean)
+                    .join(', ')
+
+                  return (
+                    <article
+                      key={profile.id}
+                      className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+                    >
+                      <div className="flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+                        <div>
+                          <p className="text-base font-black text-white">
+                            {displayName}
+                          </p>
+                          <p className="mt-1 text-xs text-white/45">
+                            {profile.username ? `@${profile.username}` : 'Sin usuario'}{' '}
+                            {location ? `· ${location}` : ''}
+                          </p>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {profile.roles.length > 0 ? (
+                              profile.roles.map((role) => (
+                                <span
+                                  key={role}
+                                  className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-black text-emerald-100"
+                                >
+                                  {manageableRoles.find((item) => item.role === role)
+                                    ?.label ?? role}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="rounded-full border border-white/10 px-3 py-1 text-xs font-black text-white/50">
+                                Sin rol asignado
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="grid gap-2 sm:grid-cols-3 xl:min-w-[360px]">
+                          {manageableRoles.map((item) => {
+                            const hasCurrentRole = profile.roles.includes(item.role)
+                            const busyKey = `${profile.id}:${item.role}:${
+                              hasCurrentRole ? 'revoke' : 'assign'
+                            }`
+                            const isSelfAdmin =
+                              item.role === 'admin' &&
+                              hasCurrentRole &&
+                              profile.id === user?.id
+
+                            return (
+                              <button
+                                key={item.role}
+                                type="button"
+                                onClick={() =>
+                                  hasCurrentRole
+                                    ? handleRevokeRole(profile.id, item.role)
+                                    : handleAssignRole(profile.id, item.role)
+                                }
+                                disabled={busyRoleKey === busyKey || isSelfAdmin}
+                                className={
+                                  hasCurrentRole
+                                    ? 'min-h-11 rounded-xl border border-rose-300/20 bg-rose-300/10 px-3 py-2 text-xs font-black text-rose-100 transition hover:bg-rose-300/15 disabled:cursor-not-allowed disabled:opacity-45'
+                                    : 'min-h-11 rounded-xl border border-white/10 bg-white/[0.07] px-3 py-2 text-xs font-black text-white/75 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-45'
+                                }
+                              >
+                                {busyRoleKey === busyKey
+                                  ? 'Guardando...'
+                                  : hasCurrentRole
+                                    ? `Quitar ${item.label}`
+                                    : `Asignar ${item.label}`}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    </article>
+                  )
+                })}
+
+                {filteredRoleUsers.length === 0 ? (
+                  <div className="app-empty-state">
+                    <p className="text-lg font-black text-white">
+                      No encontramos usuarios con esa búsqueda.
+                    </p>
+                    <p className="mt-2 text-sm text-white/55">
+                      Prueba con nombre, usuario, ciudad o país.
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+            </div>
           </div>
         </section>
 

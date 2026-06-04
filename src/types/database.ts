@@ -59,6 +59,7 @@ export type Message = Database['public']['Tables']['messages']['Row']
 export type MessageReport =
   Database['public']['Tables']['message_reports']['Row']
 export type UserFollow = Database['public']['Tables']['user_follows']['Row']
+export type UserRole = Database['public']['Tables']['user_roles']['Row']
 export type FeedbackSuggestion =
   Database['public']['Tables']['feedback_suggestions']['Row']
 export type Notification = Database['public']['Tables']['notifications']['Row']
