@@ -211,6 +211,40 @@ const manageableRoles: Array<{
   },
 ]
 
+type RoleUserTab = 'all' | AppRole | 'unassigned'
+
+const roleUserTabs: Array<{
+  key: RoleUserTab
+  label: string
+  detail: string
+}> = [
+  {
+    key: 'all',
+    label: 'Todos',
+    detail: 'Lista completa',
+  },
+  {
+    key: 'admin',
+    label: 'Admins',
+    detail: 'Operación completa',
+  },
+  {
+    key: 'moderator',
+    label: 'Moderadores',
+    detail: 'Cuidado comunitario',
+  },
+  {
+    key: 'member',
+    label: 'Miembros',
+    detail: 'Participantes',
+  },
+  {
+    key: 'unassigned',
+    label: 'Sin rol',
+    detail: 'Requieren revisión',
+  },
+]
+
 function formatDate(value: string | null) {
   if (!value) return 'Fecha pendiente'
   return new Intl.DateTimeFormat('es', {
@@ -275,6 +309,7 @@ export function AdminHome() {
   const [latest, setLatest] = useState<AdminLatestItems>(initialLatest)
   const [roleUsers, setRoleUsers] = useState<AdminRoleUser[]>([])
   const [roleSearch, setRoleSearch] = useState('')
+  const [roleTab, setRoleTab] = useState<RoleUserTab>('all')
   const [busyRoleKey, setBusyRoleKey] = useState('')
   const [pilotMetrics, setPilotMetrics] =
     useState<PilotMetrics>(initialPilotMetrics)
@@ -851,8 +886,13 @@ export function AdminHome() {
     },
   ]
 
+  const roleUsersByTab = roleUsers.filter((profile) => {
+    if (roleTab === 'all') return true
+    if (roleTab === 'unassigned') return profile.roles.length === 0
+    return profile.roles.includes(roleTab)
+  })
   const roleSearchQuery = roleSearch.trim().toLowerCase()
-  const filteredRoleUsers = roleUsers.filter((profile) => {
+  const filteredRoleUsers = roleUsersByTab.filter((profile) => {
     if (!roleSearchQuery) return true
 
     return [
@@ -868,6 +908,30 @@ export function AdminHome() {
     label,
     count: roleUsers.filter((profile) => profile.roles.includes(role)).length,
   }))
+  const roleTabCounts = roleUserTabs.reduce<Record<RoleUserTab, number>>(
+    (counts, tab) => {
+      if (tab.key === 'all') {
+        counts[tab.key] = roleUsers.length
+      } else if (tab.key === 'unassigned') {
+        counts[tab.key] = roleUsers.filter(
+          (profile) => profile.roles.length === 0,
+        ).length
+      } else {
+        const roleKey: AppRole = tab.key
+        counts[tab.key] = roleUsers.filter((profile) =>
+          profile.roles.includes(roleKey),
+        ).length
+      }
+      return counts
+    },
+    {
+      all: 0,
+      admin: 0,
+      moderator: 0,
+      member: 0,
+      unassigned: 0,
+    },
+  )
 
   const quickActions = [
     { label: 'Publicar devocional', href: '#crear-devocional' },
@@ -1041,7 +1105,37 @@ export function AdminHome() {
             </div>
           </div>
 
-          <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+          <div
+            className="app-scroll-x mt-6 rounded-2xl border border-white/10 bg-slate-950/45 p-2"
+            role="tablist"
+            aria-label="Filtrar usuarios por rol"
+          >
+            {roleUserTabs.map((tab) => {
+              const isActive = roleTab === tab.key
+
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  onClick={() => setRoleTab(tab.key)}
+                  className={
+                    isActive
+                      ? 'app-tab app-tab-active min-w-[150px]'
+                      : 'app-tab min-w-[150px]'
+                  }
+                >
+                  <span className="text-sm font-black">{tab.label}</span>
+                  <span className="text-[11px] font-bold text-current/60">
+                    {roleTabCounts[tab.key]} · {tab.detail}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]">
             <div className="rounded-2xl border border-white/10 bg-slate-950/45 p-4">
               <h3 className="text-lg font-black text-white">
                 Categorías disponibles
@@ -1070,9 +1164,11 @@ export function AdminHome() {
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <h3 className="text-lg font-black text-white">
-                    Usuarios del piloto
+                    {roleUserTabs.find((tab) => tab.key === roleTab)?.label ??
+                      'Usuarios'} del piloto
                   </h3>
                   <p className="mt-1 text-sm text-white/55">
+                    {filteredRoleUsers.length} usuario(s) en esta categoría.
                     Busca por nombre, usuario, ciudad, país o ID.
                   </p>
                 </div>
