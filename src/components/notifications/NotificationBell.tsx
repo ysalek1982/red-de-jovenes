@@ -24,13 +24,13 @@ const allowedNotificationPaths = new Set([
   '/app/oracion',
   '/app/orar',
   '/app/perfil',
-  '/app/seguridad',
 ])
 
 function getSafeNotificationPath(path?: string | null) {
   if (!path || !path.startsWith('/app')) return '/app'
   const normalizedPath = path.split('#')[0].split('?')[0]
   if (normalizedPath === '/app/construir') return '/app'
+  if (normalizedPath === '/app/seguridad') return '/app'
   return allowedNotificationPaths.has(normalizedPath) ? path : '/app'
 }
 

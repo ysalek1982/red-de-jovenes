@@ -26,13 +26,13 @@ const demoModules = [
     icon: Sun,
   },
   {
-    title: 'Sala de oración global',
-    text: 'Peticiones en vivo, alabanzas y jóvenes orando juntos.',
+    title: 'Sala de oración comunitaria',
+    text: 'Peticiones, acompañamiento y jóvenes orando juntos.',
     icon: Heart,
   },
   {
     title: 'Foros con la Palabra',
-    text: 'Debates anclados en versículos, profundos y sanos.',
+    text: 'Conversaciones ancladas en versículos, profundas y sanas.',
     icon: MessageCircle,
   },
   {
@@ -42,7 +42,7 @@ const demoModules = [
   },
   {
     title: 'Mapa mundial',
-    text: 'Iglesias y grupos juveniles conectados en 47 países.',
+    text: 'Comunidades y grupos juveniles conectados por ubicación.',
     icon: Globe2,
   },
   {
@@ -68,8 +68,8 @@ export function DemoPage() {
             Así se vive la Red por dentro.
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg leading-8 text-white/70">
-            Una vista pública del feed, oración, devocional, juegos, mapa mundial
-            y espacio seguro. No necesitas iniciar sesión para verla.
+            Una vista pública ilustrativa del feed, oración, devocional, juegos,
+            mapa y cuidado comunitario. No necesitas iniciar sesión para verla.
           </p>
         </div>
 
@@ -185,9 +185,9 @@ export function DemoPage() {
                 id="sala-de-oracion-global"
                 className="rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5"
               >
-                <p className="text-sm font-bold text-emerald-300">Sala de oración global</p>
-                <p className="mt-3 text-3xl font-black">1,247</p>
-                <p className="text-sm text-white/55">jóvenes orando en vivo</p>
+                <p className="text-sm font-bold text-emerald-300">Sala de oración comunitaria</p>
+                <p className="mt-3 text-3xl font-black">Ejemplo</p>
+                <p className="text-sm text-white/55">Peticiones y apoyo pastoral</p>
                 <Link
                   to="/crear-cuenta"
                   className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-full bg-white text-sm font-black text-slate-950"
@@ -211,7 +211,7 @@ export function DemoPage() {
               <div id="mapa-mundial" className="rounded-[1.5rem] border border-white/10 bg-white/[0.06] p-5">
                 <p className="text-sm font-bold text-emerald-300">Mapa mundial</p>
                 <p className="mt-2 text-sm leading-6 text-white/60">
-                  320 iglesias · 47 países · una sola Red.
+                  Comunidades, ciudades y grupos juveniles en una sola Red.
                 </p>
                 <div className="mt-4 grid grid-cols-2 gap-2">
                   {connectedGroups.slice(0, 4).map((group) => (
@@ -243,7 +243,7 @@ export function DemoPage() {
             to="/crear-cuenta"
             className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-300 via-lime-200 to-amber-300 px-8 text-base font-bold text-slate-950 shadow-2xl shadow-amber-500/20"
           >
-            Crear mi cuenta gratis
+            Crear mi cuenta
             <ArrowRight className="h-5 w-5" aria-hidden="true" />
           </Link>
           <Link

@@ -260,6 +260,61 @@ main,
     @apply relative z-10;
   }
 
+  .faith-section {
+    @apply relative overflow-hidden border-y border-amber-100/10 bg-[#06100d] py-24 text-white;
+  }
+
+  .faith-section::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 20% 12%, rgba(244, 200, 107, 0.11), transparent 24rem),
+      radial-gradient(circle at 82% 22%, rgba(142, 214, 208, 0.1), transparent 26rem),
+      repeating-linear-gradient(135deg, rgba(255, 241, 191, 0.025) 0 1px, transparent 1px 42px);
+    opacity: 0.72;
+  }
+
+  .faith-section > * {
+    @apply relative z-10;
+  }
+
+  .faith-panel {
+    @apply relative overflow-hidden rounded-[2rem] border border-amber-100/10 bg-white/[0.065] shadow-2xl shadow-black/30 backdrop-blur-xl;
+    background:
+      radial-gradient(circle at 18% 0%, rgba(244, 200, 107, 0.14), transparent 18rem),
+      linear-gradient(135deg, rgba(255, 241, 191, 0.08), rgba(142, 214, 208, 0.045) 42%, rgba(255, 255, 255, 0.03)),
+      rgba(6, 16, 13, 0.7);
+  }
+
+  .faith-feature-card {
+    @apply relative overflow-hidden rounded-[1.75rem] border border-amber-100/10 bg-white/[0.055] p-7 shadow-2xl shadow-black/20 backdrop-blur transition duration-200 hover:-translate-y-1 hover:border-amber-100/25 hover:bg-white/[0.085];
+  }
+
+  .faith-feature-card::after {
+    content: "";
+    position: absolute;
+    inset: auto -20% -55% -20%;
+    height: 12rem;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(244, 200, 107, 0.14), transparent 62%);
+    opacity: 0;
+    transition: opacity 180ms ease;
+  }
+
+  .faith-feature-card:hover::after {
+    opacity: 1;
+  }
+
+  .faith-phone-shell {
+    @apply relative rounded-[2.5rem] border border-amber-100/10 bg-[#081722]/85 p-4 shadow-2xl shadow-black/40 backdrop-blur;
+  }
+
+  .faith-cta {
+    @apply inline-flex min-h-14 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-amber-100 via-lime-100 to-emerald-200 px-8 text-base font-black text-slate-950 shadow-2xl shadow-amber-500/20 transition hover:-translate-y-0.5 hover:scale-[1.01] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200;
+  }
+
   .app-scroll-x {
     @apply flex gap-2 overflow-x-auto pb-1;
     scrollbar-width: none;

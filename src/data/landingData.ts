@@ -27,25 +27,25 @@ export interface LandingTestimonial {
 export const heroBenefits = [
   'Espacio seguro',
   'Basado en la Palabra',
-  'Respaldado por iglesias',
+  'Para iglesias y grupos',
 ]
 
 export const landingMetrics: LandingMetric[] = [
-  { value: '12.4K', label: 'Jóvenes' },
-  { value: '320', label: 'Iglesias' },
-  { value: '47', label: 'Países' },
-  { value: '1.2M', label: 'Oraciones' },
+  { value: 'Biblia', label: 'RVR1909 completa' },
+  { value: 'PWA', label: 'Instalable en móvil' },
+  { value: 'Red', label: 'Comunidad moderada' },
+  { value: 'Piloto', label: 'Cerrado y monitoreado' },
 ]
 
 export const landingFeatures: LandingFeature[] = [
   {
-    title: 'Sala de oración global',
-    text: 'Ora con otros jóvenes 24/7. Comparte peticiones, celebra respuestas.',
+    title: 'Sala de oración comunitaria',
+    text: 'Ora con otros jóvenes. Comparte peticiones, acompaña y celebra respuestas.',
     icon: 'prayer',
   },
   {
     title: 'Foros con la Palabra',
-    text: 'Cada debate empieza con versículos. Discusiones sanas, profundas y reales.',
+    text: 'Comparte reflexiones, preguntas y testimonios con conversaciones sanas.',
     icon: 'bible',
   },
   {
@@ -55,7 +55,7 @@ export const landingFeatures: LandingFeature[] = [
   },
   {
     title: 'Mapa mundial',
-    text: 'Conecta con iglesias y grupos juveniles en 47 países. La luz se expande.',
+    text: 'Encuentra comunidades, únete a grupos activos o sugiere una comunidad cercana.',
     icon: 'map',
   },
   {
@@ -72,31 +72,31 @@ export const landingFeatures: LandingFeature[] = [
 
 export const pwaItems = [
   'Devocional diario al despertar',
-  'Notificaciones de oración en vivo',
-  'Modo lectura sin internet',
+  'Notificaciones internas de comunidad',
+  'Acceso rápido desde la pantalla de inicio',
   'Mapa mundial de la juventud cristiana',
 ]
 
 export const landingTestimonials: LandingTestimonial[] = [
   {
     quote:
-      'Encontré una comunidad real. La Sala de Oración me sostuvo en la peor semana de mi vida.',
-    name: 'Lucía R.',
-    detail: '19 años · Buenos Aires',
-    initial: 'L',
+      'Un joven nuevo necesita entender rápido qué hacer: crear perfil, leer Biblia, pedir oración y encontrar comunidad.',
+    name: 'Primeros pasos',
+    detail: 'Primeros pasos en la Red',
+    initial: 'P',
   },
   {
     quote:
-      'Los foros con versículos son fuego. Ya no debato vacío, debato con la Palabra en la mano.',
-    name: 'Mateo A.',
-    detail: '22 años · Bogotá',
-    initial: 'M',
+      'Un líder necesita ver actividad, acompañar conversaciones sanas y responder reportes sin perderse entre pantallas.',
+    name: 'Acompañamiento',
+    detail: 'Acompañamiento y comunidad',
+    initial: 'A',
   },
   {
     quote:
-      'El devocional diario me cambió las mañanas. Ahora despierto con propósito y no con TikTok.',
-    name: 'Sara P.',
-    detail: '17 años · Ciudad de México',
-    initial: 'S',
+      'Un participante necesita volver durante la semana: jugar, compartir, guardar versículos y enviar feedback claro.',
+    name: 'Uso semanal',
+    detail: 'Uso diario y feedback',
+    initial: 'U',
   },
 ]

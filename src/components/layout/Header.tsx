@@ -66,7 +66,7 @@ export function Header() {
     <header className="fixed inset-x-0 top-4 z-50 px-4">
       <div
         className={cn(
-          'mx-auto max-w-7xl border border-amber-100/10 bg-[#06100d]/78 px-4 py-3 shadow-2xl shadow-black/30 backdrop-blur-xl transition-[border-radius]',
+          'mx-auto max-w-7xl border border-amber-100/15 bg-[#06100d]/90 px-4 py-3 shadow-2xl shadow-black/35 backdrop-blur-2xl transition-[border-radius]',
           isOpen ? 'rounded-[2rem]' : 'rounded-full',
         )}
       >
@@ -88,7 +88,7 @@ export function Header() {
               <Link
                 key={item.href}
                 to={item.href}
-                className="text-sm font-medium text-white/60 transition hover:text-white"
+                className="text-sm font-bold text-white/78 transition hover:text-white"
               >
                 {item.label}
               </Link>
@@ -121,7 +121,7 @@ export function Header() {
               <Link
                 key={item.href}
                 to={item.href}
-                className="block rounded-2xl px-4 py-3 text-sm font-semibold text-white/70 hover:bg-white/10 hover:text-white"
+                className="block rounded-2xl px-4 py-3 text-sm font-bold text-white/88 hover:bg-white/10 hover:text-white"
                 onClick={() => setIsOpen(false)}
               >
                 {item.label}

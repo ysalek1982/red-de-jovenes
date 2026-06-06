@@ -112,10 +112,10 @@ export function CreateAccountPage() {
             <Sparkles className="h-4 w-4" aria-hidden="true" />
             Crear cuenta
           </p>
-          <h1 className="mt-7 text-5xl font-black leading-tight tracking-tight md:text-7xl">
+          <h1 className="mt-5 text-4xl font-black leading-tight tracking-tight md:text-7xl">
             Tu generación. Tu Red.
           </h1>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-white/70">
+          <p className="mt-4 max-w-xl text-base leading-7 text-white/72 md:mt-6 md:text-lg md:leading-8">
             Crea tu perfil para participar en oración, comunidad, devocionales y
             conversaciones con propósito.
           </p>
@@ -151,7 +151,7 @@ export function CreateAccountPage() {
                 autoComplete="username"
                 className="mt-2"
               />
-              <p className="mt-2 text-xs text-white/45">
+              <p className="mt-2 text-xs font-semibold text-white/60">
                 Sin espacios. Usa letras, números, punto, guion o guion bajo.
               </p>
             </div>

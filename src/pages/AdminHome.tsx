@@ -280,7 +280,7 @@ function formatIncidentSeverity(severity: PilotIncidentSeverity | string) {
     low: 'Baja',
     medium: 'Media',
     high: 'Alta',
-    critical: 'Critica',
+    critical: 'Crítica',
   }
   return labels[severity] ?? severity
 }
@@ -407,8 +407,8 @@ export function AdminHome() {
       qaPilotFeedbackData,
       qaPilotIncidentsData,
     ] = await Promise.all([
-      getAdminOverview(),
-      getAdminLatestItems(),
+      getAdminOverview().catch(() => initialOverview),
+      getAdminLatestItems().catch(() => initialLatest),
       getAdminRoleUsers().catch(() => []),
       getAiProviderStatus().catch(() => ({ provider: null })),
       getPendingAiActions().catch(() => []),
@@ -960,6 +960,12 @@ export function AdminHome() {
       status: `${overview.devotionals} devocionales`,
     },
     {
+      title: 'Eventos',
+      detail: 'Crea encuentros, revisa asistencia y organiza actividades del piloto.',
+      href: '/app/eventos',
+      status: `${overview.events} eventos`,
+    },
+    {
       title: 'Roles y permisos',
       detail: 'Asigna administradores, moderadores y miembros desde una lista simple.',
       href: '#cms-roles',
@@ -1045,17 +1051,17 @@ export function AdminHome() {
                 Centro CMS
               </p>
               <h2 className="mt-3 text-2xl font-black md:text-3xl">
-                Que quieres gestionar hoy?
+                ¿Qué quieres gestionar hoy?
               </h2>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
-                Accesos rapidos para cargar contenido, revisar comunidad y operar el piloto sin buscar entre secciones largas.
+                Accesos rápidos para cargar contenido, revisar comunidad y operar el piloto sin buscar entre secciones largas.
               </p>
             </div>
             <span className="inline-flex w-fit rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-2 text-xs font-black text-emerald-100">
               Datos reales, sin placeholders
             </span>
           </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
             {cmsSections.map((section) => (
               <a
                 key={section.href}
@@ -2176,8 +2182,8 @@ export function AdminHome() {
               Estos registros se conservan para trazabilidad tecnica y no cuentan como feedback o incidentes reales del piloto.
             </p>
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <PilotMetricCard title="Feedback QA" value={qaPilotFeedback.length} detail="excluido de metricas reales" />
-              <PilotMetricCard title="Incidentes QA" value={qaPilotIncidents.length} detail="excluido de metricas reales" />
+              <PilotMetricCard title="Feedback QA" value={qaPilotFeedback.length} detail="excluido de métricas reales" />
+              <PilotMetricCard title="Incidentes QA" value={qaPilotIncidents.length} detail="excluido de métricas reales" />
             </div>
             <div className="mt-5 grid gap-4 lg:grid-cols-2">
               <div className="rounded-3xl border border-white/10 bg-slate-950/45 p-4">

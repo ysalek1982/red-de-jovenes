@@ -1,4 +1,4 @@
-import type { LucideIcon } from 'lucide-react'
+﻿import type { LucideIcon } from 'lucide-react'
 import {
   ArrowRight,
   Bell,
@@ -43,7 +43,7 @@ function Glow() {
     <>
       <div className="pointer-events-none absolute left-1/2 top-28 h-72 w-72 -translate-x-1/2 rounded-full bg-amber-300/10 blur-3xl" />
       <div className="pointer-events-none absolute right-0 top-40 h-96 w-96 rounded-full bg-emerald-300/10 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-0 left-0 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-0 left-0 h-96 w-96 rounded-full bg-[rgba(142,214,208,0.16)] blur-3xl" />
     </>
   )
 }
@@ -70,12 +70,12 @@ function SectionLabel({ children }: { children: string }) {
 
 export function Home() {
   return (
-    <div className="overflow-hidden bg-slate-950 text-white">
+    <div className="overflow-hidden bg-[#06100d] text-white">
       <section
         id="comunidad"
         className="relative isolate min-h-screen bg-cover bg-center"
         style={{
-          backgroundImage: `linear-gradient(180deg, rgba(2, 6, 23, 0.7), rgba(2, 6, 23, 0.9) 52%, #020617 100%), url(${worshipImage})`,
+          backgroundImage: `linear-gradient(180deg, rgba(6, 16, 13, 0.68), rgba(8, 23, 34, 0.9) 52%, #06100d 100%), url(${worshipImage})`,
         }}
       >
         <Glow />
@@ -89,7 +89,7 @@ export function Home() {
           <h1 className="mt-8 w-full max-w-6xl text-5xl font-black leading-[0.96] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-8xl">
             <span className="block md:inline">Conectando</span>
             <span className="block md:inline"> jóvenes</span>
-            <span className="block bg-gradient-to-r from-emerald-300 via-lime-200 to-amber-300 bg-clip-text font-serif italic font-normal text-transparent">
+            <span className="block bg-gradient-to-r from-amber-100 via-lime-100 to-emerald-200 bg-clip-text font-serif italic font-normal text-transparent">
               en Cristo.
             </span>
           </h1>
@@ -102,7 +102,7 @@ export function Home() {
           <div className="mt-9 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
               to="/crear-cuenta"
-              className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-emerald-300 via-lime-200 to-amber-300 px-8 text-base font-bold text-slate-950 shadow-2xl shadow-amber-500/20 transition hover:scale-[1.02]"
+              className="faith-cta"
             >
               Unirme ahora
               <ArrowRight className="h-5 w-5" aria-hidden="true" />
@@ -125,11 +125,11 @@ export function Home() {
             ))}
           </div>
 
-          <div className="mt-14 grid w-full max-w-5xl grid-cols-2 gap-3 rounded-3xl border border-white/10 bg-white/[0.07] p-3 shadow-2xl shadow-black/30 backdrop-blur-xl md:grid-cols-4">
+          <div className="faith-panel mt-14 grid w-full max-w-5xl grid-cols-2 gap-3 p-3 md:grid-cols-4">
             {landingMetrics.map((metric) => (
               <div
                 key={metric.label}
-                className="rounded-2xl border border-white/10 bg-slate-950/40 px-5 py-6"
+                className="rounded-2xl border border-white/10 bg-[#06100d]/55 px-5 py-6"
               >
                 <p className="text-3xl font-black text-white md:text-4xl">{metric.value}</p>
                 <p className="mt-1 text-sm font-medium text-white/60">{metric.label}</p>
@@ -139,11 +139,11 @@ export function Home() {
         </div>
       </section>
 
-      <section id="mision" className="relative border-y border-white/10 bg-slate-950 py-24">
+      <section id="mision" className="faith-section">
         <Glow />
         <div className="section-shell relative text-center">
           <SectionLabel>Nuestra misión</SectionLabel>
-          <div className="mx-auto mt-8 max-w-4xl rounded-[2rem] border border-white/10 bg-white/[0.06] p-8 shadow-2xl shadow-black/30 backdrop-blur md:p-12">
+          <div className="faith-panel mx-auto mt-8 max-w-4xl p-8 md:p-12">
             <Flame className="mx-auto h-10 w-10 text-amber-300" aria-hidden="true" />
             <blockquote className="mt-6 text-3xl font-semibold leading-tight text-white md:text-5xl">
               “Vosotros sois la luz del mundo.”
@@ -159,8 +159,8 @@ export function Home() {
         </div>
       </section>
 
-      <section id="funciones" className="relative bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-950 py-24">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(45,212,191,0.12),transparent_30%),radial-gradient(circle_at_80%_30%,rgba(251,191,36,0.12),transparent_28%)]" />
+      <section id="funciones" className="relative bg-gradient-to-b from-[#06100d] via-[#0b2d25] to-[#06100d] py-24">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(142,214,208,0.12),transparent_30%),radial-gradient(circle_at_80%_30%,rgba(244,200,107,0.14),transparent_28%)]" />
         <div className="section-shell relative">
           <div className="mx-auto max-w-3xl text-center">
             <SectionLabel>Funciones</SectionLabel>
@@ -175,9 +175,9 @@ export function Home() {
               return (
                 <article
                   key={feature.title}
-                  className="group rounded-[1.75rem] border border-white/10 bg-white/[0.06] p-7 shadow-2xl shadow-black/20 backdrop-blur transition hover:-translate-y-1 hover:bg-white/[0.09]"
+                  className="faith-feature-card group"
                 >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-300/20 to-amber-300/20 text-amber-200 ring-1 ring-white/10">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-200/20 to-emerald-200/20 text-amber-100 ring-1 ring-amber-100/10">
                     <Icon className="h-6 w-6" aria-hidden="true" />
                   </div>
                   <h3 className="mt-6 text-xl font-bold text-white">{feature.title}</h3>
@@ -189,7 +189,7 @@ export function Home() {
         </div>
       </section>
 
-      <section className="relative border-y border-white/10 bg-slate-950 py-24">
+      <section className="faith-section">
         <div className="section-shell grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr]">
           <div>
             <SectionLabel>Disponible en tu bolsillo</SectionLabel>
@@ -210,7 +210,7 @@ export function Home() {
             </ul>
             <Link
               to="/demo"
-              className="mt-9 inline-flex h-14 items-center justify-center gap-2 rounded-full bg-white px-7 text-sm font-bold text-slate-950 transition hover:bg-amber-100"
+              className="faith-cta mt-9 px-7 text-sm"
             >
               Probar ahora
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -218,9 +218,9 @@ export function Home() {
           </div>
 
           <div className="relative mx-auto w-full max-w-md">
-            <div className="absolute -inset-8 rounded-full bg-gradient-to-br from-emerald-300/20 via-indigo-400/[0.15] to-amber-300/20 blur-3xl" />
-            <div className="relative rounded-[2.5rem] border border-white/10 bg-slate-900/80 p-4 shadow-2xl shadow-black/40 backdrop-blur">
-              <div className="rounded-[2rem] border border-white/10 bg-gradient-to-b from-slate-950 to-indigo-950 p-5">
+            <div className="absolute -inset-8 rounded-full bg-gradient-to-br from-amber-200/20 via-emerald-200/[0.14] to-amber-300/20 blur-3xl" />
+            <div className="faith-phone-shell">
+              <div className="rounded-[2rem] border border-white/10 bg-gradient-to-b from-[#06100d] to-[#0b2d25] p-5">
                 <div className="mx-auto mb-5 h-1.5 w-20 rounded-full bg-white/20" />
                 <div className="rounded-3xl border border-white/10 bg-white/[0.07] p-5">
                   <div className="flex items-center justify-between">
@@ -238,11 +238,11 @@ export function Home() {
                 <div className="mt-5 grid grid-cols-2 gap-3">
                   <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-4">
                     <Bell className="h-5 w-5 text-emerald-300" aria-hidden="true" />
-                    <p className="mt-4 text-sm text-white/70">Oración en vivo</p>
+                    <p className="mt-4 text-sm text-white/70">Oración comunitaria</p>
                   </div>
                   <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-4">
                     <Map className="h-5 w-5 text-amber-300" aria-hidden="true" />
-                    <p className="mt-4 text-sm text-white/70">47 países</p>
+                    <p className="mt-4 text-sm text-white/70">Comunidad global</p>
                   </div>
                 </div>
 
@@ -258,7 +258,7 @@ export function Home() {
                     L
                   </span>
                   <div>
-                    <p className="text-sm font-bold">Lucía amó tu post</p>
+                    <p className="text-sm font-bold">Nuevo Amén recibido</p>
                     <p className="text-xs text-slate-500">Ahora</p>
                   </div>
                   <Smartphone className="ml-auto h-5 w-5 text-slate-400" aria-hidden="true" />
@@ -269,12 +269,12 @@ export function Home() {
         </div>
       </section>
 
-      <section id="testimonios" className="relative bg-gradient-to-b from-slate-950 to-indigo-950 py-24">
+      <section id="testimonios" className="relative bg-gradient-to-b from-[#06100d] to-[#211225] py-24">
         <div className="section-shell">
           <div className="mx-auto max-w-3xl text-center">
-            <SectionLabel>Voces de la Red</SectionLabel>
+            <SectionLabel>Escenarios de uso</SectionLabel>
             <h2 className="mt-4 text-4xl font-black tracking-tight text-white md:text-6xl">
-              Vidas transformadas
+              Diseñada para acompañar
             </h2>
           </div>
 
@@ -282,11 +282,11 @@ export function Home() {
             {landingTestimonials.map((testimonial) => (
               <article
                 key={testimonial.name}
-                className="rounded-[1.75rem] border border-white/10 bg-white/[0.07] p-7 shadow-2xl shadow-black/20 backdrop-blur"
+                className="faith-feature-card"
               >
-                <p className="text-lg leading-8 text-white/80">“{testimonial.quote}”</p>
+                <p className="text-lg leading-8 text-white/80">{testimonial.quote}</p>
                 <div className="mt-8 flex items-center gap-4">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-300 to-amber-300 text-lg font-black text-slate-950">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-amber-100 to-emerald-200 text-lg font-black text-slate-950">
                     {testimonial.initial}
                   </span>
                   <div>
@@ -300,26 +300,26 @@ export function Home() {
         </div>
       </section>
 
-      <section className="relative bg-slate-950 py-24">
+      <section className="faith-section border-b-0">
         <div className="section-shell">
-          <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-br from-white/[0.09] via-indigo-500/10 to-amber-300/10 p-8 text-center shadow-2xl shadow-black/30 backdrop-blur md:p-14">
+          <div className="faith-panel p-8 text-center md:p-14">
             <div className="absolute left-1/2 top-0 h-40 w-80 -translate-x-1/2 rounded-full bg-amber-300/20 blur-3xl" />
             <div className="relative">
               <h2 className="text-4xl font-black tracking-tight text-white md:text-6xl">
                 Tu generación. Tu Red.
               </h2>
               <p className="mx-auto mt-6 max-w-2xl text-lg leading-8 text-white/70">
-                Más de 12,400 jóvenes, 320 iglesias y 47 países ya están
-                conectados. Sé parte.
+                Una comunidad cristiana joven, segura y preparada para crecer.
+                Sé parte de esta primera red.
               </p>
               <Link
                 to="/crear-cuenta"
-                className="mt-9 inline-flex h-14 items-center justify-center rounded-full bg-gradient-to-r from-emerald-300 via-lime-200 to-amber-300 px-9 text-base font-black text-slate-950 shadow-2xl shadow-amber-500/20 transition hover:scale-[1.02]"
+                className="faith-cta mt-9 px-9"
               >
-                Crear mi cuenta gratis
+                Crear mi cuenta
               </Link>
               <p className="mt-5 text-sm font-medium text-white/50">
-                Gratis para siempre · Sin anuncios · Espacio moderado
+                Piloto cerrado · Sin anuncios en esta etapa · Espacio moderado
               </p>
             </div>
           </div>

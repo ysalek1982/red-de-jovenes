@@ -58,40 +58,40 @@ export interface SafePrinciple {
 }
 
 export const appStories: StoryPreview[] = [
-  { initial: 'L', name: 'Lucia', detail: 'Orando' },
-  { initial: 'M', name: 'Mateo', detail: 'Foro' },
-  { initial: 'S', name: 'Sara', detail: 'Devocional' },
-  { initial: 'J', name: 'Juan', detail: 'Juego' },
-  { initial: 'A', name: 'Ana', detail: 'Mapa' },
-  { initial: 'I', name: 'Iglesia C.', detail: 'Comunidad' },
+  { initial: 'O', name: 'Oración', detail: 'Apoyo' },
+  { initial: 'F', name: 'Foros', detail: 'Palabra' },
+  { initial: 'D', name: 'Devocional', detail: 'Lectura' },
+  { initial: 'J', name: 'Juegos', detail: 'Fe' },
+  { initial: 'M', name: 'Mapa', detail: 'Comunidad' },
+  { initial: 'G', name: 'Grupo', detail: 'Encuentro' },
 ]
 
 export const demoFeedPosts: DemoPost[] = [
   {
-    initial: 'L',
-    author: 'Lucia Romero',
-    username: '@lucia.fe',
+    initial: 'T',
+    author: 'Testimonio',
+    username: '@ejemplo',
     type: 'Testimonio',
     body: 'Hoy Dios me recordo que su tiempo es perfecto. Llevaba meses orando por algo y hoy entendi el porque de la espera.',
-    stats: '124 oraciones · 18 respuestas',
+    stats: 'Ejemplo visual de oración y respuestas',
     verse: 'Eclesiastes 3:11',
   },
   {
     initial: 'G',
-    author: 'Grupo Joven Renacer',
-    username: '@renacer',
+    author: 'Grupo juvenil',
+    username: '@comunidad',
     type: 'Evento',
     body: 'Esta noche estudiamos Romanos 8. Veni, trae un amigo y ganas grandes de aprender.',
-    stats: '312 interesados · 47 compartidos',
+    stats: 'Ejemplo visual de evento compartido',
     verse: 'Romanos 8:1',
   },
   {
-    initial: 'M',
-    author: 'Mateo Alvarez',
-    username: '@mati',
+    initial: 'O',
+    author: 'Petición de oración',
+    username: '@oracion',
     type: 'Oracion',
     body: 'Peticion de oracion: mi abuela esta internada. Confio en Cristo. Gracias por orar conmigo.',
-    stats: '489 oraciones · 92 mensajes',
+    stats: 'Ejemplo visual de acompañamiento',
     verse: 'Filipenses 4:6-7',
   },
 ]
@@ -110,7 +110,7 @@ export const forumTopics: ForumTopic[] = [
     category: 'Preguntas biblicas',
     title: 'Como entender el Antiguo Testamento desde la cruz?',
     verses: ['Lucas 24:27', 'Hebreos 10:1'],
-    author: 'Mateo A.',
+    author: 'Participante',
     replies: 47,
     prayers: 132,
     isTrending: true,
@@ -119,7 +119,7 @@ export const forumTopics: ForumTopic[] = [
     category: 'Vida diaria',
     title: 'Estudiar la carrera vs. ir a misiones: como discernir?',
     verses: ['Proverbios 3:5-6', 'Romanos 12:2'],
-    author: 'Sara P.',
+    author: 'Joven piloto',
     replies: 28,
     prayers: 96,
   },
@@ -127,7 +127,7 @@ export const forumTopics: ForumTopic[] = [
     category: 'Relaciones',
     title: 'Noviazgo con proposito: lo que aprendi en 2 anos',
     verses: ['1 Corintios 13:4-7', 'Eclesiastes 3:1'],
-    author: 'Lucia R.',
+    author: 'Comunidad',
     replies: 89,
     prayers: 412,
     isTrending: true,
@@ -136,7 +136,7 @@ export const forumTopics: ForumTopic[] = [
     category: 'Testimonios',
     title: 'Dios me saco de la ansiedad: esto fue lo que paso',
     verses: ['Filipenses 4:6-7'],
-    author: 'Diego M.',
+    author: 'Testimonio',
     replies: 64,
     prayers: 280,
   },
@@ -170,11 +170,11 @@ export const gameCards: GameCard[] = [
 ]
 
 export const leaderboard: LeaderboardEntry[] = [
-  { rank: 1, initial: 'L', name: 'Lucia R.', group: 'Renacer', points: '12,480' },
-  { rank: 2, initial: 'M', name: 'Mateo A.', group: 'Esperanza', points: '11,200' },
-  { rank: 3, initial: 'C', name: 'Camila P.', group: 'Vida Nueva', points: '9,870' },
-  { rank: 4, initial: 'D', name: 'Diego M.', group: 'Renacer', points: '8,650' },
-  { rank: 5, initial: 'T', name: 'Tu red', group: 'Local', points: '7,320' },
+  { rank: 1, initial: 'F', name: 'Foros', group: 'Demo', points: 'Ejemplo' },
+  { rank: 2, initial: 'B', name: 'Biblia', group: 'Demo', points: 'Ejemplo' },
+  { rank: 3, initial: 'O', name: 'Oración', group: 'Demo', points: 'Ejemplo' },
+  { rank: 4, initial: 'J', name: 'Juegos', group: 'Demo', points: 'Ejemplo' },
+  { rank: 5, initial: 'R', name: 'Red', group: 'Demo', points: 'Ejemplo' },
 ]
 
 export const connectedGroups: ConnectedGroup[] = [

@@ -48,13 +48,13 @@ const secondaryNavigation: NavigationItem[] = [
   { label: 'Eventos', to: '/app/eventos', icon: CalendarDays },
   { label: 'Discipulado', to: '/app/discipulado', icon: GraduationCap },
   { label: 'Mensajes', to: '/app/mensajes', icon: MessageCircle },
-  { label: 'Guia rapida', to: '/app/guia', icon: Sparkles },
+  { label: 'Guía rápida', to: '/app/guia', icon: Sparkles },
   { label: 'Perfil', to: '/app/perfil', icon: UserRound },
 ]
 
 function navigationItemClass(isActive: boolean) {
   return cn(
-    'group flex min-h-[3.75rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-xl px-2 text-[0.62rem] font-semibold text-white/60 transition hover:-translate-y-0.5 hover:bg-amber-200/10 hover:text-amber-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 sm:text-xs',
+    'group flex min-h-[3.75rem] flex-col items-center justify-center gap-1 overflow-hidden rounded-xl px-2 text-[0.65rem] font-bold text-white/70 transition hover:-translate-y-0.5 hover:bg-amber-200/10 hover:text-amber-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 sm:text-xs',
     isActive &&
       'bg-gradient-to-br from-amber-100 via-lime-100 to-emerald-100 text-slate-950 shadow-lg shadow-amber-500/15 ring-1 ring-amber-100/70 hover:from-amber-100 hover:to-white hover:text-slate-950',
   )
@@ -77,6 +77,57 @@ export function AppShell() {
 
     return () => window.clearTimeout(timer)
   }, [])
+
+  useEffect(() => {
+    if (!isMoreOpen) return undefined
+
+    const panel = morePanelRef.current
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null
+
+    window.requestAnimationFrame(() => {
+      const firstFocusable = panel?.querySelector<HTMLElement>(
+        'a[href], button:not([disabled])',
+      )
+      firstFocusable?.focus({ preventScroll: true })
+    })
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setIsMoreOpen(false)
+        return
+      }
+
+      if (event.key !== 'Tab' || !panel) return
+
+      const focusableItems = Array.from(
+        panel.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'),
+      )
+
+      if (!focusableItems.length) return
+
+      const firstItem = focusableItems[0]
+      const lastItem = focusableItems[focusableItems.length - 1]
+
+      if (event.shiftKey && document.activeElement === firstItem) {
+        event.preventDefault()
+        lastItem.focus()
+      } else if (!event.shiftKey && document.activeElement === lastItem) {
+        event.preventDefault()
+        firstItem.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      previousFocus?.focus({ preventScroll: true })
+    }
+  }, [isMoreOpen])
 
   const adminNavigation: NavigationItem[] = isAdmin
     ? [{ label: 'Administración', to: '/app/admin', icon: ShieldCheck }]
@@ -121,10 +172,10 @@ export function AppShell() {
             </span>
             <span className="min-w-0">
               <span className="block truncate text-sm font-black">
-                Red de Jovenes
+                Red de Jóvenes
               </span>
-              <span className="hidden truncate text-xs text-white/45 sm:block">
-                Conectando jovenes en Cristo
+              <span className="hidden truncate text-xs text-white/55 sm:block">
+                Conectando jóvenes en Cristo
               </span>
             </span>
           </button>
@@ -151,7 +202,7 @@ export function AppShell() {
         <>
           <button
             type="button"
-            aria-label="Cerrar mas opciones"
+            aria-label="Cerrar más opciones"
             className="fixed inset-0 z-40 bg-black/45 backdrop-blur-[2px] lg:hidden"
             onClick={() => setIsMoreOpen(false)}
           />
@@ -180,7 +231,7 @@ export function AppShell() {
               type="button"
               onClick={() => setIsMoreOpen(false)}
               className="flex h-10 w-10 flex-none items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-white/70 transition hover:bg-white/10 hover:text-white"
-              aria-label="Cerrar menu"
+              aria-label="Cerrar menú"
             >
               <X className="h-4 w-4" aria-hidden="true" />
             </button>
@@ -196,7 +247,7 @@ export function AppShell() {
                   onClick={resetPrivateNavigation}
                   className={({ isActive }) =>
                     cn(
-                  'flex min-h-14 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.05] px-3 text-sm font-bold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white',
+                      'flex min-h-14 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.05] px-3 text-sm font-bold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white',
                       isActive &&
                         'border-amber-300/25 bg-amber-300/10 text-amber-100',
                     )
@@ -216,7 +267,7 @@ export function AppShell() {
               className="flex min-h-14 items-center gap-3 rounded-xl border border-white/10 bg-white/[0.05] px-3 text-sm font-bold text-white/70 transition hover:-translate-y-0.5 hover:bg-white/10 hover:text-white"
             >
               <LogOut className="h-4 w-4" aria-hidden="true" />
-              Cerrar sesion
+              Cerrar sesión
             </button>
           </div>
           </div>
@@ -229,7 +280,7 @@ export function AppShell() {
           bottom: 'max(0.75rem, env(safe-area-inset-bottom))',
           paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
         }}
-        aria-label="Navegacion movil privada"
+        aria-label="Navegación móvil privada"
       >
         <div className="grid grid-cols-6 gap-1">
           {primaryMobileNavigation.map((item) => {
@@ -251,7 +302,7 @@ export function AppShell() {
           <button
             type="button"
             onClick={() => setIsMoreOpen((current) => !current)}
-            aria-label="Abrir mas opciones"
+            aria-label="Abrir más opciones"
             aria-expanded={isMoreOpen}
             className={navigationItemClass(isMoreActive || isMoreOpen)}
           >
@@ -263,7 +314,7 @@ export function AppShell() {
 
       <nav
         className="fixed inset-x-3 bottom-3 z-50 mx-auto hidden max-w-6xl overflow-hidden rounded-[1.5rem] border border-amber-100/10 bg-[#06100d]/85 p-2 shadow-2xl shadow-black/40 backdrop-blur-xl lg:block"
-        aria-label="Navegacion privada"
+        aria-label="Navegación privada"
       >
         <div className="flex gap-1 overflow-x-auto">
           {desktopNavigation.map((item) => {

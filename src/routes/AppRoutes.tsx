@@ -96,20 +96,14 @@ const QuickGuidePage = lazy(() =>
     default: module.QuickGuidePage,
   })),
 )
-const SafetyPage = lazy(() =>
-  import('../pages/SafetyPage').then((module) => ({
-    default: module.SafetyPage,
-  })),
-)
-
-function RouteLoading({ moduleName = 'modulo' }: { moduleName?: string }) {
+function RouteLoading({ moduleName = 'módulo' }: { moduleName?: string }) {
   return (
     <section
-      className="flex min-h-screen items-start justify-center bg-slate-950 px-4 pt-36 text-center text-white"
+      className="faith-page flex items-start justify-center text-center"
       aria-live="polite"
       aria-busy="true"
     >
-      <div className="rounded-2xl border border-white/10 bg-white/[0.06] px-6 py-5 shadow-2xl shadow-black/25 backdrop-blur">
+      <div className="rounded-2xl border border-amber-100/10 bg-white/[0.06] px-6 py-5 shadow-2xl shadow-black/25 backdrop-blur">
         <span
           className="mx-auto block h-9 w-9 animate-spin rounded-full border-2 border-white/15 border-t-amber-200"
           aria-hidden="true"
@@ -139,7 +133,7 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, isLoading } = useAuth()
 
   if (isLoading) {
-    return <RouteLoading moduleName="tu sesion" />
+    return <RouteLoading moduleName="tu sesión" />
   }
 
   if (!user) {
@@ -153,7 +147,7 @@ function AppEntryRoute() {
   const { user, isLoading } = useAuth()
 
   if (isLoading) {
-    return <RouteLoading moduleName="tu sesion" />
+    return <RouteLoading moduleName="tu sesión" />
   }
 
   return <Navigate to={user ? '/app' : '/entrar'} replace />
@@ -169,10 +163,10 @@ export function AppRoutes() {
         <Route index element={<AppEntryRoute />} />
         <Route path="landing" element={withSuspense(<Home />, 'landing', routeResetKey)} />
         <Route path="entrar" element={withSuspense(<SignInPage />, 'entrada', routeResetKey)} />
-        <Route path="recuperar" element={withSuspense(<RecoverPasswordPage />, 'recuperacion', routeResetKey)} />
+        <Route path="recuperar" element={withSuspense(<RecoverPasswordPage />, 'recuperación', routeResetKey)} />
         <Route
           path="actualizar-contrasena"
-          element={withSuspense(<UpdatePasswordPage />, 'actualizacion', routeResetKey)}
+          element={withSuspense(<UpdatePasswordPage />, 'actualización', routeResetKey)}
         />
         <Route
           path="crear-cuenta"
@@ -189,7 +183,7 @@ export function AppRoutes() {
           <Route index element={withSuspense(<AppHome />, 'inicio', routeResetKey)} />
           <Route path="perfil" element={withSuspense(<AppProfile />, 'perfil', routeResetKey)} />
           <Route path="biblia" element={withSuspense(<BiblePage />, 'Biblia', routeResetKey)} />
-          <Route path="oracion" element={withSuspense(<PrayerRoomPage />, 'oracion', routeResetKey)} />
+          <Route path="oracion" element={withSuspense(<PrayerRoomPage />, 'oración', routeResetKey)} />
           <Route path="orar" element={<Navigate to="/app/oracion" replace />} />
           <Route path="comunidad" element={<Navigate to="/app/mapa" replace />} />
           <Route path="foros" element={withSuspense(<CommunityFeedPage />, 'foros', routeResetKey)} />
@@ -200,9 +194,9 @@ export function AppRoutes() {
           <Route path="discipulado" element={withSuspense(<DiscipleshipPage />, 'discipulado', routeResetKey)} />
           <Route path="mensajes" element={withSuspense(<MessagesPage />, 'mensajes', routeResetKey)} />
           <Route path="construir" element={<Navigate to="/app" replace />} />
-          <Route path="guia" element={withSuspense(<QuickGuidePage />, 'guia rapida', routeResetKey)} />
-          <Route path="seguridad" element={withSuspense(<SafetyPage />, 'cuidado comunitario', routeResetKey)} />
-          <Route path="admin" element={withSuspense(<AdminHome />, 'administracion', routeResetKey)} />
+          <Route path="guia" element={withSuspense(<QuickGuidePage />, 'guía rápida', routeResetKey)} />
+          <Route path="seguridad" element={<Navigate to="/app" replace />} />
+          <Route path="admin" element={withSuspense(<AdminHome />, 'administración', routeResetKey)} />
         </Route>
         <Route path="demo" element={withSuspense(<DemoPage />, 'demo', routeResetKey)} />
         <Route path="*" element={<Navigate to="/" replace />} />
