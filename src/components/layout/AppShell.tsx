@@ -36,15 +36,15 @@ interface NavigationItem {
 
 const primaryMobileNavigation: NavigationItem[] = [
   { label: 'Inicio', to: '/app', icon: Home, end: true },
-  { label: 'Biblia', to: '/app/biblia', icon: BookOpen },
   { label: 'Orar', to: '/app/oracion', icon: Heart },
   { label: 'Foros', to: '/app/foros', icon: MessageCircle },
-  { label: 'Juegos', to: '/app/juegos', icon: Gamepad2 },
+  { label: 'Grupos', to: '/app/mapa', icon: Globe2 },
+  { label: 'Biblia', to: '/app/biblia', icon: BookOpen },
 ]
 
 const secondaryNavigation: NavigationItem[] = [
+  { label: 'Juegos', to: '/app/juegos', icon: Gamepad2 },
   { label: 'Devocional', to: '/app/devocional', icon: BookOpenCheck },
-  { label: 'Comunidad', to: '/app/mapa', icon: Globe2 },
   { label: 'Eventos', to: '/app/eventos', icon: CalendarDays },
   { label: 'Discipulado', to: '/app/discipulado', icon: GraduationCap },
   { label: 'Mensajes', to: '/app/mensajes', icon: MessageCircle },
