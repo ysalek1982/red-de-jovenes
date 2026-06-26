@@ -17,6 +17,45 @@ export const verseOfTheMoment = {
   note: 'Una verdad breve para recordar que la fuerza viene de Cristo.',
 }
 
+export const defaultOfflineVerses: BibleVerseResult[] = [
+  {
+    translation_code: 'RVR1909',
+    book_code: 'PHP',
+    book_name: 'Filipenses',
+    chapter: 4,
+    verse: 13,
+    reference: 'Filipenses 4:13',
+    verse_text: 'Todo lo puedo en Cristo que me fortalece.'
+  },
+  {
+    translation_code: 'RVR1909',
+    book_code: 'PSA',
+    book_name: 'Salmos',
+    chapter: 23,
+    verse: 1,
+    reference: 'Salmo 23:1',
+    verse_text: 'Jehová es mi pastor; nada me faltará.'
+  },
+  {
+    translation_code: 'RVR1909',
+    book_code: 'PRO',
+    book_name: 'Proverbios',
+    chapter: 3,
+    verse: 5,
+    reference: 'Proverbios 3:5',
+    verse_text: 'Fíate de Jehová de todo tu corazón, y no te apoyes en tu propia prudencia.'
+  },
+  {
+    translation_code: 'RVR1909',
+    book_code: 'JOS',
+    book_name: 'Josué',
+    chapter: 1,
+    verse: 9,
+    reference: 'Josué 1:9',
+    verse_text: 'Mira que te mando que te esfuerces y seas valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo en dondequiera que vayas.'
+  }
+]
+
 export interface BibleVerseResult {
   translation_code: string
   book_code: string
@@ -65,14 +104,20 @@ export async function getRandomBibleVerse(input?: {
   testament?: 'old' | 'new' | null
   bookCode?: string | null
 }) {
-  const { data, error } = await supabase.rpc('get_random_bible_verse', {
-    p_translation_code: input?.translationCode || 'RVR1909',
-    p_testament: input?.testament ?? undefined,
-    p_book_code: input?.bookCode ?? undefined,
-  })
+  try {
+    const { data, error } = await supabase.rpc('get_random_bible_verse', {
+      p_translation_code: input?.translationCode || 'RVR1909',
+      p_testament: input?.testament ?? undefined,
+      p_book_code: input?.bookCode ?? undefined,
+    })
 
-  if (error) throw error
-  return ((data ?? []) as BibleVerseResult[])[0] ?? null
+    if (error) throw error
+    return ((data ?? []) as BibleVerseResult[])[0] ?? null
+  } catch (err) {
+    console.warn('Error en getRandomBibleVerse (usando fallback offline):', err)
+    const randomIndex = Math.floor(Math.random() * defaultOfflineVerses.length)
+    return defaultOfflineVerses[randomIndex]
+  }
 }
 
 export async function getBibleChapter(input: {
@@ -111,13 +156,23 @@ export async function getDailyBibleVerse(input?: {
   date?: string
   translationCode?: string
 }) {
-  const { data, error } = await supabase.rpc('get_daily_bible_verse', {
-    p_date: input?.date ?? undefined,
-    p_translation_code: input?.translationCode || 'RVR1909',
-  })
+  try {
+    const { data, error } = await supabase.rpc('get_daily_bible_verse', {
+      p_date: input?.date ?? undefined,
+      p_translation_code: input?.translationCode || 'RVR1909',
+    })
 
-  if (error) throw error
-  return ((data ?? []) as BibleDailyVerseResult[])[0] ?? null
+    if (error) throw error
+    return ((data ?? []) as BibleDailyVerseResult[])[0] ?? null
+  } catch (err) {
+    console.warn('Error en getDailyBibleVerse (usando fallback offline):', err)
+    const day = new Date().getDate()
+    const index = day % defaultOfflineVerses.length
+    return {
+      ...defaultOfflineVerses[index],
+      devotional_hint: 'La Palabra de Dios permanece para siempre.'
+    } as BibleDailyVerseResult
+  }
 }
 
 export async function getBibleVerse(input: {

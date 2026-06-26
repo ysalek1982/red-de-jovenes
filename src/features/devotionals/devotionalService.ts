@@ -8,32 +8,57 @@ function getTodayDate() {
   return `${year}-${month}-${day}`
 }
 
-export async function getTodayDevotional() {
-  const today = getTodayDate()
-  const { data, error } = await supabase
-    .from('devotionals')
-    .select('*')
-    .eq('devotional_date', today)
-    .eq('is_active', true)
-    .maybeSingle()
+export const DEFAULT_OFFLINE_DEVOTIONAL = {
+  id: 'offline-default-devotional',
+  title: 'Caminar con propósito',
+  verse_reference: 'Proverbios 16:9',
+  verse_text: 'El corazón del hombre piensa su camino; mas Jehová endereza sus pasos.',
+  reflection: 'En el día a día, es fácil llenarnos de planes y metas. Sin embargo, la verdadera paz proviene de entregarle el timón de nuestra vida a Dios. Cuando permitimos que Él guíe nuestros pasos, incluso en la incertidumbre, podemos confiar en que nos llevará a un buen puerto. Hoy, haz una pausa y pregúntate: ¿Estoy confiando en mis propias fuerzas o permitiendo que Dios enderece mis pasos?',
+  action_step: 'Haz una lista de tus tres mayores preocupaciones para esta semana y ora entregándoselas a Dios.',
+  devotional_date: getTodayDate(),
+  is_active: true,
+  created_at: new Date().toISOString(),
+  created_by: null,
+  prayer: 'Señor, guíanos en cada paso y ayúdanos a confiar en tu voluntad.',
+  updated_at: new Date().toISOString()
+}
 
-  if (error) throw error
-  return data ?? getLatestDevotionalFallback()
+export async function getTodayDevotional() {
+  try {
+    const today = getTodayDate()
+    const { data, error } = await supabase
+      .from('devotionals')
+      .select('*')
+      .eq('devotional_date', today)
+      .eq('is_active', true)
+      .maybeSingle()
+
+    if (error) throw error
+    return data ?? getLatestDevotionalFallback()
+  } catch (err) {
+    console.warn('Error en getTodayDevotional (usando fallback offline):', err)
+    return DEFAULT_OFFLINE_DEVOTIONAL
+  }
 }
 
 export async function getLatestDevotionalFallback() {
-  const today = getTodayDate()
-  const { data, error } = await supabase
-    .from('devotionals')
-    .select('*')
-    .lte('devotional_date', today)
-    .eq('is_active', true)
-    .order('devotional_date', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+  try {
+    const today = getTodayDate()
+    const { data, error } = await supabase
+      .from('devotionals')
+      .select('*')
+      .lte('devotional_date', today)
+      .eq('is_active', true)
+      .order('devotional_date', { ascending: false })
+      .limit(1)
+      .maybeSingle()
 
-  if (error) throw error
-  return data
+    if (error) throw error
+    return data ?? DEFAULT_OFFLINE_DEVOTIONAL
+  } catch (err) {
+    console.warn('Error en getLatestDevotionalFallback (usando fallback offline):', err)
+    return DEFAULT_OFFLINE_DEVOTIONAL
+  }
 }
 
 export async function getRecentDevotionals(limit = 5) {
