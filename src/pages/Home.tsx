@@ -1,4 +1,4 @@
-﻿import type { LucideIcon } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import {
   ArrowRight,
   Bell,
@@ -263,6 +263,74 @@ export function Home() {
                   </div>
                   <Smartphone className="ml-auto h-5 w-5 text-slate-400" aria-hidden="true" />
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="mapa-comunidad" className="faith-section">
+        <Glow />
+        <div className="section-shell relative">
+          <div className="grid gap-12 items-center lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="relative min-h-[22rem] overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.06] p-5 shadow-2xl shadow-black/35 backdrop-blur md:min-h-[28rem]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_35%,rgba(52,211,153,0.18),transparent_22%),radial-gradient(circle_at_70%_28%,rgba(244,200,107,0.15),transparent_24%)]" />
+              <div className="absolute inset-5 rounded-[2rem] border border-white/10 bg-slate-950/40" />
+              
+              <svg className="absolute inset-0 h-full w-full opacity-35" aria-hidden="true">
+                <path d="M 120 150 Q 200 220 280 240 T 400 180 T 520 250" fill="none" stroke="rgba(255,241,191,0.25)" strokeWidth="1.5" strokeDasharray="4 4" />
+                <path d="M 280 240 Q 320 120 400 180" fill="none" stroke="rgba(142,214,208,0.25)" strokeWidth="1.5" strokeDasharray="3 3" />
+              </svg>
+
+              {[
+                { country: 'Bolivia', count: 12, pos: 'left-[22%] top-[32%]' },
+                { country: 'Colombia', count: 8, pos: 'left-[38%] top-[52%]' },
+                { country: 'México', count: 15, pos: 'left-[46%] top-[36%]' },
+                { country: 'Argentina', count: 10, pos: 'left-[58%] top-[62%]' },
+                { country: 'España', count: 6, pos: 'left-[72%] top-[28%]' },
+                { country: 'Perú', count: 9, pos: 'left-[30%] top-[48%]' },
+              ].map((node) => (
+                <div
+                  key={node.country}
+                  className={`absolute ${node.pos} flex h-12 w-12 items-center justify-center rounded-full border border-amber-100/20 bg-slate-950/90 text-center text-[0.62rem] font-black text-amber-200 shadow-[0_0_20px_rgba(251,191,36,0.22)] animate-pulse`}
+                  style={{ animationDuration: `${(node.count % 3) + 2.5}s` }}
+                >
+                  <div>
+                    <span className="block font-black">{node.country.slice(0, 3).toUpperCase()}</span>
+                    <span className="block text-[0.55rem] text-white/50">{node.count}</span>
+                  </div>
+                </div>
+              ))}
+              
+              <div className="absolute bottom-5 left-5 right-5 rounded-[1.25rem] border border-white/10 bg-slate-950/75 p-3.5 backdrop-blur text-left">
+                <p className="flex items-center gap-2 text-xs font-bold text-amber-200">
+                  <Globe2 className="h-4 w-4" />
+                  Presencia global en vivo
+                </p>
+                <p className="mt-1 text-xs text-white/55">
+                  Jóvenes conectados compartiendo fe y oración en tiempo real.
+                </p>
+              </div>
+            </div>
+
+            <div className="text-left">
+              <SectionLabel>Comunidad global</SectionLabel>
+              <h2 className="mt-4 text-4xl font-black tracking-tight text-white md:text-6xl">
+                Nuestra Red no tiene fronteras.
+              </h2>
+              <p className="mt-6 text-lg leading-8 text-white/70">
+                Desde grupos de estudio bíblico locales hasta iglesias conectadas en todo el mundo. Encuentra un espacio donde compartir tu fe, pedir oración y caminar junto a otros jóvenes.
+              </p>
+              <p className="mt-3 text-sm leading-6 text-white/60">
+                ¿No ves tu grupo o iglesia? Al unirte podrás registrar tu comunidad y ser luz en tu ciudad.
+              </p>
+              <div className="mt-8 flex flex-wrap gap-4">
+                <Link to="/crear-cuenta" className="faith-cta">
+                  Registrar mi comunidad
+                </Link>
+                <Link to="/demo" className="inline-flex h-14 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] px-8 text-base font-bold text-white shadow-2xl shadow-black/20 backdrop-blur transition hover:bg-white/10">
+                  Ver demo del mapa
+                </Link>
               </div>
             </div>
           </div>

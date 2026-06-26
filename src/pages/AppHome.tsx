@@ -736,6 +736,38 @@ export function AppHome() {
                       {highlightedCommunity.city ?? 'Sin ciudad'},{' '}
                       {highlightedCommunity.country ?? 'Sin país'}
                     </p>
+                    <div className="relative mt-4 h-28 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/60 p-2">
+                      <div className="absolute inset-0 bg-[radial-gradient(circle_at_40%_50%,rgba(52,211,153,0.15),transparent_35%),radial-gradient(circle_at_60%_40%,rgba(244,200,107,0.12),transparent_30%)]" />
+                      <svg className="absolute inset-0 h-full w-full opacity-20" aria-hidden="true">
+                        <line x1="10%" y1="0" x2="10%" y2="100%" stroke="rgba(255,241,191,0.15)" strokeWidth="0.5" />
+                        <line x1="30%" y1="0" x2="30%" y2="100%" stroke="rgba(255,241,191,0.15)" strokeWidth="0.5" />
+                        <line x1="50%" y1="0" x2="50%" y2="100%" stroke="rgba(255,241,191,0.15)" strokeWidth="0.5" />
+                        <line x1="70%" y1="0" x2="70%" y2="100%" stroke="rgba(255,241,191,0.15)" strokeWidth="0.5" />
+                        <line x1="90%" y1="0" x2="90%" y2="100%" stroke="rgba(255,241,191,0.15)" strokeWidth="0.5" />
+                        <line x1="0" y1="25%" x2="100%" y2="25%" stroke="rgba(255,241,191,0.15)" strokeWidth="0.5" />
+                        <line x1="0" y1="50%" x2="100%" y2="50%" stroke="rgba(255,241,191,0.15)" strokeWidth="0.5" />
+                        <line x1="0" y1="75%" x2="100%" y2="75%" stroke="rgba(255,241,191,0.15)" strokeWidth="0.5" />
+                        <path d="M 50 20 Q 150 70 250 40 T 350 90" fill="none" stroke="rgba(142,214,208,0.25)" strokeWidth="1" strokeDasharray="3 3" />
+                      </svg>
+                      
+                      <span className="absolute left-[45%] top-[40%] flex h-3 w-3">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+                        <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"></span>
+                      </span>
+                      <span className="absolute left-[20%] top-[70%] flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-300 opacity-50" style={{ animationDuration: '3s' }}></span>
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-400"></span>
+                      </span>
+                      <span className="absolute left-[75%] top-[25%] flex h-2.5 w-2.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-indigo-300 opacity-60" style={{ animationDuration: '2.5s' }}></span>
+                        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-indigo-400"></span>
+                      </span>
+
+                      <p className="absolute bottom-2 left-3 flex items-center gap-1.5 text-[0.68rem] font-bold text-white/50">
+                        <Globe2 className="h-3 w-3 text-emerald-300" />
+                        Previsualización de mapa
+                      </p>
+                    </div>
                     <p className="mt-4 line-clamp-4 text-sm leading-6 text-white/65">
                       {highlightedCommunity.description ||
                         highlightedCommunity.meeting_info ||
