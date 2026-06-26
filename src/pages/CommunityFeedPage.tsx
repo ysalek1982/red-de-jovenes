@@ -11,6 +11,7 @@ import {
   Users,
   X,
 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Textarea } from '../components/ui/textarea'
@@ -534,10 +535,14 @@ export function CommunityFeedPage() {
                                   : ''}
                               </p>
                               {post.groups ? (
-                                <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-bold text-emerald-100">
+                                <Link
+                                  to="/app/mapa"
+                                  state={{ selectedGroupId: post.group_id }}
+                                  className="mt-2 inline-flex items-center gap-1 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-bold text-emerald-100 hover:bg-emerald-300/20 transition cursor-pointer"
+                                >
                                   <Users className="h-3.5 w-3.5" aria-hidden="true" />
                                   {post.groups.name}
-                                </span>
+                                </Link>
                               ) : post.profiles?.church_name ? (
                                 <span className="mt-2 inline-flex rounded-full border border-white/10 bg-white/[0.06] px-3 py-1 text-xs font-bold text-white/55">
                                   {post.profiles.church_name}

@@ -14,7 +14,7 @@ import {
   Users,
   X,
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { hasRole } from '../features/auth/roleService'
 import { useAuth } from '../features/auth/useAuth'
 import {
@@ -82,6 +82,7 @@ const modalityLabels: Record<string, string> = {
 export function WorldMapPage() {
   const { user } = useAuth()
   const userId = user?.id
+  const location = useLocation()
   const directoryRef = useRef<HTMLElement>(null)
   const suggestionFormRef = useRef<HTMLFormElement>(null)
   const [groups, setGroups] = useState<GroupWithMembership[]>([])
@@ -147,6 +148,21 @@ export function WorldMapPage() {
 
     return () => window.clearTimeout(timer)
   }, [loadGroups])
+
+  useEffect(() => {
+    if (location.state?.selectedGroupId && groups.length > 0) {
+      const targetGroup = groups.find(
+        (group) => group.id === location.state.selectedGroupId,
+      )
+      if (targetGroup) {
+        const timer = window.setTimeout(() => {
+          setSelectedGroup(targetGroup)
+          window.history.replaceState({}, document.title)
+        }, 0)
+        return () => window.clearTimeout(timer)
+      }
+    }
+  }, [location.state, groups])
 
   function revealNode(target: HTMLElement | null, behavior: ScrollBehavior = 'auto') {
     window.requestAnimationFrame(() => {
