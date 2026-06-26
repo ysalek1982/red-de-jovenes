@@ -9,6 +9,7 @@ import {
   Sparkles,
   Trash2,
   Users,
+  X,
 } from 'lucide-react'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
@@ -48,7 +49,6 @@ function getAuthor(post: PostWithAuthor) {
 export function CommunityFeedPage() {
   const { user } = useAuth()
   const userId = user?.id
-  const pageTopRef = useRef<HTMLFormElement>(null)
   const feedTopRef = useRef<HTMLDivElement>(null)
   const postRefs = useRef<Record<string, HTMLElement | null>>({})
   const [posts, setPosts] = useState<PostWithAuthor[]>([])
@@ -68,6 +68,7 @@ export function CommunityFeedPage() {
   const [busyPostId, setBusyPostId] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [actionMessage, setActionMessage] = useState('')
+  const [isWritingPost, setIsWritingPost] = useState(false)
 
   const loadPosts = useCallback(async (showLoading = true) => {
     if (showLoading) setIsLoading(true)
@@ -124,6 +125,7 @@ export function CommunityFeedPage() {
       setVerseReference('')
       setVerseText('')
       setGroupId('')
+      setIsWritingPost(false)
       await loadPosts(false)
       revealNode(feedTopRef.current)
       setActionMessage('Tu aporte quedó en la Red. Gracias por edificar.')
@@ -162,7 +164,6 @@ export function CommunityFeedPage() {
         ? post.group_id
         : '',
     )
-    revealNode(pageTopRef.current, 'smooth')
   }
 
   async function handleSaveEditedPost(event: FormEvent<HTMLFormElement>) {
@@ -357,14 +358,10 @@ export function CommunityFeedPage() {
     <section className="app-page">
       <div className="section-shell relative">
         <div className="grid gap-6 xl:grid-cols-[0.86fr_1.14fr]">
-          <form
-            ref={pageTopRef}
-            onSubmit={editingPostId ? handleSaveEditedPost : handleSubmit}
-            className="app-hero-panel h-fit md:p-8"
-          >
+          <div className="app-hero-panel h-fit md:p-8">
             <p className="app-kicker">
               <MessageCircle className="h-4 w-4" aria-hidden="true" />
-              {editingPostId ? 'Editando post' : 'Foros con la Palabra'}
+              Foros con la Palabra
             </p>
             <h1
               data-page-title
@@ -376,6 +373,17 @@ export function CommunityFeedPage() {
               Comparte testimonio, pregunta con libertad y responde con gracia.
               La meta es edificar, no ganar debates.
             </p>
+
+            <Button
+              type="button"
+              variant="accent"
+              size="lg"
+              className="mt-6 w-full gap-2 font-black"
+              onClick={() => setIsWritingPost(true)}
+            >
+              <Sparkles className="h-5 w-5" aria-hidden="true" />
+              Nueva publicación
+            </Button>
 
             <div className="mt-6 grid grid-cols-2 gap-2">
               {forumCategories.slice(0, 4).map((category) => (
@@ -389,135 +397,7 @@ export function CommunityFeedPage() {
               ))}
             </div>
 
-            <div className="mt-7 space-y-4">
-              <div>
-                <label className="text-sm font-semibold" htmlFor="postBody">
-                  Mensaje
-                </label>
-                <Textarea
-                  id="postBody"
-                  value={body}
-                  onChange={(event) => setBody(event.target.value)}
-                  placeholder="Abre un debate sano o comparte lo que Dios puso en tu corazón."
-                  className="mt-2"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-semibold" htmlFor="verseReference">
-                  Referencia bíblica, opcional
-                </label>
-                <Input
-                  id="verseReference"
-                  value={verseReference}
-                  onChange={(event) => setVerseReference(event.target.value)}
-                  placeholder="Mateo 5:14"
-                  className="mt-2"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-semibold" htmlFor="verseText">
-                  Texto del versículo, opcional
-                </label>
-                <Textarea
-                  id="verseText"
-                  value={verseText}
-                  onChange={(event) => setVerseText(event.target.value)}
-                  placeholder="Vosotros sois la luz del mundo..."
-                  className="mt-2 min-h-24"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-semibold" htmlFor="postGroup">
-                  Comunidad, opcional
-                </label>
-                <select
-                  id="postGroup"
-                  value={groupId}
-                  onChange={(event) => setGroupId(event.target.value)}
-                  className="app-select mt-2"
-                >
-                  <option value="">Foro general de la Red</option>
-                  {groups.map((group) => (
-                    <option key={group.id} value={group.id}>
-                      {group.name}
-                    </option>
-                  ))}
-                </select>
-                {!groups.length ? (
-                  <p className="mt-2 text-xs leading-5 text-white/45">
-                    Únete a una comunidad en el mapa para publicar dentro de ella.
-                  </p>
-                ) : null}
-              </div>
-              <Button
-                type="submit"
-                variant="accent"
-                size="lg"
-                className="w-full"
-                disabled={isSubmitting || !body.trim()}
-              >
-                <Send className="h-5 w-5" aria-hidden="true" />
-                {isSubmitting
-                  ? 'Guardando...'
-                  : editingPostId
-                    ? 'Guardar cambios'
-                    : 'Publicar en la Red'}
-              </Button>
-              {editingPostId ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEditingPostId(null)
-                    setEditingOriginalGroupId(null)
-                    setBody('')
-                    setVerseReference('')
-                    setVerseText('')
-                    setGroupId('')
-                  }}
-                  className="app-button-secondary w-full"
-                >
-                  Cancelar edición
-                </button>
-              ) : null}
-            </div>
-          </form>
-
-          <div ref={feedTopRef} className="app-card md:p-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-sm font-semibold text-amber-200">
-                  Discusiones sanas y reales
-                </p>
-                <h2 className="mt-2 text-3xl font-black">Foros con la Palabra</h2>
-              </div>
-              <span className="rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm text-white/60">
-                {posts.length} posts
-              </span>
-            </div>
-
-            <div className="app-scroll-x mt-5">
-              {[
-                ['recent', 'Recientes'],
-                ['verse', 'Con versículo'],
-                ['commented', 'Más comentadas'],
-                ['myCommunity', 'Mi comunidad'],
-              ].map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => handlePostFilterChange(value as PostFilter)}
-                  className={`app-chip flex-none ${
-                    postFilter === value
-                      ? 'app-chip-active'
-                      : ''
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-6 grid gap-3">
+            <div className="mt-8 space-y-4">
               <p className="text-sm font-semibold text-white/55">
                 Ideas sugeridas para abrir conversaciones
               </p>
@@ -547,6 +427,55 @@ export function CommunityFeedPage() {
                     real de usuarios.
                   </p>
                 </article>
+              ))}
+            </div>
+          </div>
+
+          <div ref={feedTopRef} className="app-card md:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-amber-200">
+                  Discusiones sanas y reales
+                </p>
+                <h2 className="mt-2 text-3xl font-black">Foros con la Palabra</h2>
+              </div>
+              <span className="rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm text-white/60">
+                {posts.length} posts
+              </span>
+            </div>
+
+            <div className="app-card-soft mt-5 flex items-center gap-3 p-4">
+              <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-gradient-to-br from-emerald-300 to-amber-300 text-sm font-black text-slate-950">
+                {user?.email?.slice(0, 1).toUpperCase() ?? 'J'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsWritingPost(true)}
+                className="flex-1 text-left rounded-full border border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-white/55 hover:bg-white/[0.08] transition"
+              >
+                ¿Qué hay en tu corazón hoy? Comparte con la Red...
+              </button>
+            </div>
+
+            <div className="app-scroll-x mt-5">
+              {[
+                ['recent', 'Recientes'],
+                ['verse', 'Con versículo'],
+                ['commented', 'Más comentadas'],
+                ['myCommunity', 'Mi comunidad'],
+              ].map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => handlePostFilterChange(value as PostFilter)}
+                  className={`app-chip flex-none ${
+                    postFilter === value
+                      ? 'app-chip-active'
+                      : ''
+                  }`}
+                >
+                  {label}
+                </button>
               ))}
             </div>
 
@@ -816,6 +745,138 @@ export function CommunityFeedPage() {
           </div>
         </div>
       </div>
+
+      {(isWritingPost || editingPostId) && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md overflow-y-auto">
+          <form
+            onSubmit={editingPostId ? handleSaveEditedPost : handleSubmit}
+            className="relative w-full max-w-lg rounded-3xl border border-white/15 bg-slate-900/90 p-6 md:p-8 shadow-2xl backdrop-blur-xl max-h-[90vh] overflow-y-auto"
+          >
+            <button
+              type="button"
+              onClick={() => {
+                setIsWritingPost(false)
+                setEditingPostId(null)
+                setEditingOriginalGroupId(null)
+                setBody('')
+                setVerseReference('')
+                setVerseText('')
+                setGroupId('')
+              }}
+              className="absolute top-4 right-4 text-white/45 hover:text-white transition"
+              aria-label="Cerrar modal"
+            >
+              <X className="h-6 w-6" />
+            </button>
+
+            <p className="app-kicker flex items-center gap-1.5">
+              <MessageCircle className="h-4 w-4" aria-hidden="true" />
+              {editingPostId ? 'Editando post' : 'Nueva publicación en la Red'}
+            </p>
+            <h2 className="mt-3 text-2xl font-black tracking-tight">
+              {editingPostId ? 'Modifica tu reflexión' : 'Comparte con los foros'}
+            </h2>
+            <p className="mt-2 text-xs leading-5 text-white/50">
+              La meta es edificar con gracia y verdad, aportando al crecimiento espiritual de la comunidad.
+            </p>
+
+            <div className="mt-6 space-y-4">
+              <div>
+                <label className="text-sm font-semibold" htmlFor="postBody">
+                  Mensaje
+                </label>
+                <Textarea
+                  id="postBody"
+                  value={body}
+                  onChange={(event) => setBody(event.target.value)}
+                  placeholder="Abre un debate sano o comparte lo que Dios puso en tu corazón."
+                  className="mt-2 min-h-28 bg-white/[0.04] border-white/10"
+                  required
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold" htmlFor="verseReference">
+                  Referencia bíblica, opcional
+                </label>
+                <Input
+                  id="verseReference"
+                  value={verseReference}
+                  onChange={(event) => setVerseReference(event.target.value)}
+                  placeholder="Mateo 5:14"
+                  className="mt-2 bg-white/[0.04] border-white/10"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold" htmlFor="verseText">
+                  Texto del versículo, opcional
+                </label>
+                <Textarea
+                  id="verseText"
+                  value={verseText}
+                  onChange={(event) => setVerseText(event.target.value)}
+                  placeholder="Vosotros sois la luz del mundo..."
+                  className="mt-2 min-h-20 bg-white/[0.04] border-white/10"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-semibold" htmlFor="postGroup">
+                  Comunidad, opcional
+                </label>
+                <select
+                  id="postGroup"
+                  value={groupId}
+                  onChange={(event) => setGroupId(event.target.value)}
+                  className="app-select mt-2 w-full bg-slate-900 border-white/10"
+                >
+                  <option value="">Foro general de la Red</option>
+                  {groups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                      {group.name}
+                    </option>
+                  ))}
+                </select>
+                {!groups.length ? (
+                  <p className="mt-2 text-xs leading-5 text-white/45">
+                    Únete a una comunidad en el mapa para publicar dentro de ella.
+                  </p>
+                ) : null}
+              </div>
+              
+              <div className="pt-2 flex flex-col gap-2">
+                <Button
+                  type="submit"
+                  variant="accent"
+                  size="lg"
+                  className="w-full"
+                  disabled={isSubmitting || !body.trim()}
+                >
+                  <Send className="h-5 w-5" aria-hidden="true" />
+                  {isSubmitting
+                    ? 'Guardando...'
+                    : editingPostId
+                      ? 'Guardar cambios'
+                      : 'Publicar en la Red'}
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsWritingPost(false)
+                    setEditingPostId(null)
+                    setEditingOriginalGroupId(null)
+                    setBody('')
+                    setVerseReference('')
+                    setVerseText('')
+                    setGroupId('')
+                  }}
+                  className="app-button-secondary w-full"
+                >
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      )}
     </section>
   )
 }
