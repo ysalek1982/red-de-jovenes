@@ -12,6 +12,7 @@ import {
   Sparkles,
   UserPlus,
   Users,
+  X,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { hasRole } from '../features/auth/roleService'
@@ -82,7 +83,6 @@ export function WorldMapPage() {
   const { user } = useAuth()
   const userId = user?.id
   const directoryRef = useRef<HTMLElement>(null)
-  const detailRef = useRef<HTMLElement>(null)
   const suggestionFormRef = useRef<HTMLFormElement>(null)
   const [groups, setGroups] = useState<GroupWithMembership[]>([])
   const [selectedGroup, setSelectedGroup] = useState<GroupWithMembership | null>(
@@ -138,7 +138,7 @@ export function WorldMapPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [userId])
+  }, [userId, setSelectedGroup])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -156,7 +156,6 @@ export function WorldMapPage() {
 
   function selectGroup(group: GroupWithMembership) {
     setSelectedGroup(group)
-    revealNode(detailRef.current, 'smooth')
   }
 
   const countries = useMemo(
@@ -326,7 +325,7 @@ export function WorldMapPage() {
       setSelectedGroup((current) =>
         current ? data.find((item) => item.id === current.id) ?? null : null,
       )
-      revealNode(detailRef.current ?? directoryRef.current, 'smooth')
+      revealNode(directoryRef.current, 'smooth')
     } catch {
       setError('No pudimos actualizar tu comunidad. Intentalo nuevamente.')
     } finally {
@@ -609,72 +608,6 @@ export function WorldMapPage() {
                 </button>
               ))}
             </div>
-
-            {visibleSelectedGroup ? (
-              <article ref={detailRef} className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/10 p-5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                  <div>
-                    <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-200">
-                      Comunidad seleccionada
-                    </p>
-                    <h3 className="mt-2 break-words text-2xl font-black [overflow-wrap:anywhere]">
-                      {visibleSelectedGroup.name}
-                    </h3>
-                    <p className="mt-2 text-sm text-white/65">
-                      {normalize(visibleSelectedGroup.city)}, {normalize(visibleSelectedGroup.country)}
-                    </p>
-                  </div>
-                  <span className="w-fit rounded-full border border-white/10 bg-slate-950/45 px-4 py-2 text-sm font-bold text-white/70">
-                    {visibleSelectedGroup.membersCount} miembros
-                  </span>
-                </div>
-                <p className="mt-4 break-words leading-7 text-white/70 [overflow-wrap:anywhere]">
-                  {visibleSelectedGroup.description ||
-                    visibleSelectedGroup.meeting_info ||
-                    'Comunidad juvenil conectada a la Red.'}
-                </p>
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                  <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-                    <p className="text-xs font-bold uppercase tracking-wide text-white/40">
-                      Reunion
-                    </p>
-                    <p className="mt-2 text-sm leading-6 text-white/70">
-                      {visibleSelectedGroup.meeting_info || 'Informacion pendiente.'}
-                    </p>
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
-                    <p className="text-xs font-bold uppercase tracking-wide text-white/40">
-                      Modalidad
-                    </p>
-                    <p className="mt-2 text-sm font-bold text-white/75">
-                      {modalityLabels[visibleSelectedGroup.modality] ?? 'Presencial'}
-                    </p>
-                  </div>
-                </div>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => void handleMembership(visibleSelectedGroup)}
-                    disabled={busyGroupId === visibleSelectedGroup.id}
-                    className="app-button-primary min-h-10 px-4 disabled:opacity-60"
-                  >
-                    {visibleSelectedGroup.isMember ? 'Salir de comunidad' : 'Unirme'}
-                  </button>
-                  <Link
-                    to="/app/foros"
-                    className="app-button-secondary min-h-10 px-4"
-                  >
-                    Ir a foros
-                  </Link>
-                  <Link
-                    to="/app/oracion"
-                    className="app-button-secondary min-h-10 px-4"
-                  >
-                    Pedir oración
-                  </Link>
-                </div>
-              </article>
-            ) : null}
           </article>
 
           <aside className="space-y-6">
@@ -973,6 +906,102 @@ export function WorldMapPage() {
           </aside>
         </div>
       </div>
+
+      {visibleSelectedGroup ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-fadeIn">
+          <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2rem] border border-emerald-300/20 bg-gradient-to-b from-[#0b2d25] to-[#06100d] p-6 shadow-2xl shadow-black/60 md:p-8">
+            <button
+              type="button"
+              onClick={() => setSelectedGroup(null)}
+              className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/[0.06] text-white/70 transition hover:bg-white/10 hover:text-white"
+              aria-label="Cerrar detalle de comunidad"
+            >
+              <X className="h-5 w-5" aria-hidden="true" />
+            </button>
+
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-300">
+                  Comunidad seleccionada
+                </p>
+                <h3 className="mt-2 break-words text-2xl font-black text-white [overflow-wrap:anywhere]">
+                  {visibleSelectedGroup.name}
+                </h3>
+                <p className="mt-2 text-sm text-white/60">
+                  {normalize(visibleSelectedGroup.city)}, {normalize(visibleSelectedGroup.country)}
+                </p>
+              </div>
+              <span className="w-fit rounded-full border border-white/10 bg-slate-950/50 px-4 py-2 text-sm font-bold text-emerald-200">
+                {visibleSelectedGroup.membersCount} miembros
+              </span>
+            </div>
+
+            <p className="mt-6 break-words leading-7 text-white/70 [overflow-wrap:anywhere]">
+              {visibleSelectedGroup.description ||
+                visibleSelectedGroup.meeting_info ||
+                'Comunidad juvenil conectada a la Red.'}
+            </p>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-2">
+              <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+                <p className="text-xs font-bold uppercase tracking-wide text-white/40">
+                  Reunión
+                </p>
+                <p className="mt-2 text-sm leading-6 text-white/75">
+                  {visibleSelectedGroup.meeting_info || 'Información pendiente.'}
+                </p>
+              </div>
+              <div className="rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+                <p className="text-xs font-bold uppercase tracking-wide text-white/40">
+                  Modalidad
+                </p>
+                <p className="mt-2 text-sm font-bold text-white/75">
+                  {modalityLabels[visibleSelectedGroup.modality] ?? 'Presencial'}
+                </p>
+              </div>
+            </div>
+
+            {visibleSelectedGroup.church_name && (
+              <div className="mt-3 rounded-2xl border border-white/10 bg-slate-950/40 p-4">
+                <p className="text-xs font-bold uppercase tracking-wide text-white/40">
+                  Iglesia de pertenencia
+                </p>
+                <p className="mt-2 text-sm text-white/70">
+                  {visibleSelectedGroup.church_name}
+                </p>
+              </div>
+            )}
+
+            <div className="mt-8 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => void handleMembership(visibleSelectedGroup)}
+                disabled={busyGroupId === visibleSelectedGroup.id}
+                className="app-button-primary min-h-12 px-6 disabled:opacity-60 flex-1 sm:flex-none"
+              >
+                {visibleSelectedGroup.isMember ? 'Salir de la comunidad' : 'Unirme a la comunidad'}
+              </button>
+              {visibleSelectedGroup.contact_url && (
+                <a
+                  href={visibleSelectedGroup.contact_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="rounded-full border border-emerald-300/20 bg-emerald-300/10 px-6 py-3 text-sm font-black text-emerald-100 transition hover:bg-emerald-300/15 text-center flex-1 sm:flex-none"
+                >
+                  Contacto
+                </a>
+              )}
+              <Link
+                to="/app/foros"
+                onClick={() => setSelectedGroup(null)}
+                className="app-button-secondary min-h-12 px-6 flex-1 sm:flex-none text-center"
+              >
+                Ir a foros
+              </Link>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   )
 }
